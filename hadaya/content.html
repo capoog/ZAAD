@@ -1,0 +1,647 @@
+<title>الحق الكود</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: a TV signage screen — header, prize strip, a stage of drifting QR codes that gather into a heart, slim status footer; a phone page for whoever scans. */
+:root{
+  --ink:#16052e;
+  --violet:#5a11b5;
+  --plum:#7d1fc9;
+  --magenta:#c3178a;
+  --orchid:#ee5fd6;
+  --gold:#ffd36b;
+  --paper:#ffffff;
+  --mist:rgba(255,255,255,.74);
+  --faint:rgba(255,255,255,.46);
+  --glass:rgba(255,255,255,.10);
+  --glass-line:rgba(255,255,255,.22);
+  --ok:#5ff0a8;
+  --warn:#ffb35c;
+  --font-display:'Lalezar','Readex Pro',system-ui,sans-serif;
+  --font-body:'Readex Pro','Segoe UI',Tahoma,system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body,#app{height:100%}
+body{
+  margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-body);direction:rtl;
+  overflow:hidden;-webkit-font-smoothing:antialiased;
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ---------- TV ---------- */
+.tv{
+  position:relative;height:100%;display:grid;grid-template-rows:auto auto 1fr auto;
+  background:
+    radial-gradient(120% 90% at 85% 110%, var(--magenta) 0%, transparent 55%),
+    radial-gradient(90% 80% at 10% 0%, var(--plum) 0%, transparent 60%),
+    linear-gradient(160deg, var(--violet), #3a0a86 55%, #2a0866);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:clamp(10px,2vh,22px) 0;
+  isolation:isolate;
+}
+.tv::before{ /* faint wifi watermark, like signage brand marks */
+  content:"";position:absolute;inset:auto auto 8% 6%;width:38vmin;aspect-ratio:1;z-index:-1;opacity:.07;
+  background:radial-gradient(circle at 50% 100%, transparent 18%, var(--paper) 18.5%, var(--paper) 25%, transparent 25.5%, transparent 38%, var(--paper) 38.5%, var(--paper) 45%, transparent 45.5%, transparent 58%, var(--paper) 58.5%, var(--paper) 65%, transparent 65.5%);
+  clip-path:polygon(50% 100%, 0 30%, 0 0, 100% 0, 100% 30%);
+}
+.head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:clamp(10px,2vw,28px)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-mark{
+  width:clamp(40px,5.2vw,72px);aspect-ratio:1;border-radius:14px;background:var(--paper);color:var(--violet);
+  display:grid;place-items:center;flex:none;box-shadow:0 8px 30px -10px rgba(0,0,0,.5)
+}
+.brand-mark svg{width:62%;height:62%}
+.brand-name{font-family:var(--font-display);font-size:clamp(18px,2.4vw,34px);line-height:1;white-space:nowrap}
+.titles{text-align:center;min-width:0}
+.titles h1{margin:0;font-family:var(--font-display);font-weight:400;font-size:clamp(22px,3.6vw,58px);line-height:1.1;text-wrap:balance;text-shadow:0 4px 30px rgba(0,0,0,.25)}
+.titles p{margin:.25em 0 0;color:var(--mist);font-size:clamp(12px,1.25vw,19px)}
+.count{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:8px 14px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);min-width:clamp(70px,8vw,120px)
+}
+.count b{font-family:var(--font-display);font-weight:400;font-size:clamp(24px,3.2vw,50px);line-height:1;font-variant-numeric:tabular-nums}
+.count span{font-size:clamp(10px,.95vw,14px);color:var(--mist);white-space:nowrap}
+.count.bump b{animation:bump .6s ease}
+@keyframes bump{40%{transform:scale(1.25);color:var(--gold)}}
+
+.strip-wrap{display:flex;align-items:stretch;gap:12px;margin-top:clamp(8px,1.6vh,18px);min-width:0}
+.strip-label{
+  flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  padding-inline:12px;border-inline-start:1px solid var(--glass-line);order:-1;font-size:clamp(11px,1vw,15px);color:var(--mist);text-align:center
+}
+.strip-label svg{width:22px;height:22px;color:var(--gold)}
+.strip{flex:1;min-width:0;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.track{display:flex;gap:clamp(8px,1.2vw,18px);width:max-content;padding-block:4px}
+.strip.mq .track{animation:mq var(--mq-dur,40s) linear infinite}
+@keyframes mq{to{transform:translateX(50%)}}
+.prize{display:flex;flex-direction:column;align-items:center;gap:6px;width:clamp(64px,7vw,104px)}
+.tile{
+  position:relative;width:clamp(46px,4.8vw,74px);aspect-ratio:1;border-radius:16px;display:grid;place-items:center;
+  background:linear-gradient(145deg,hsl(var(--h) 90% 70%),hsl(calc(var(--h) + 40) 80% 45%));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 24px -12px rgba(0,0,0,.55);color:var(--paper)
+}
+.tile svg{width:56%;height:56%}
+.tile img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.tile .left{position:absolute;inset:auto -6px -6px auto;min-width:22px;padding:1px 6px;border-radius:999px;background:var(--ink);border:1px solid var(--glass-line);font-size:11px;font-variant-numeric:tabular-nums;text-align:center}
+.prize small{font-size:clamp(10px,.85vw,13px);color:var(--mist);text-align:center;line-height:1.3;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.prize.out{opacity:.38;filter:grayscale(1)}
+
+.stage{position:relative;z-index:0;overflow:hidden;margin-top:6px;min-height:0}
+.stage-chip{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:50;padding:6px 16px;border-radius:999px;
+  background:rgba(22,5,46,.45);border:1px solid var(--glass-line);font-size:clamp(12px,1.1vw,16px);white-space:nowrap;
+  transition:opacity .6s, transform .6s
+}
+.stage-chip.dim{opacity:.0;transform:translate(-50%,-8px)}
+.qr{
+  position:absolute;left:0;top:0;width:var(--qs);height:var(--qs);padding:calc(var(--qs) * .07);box-sizing:border-box;
+  background:var(--paper);border-radius:calc(var(--qs) * .08);will-change:transform,opacity;
+  box-shadow:0 0 0 1px rgba(255,255,255,.6),0 8px 26px -8px rgba(40,0,80,.65);
+  border:0;cursor:pointer;
+}
+.qr canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.qr.pop{animation:pop .9s ease forwards}
+@keyframes pop{to{opacity:0;filter:blur(6px)}}
+
+.foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:8px calc(8px + env(safe-area-inset-bottom,0px));
+  font-size:clamp(11px,.95vw,14px);color:var(--faint);border-top:1px solid rgba(255,255,255,.08)
+}
+.foot .status{display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 4px rgba(255,179,92,.18)}
+.dot.on{background:var(--ok);box-shadow:0 0 0 4px rgba(95,240,168,.18)}
+.foot .tools{display:flex;gap:6px}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,.16);color:var(--mist);border-radius:10px;padding:5px 10px;font-size:inherit}
+.ghost:hover{background:var(--glass);color:var(--paper)}
+.hint-mid{text-align:center;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- Reveal ---------- */
+.reveal{position:absolute;inset:0;z-index:100;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(70% 70% at 50% 45%, #b02ad8 0%, var(--violet) 45%, #2a0866 100%)}
+.reveal[hidden]{display:none!important}
+.rays{position:absolute;inset:-60%;background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.09) 0 6deg, transparent 6deg 18deg);animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(1turn)}}
+.reveal canvas.confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.rv{position:relative;display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.6vh,18px);text-align:center;padding-inline:16px;max-width:100%}
+.rv .chip{padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.92);color:var(--violet);font-size:clamp(12px,1.1vw,16px);font-weight:600}
+.rv h2{margin:0;font-family:var(--font-display);font-weight:400;font-size:clamp(40px,8vw,128px);line-height:1;text-shadow:0 6px 40px rgba(0,0,0,.35);text-wrap:balance}
+.rv .pname{font-family:var(--font-display);font-size:clamp(24px,3.8vw,60px);color:var(--gold);line-height:1.1}
+.rv .ptile{width:clamp(120px,15vw,230px);border-radius:28px;margin-top:6px}
+.rv .ptile svg{width:58%;height:58%}
+.rv .code{direction:ltr;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;padding:6px 14px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--glass-line);font-size:clamp(13px,1.3vw,20px)}
+.rv .note{color:var(--mist);font-size:clamp(12px,1.2vw,18px)}
+.rv>*{animation:rise .7s cubic-bezier(.2,.9,.3,1.3) backwards}
+.rv>*:nth-child(2){animation-delay:.12s}.rv>*:nth-child(3){animation-delay:.3s}.rv>*:nth-child(4){animation-delay:.45s}.rv>*:nth-child(5){animation-delay:.6s}.rv>*:nth-child(6){animation-delay:.7s}
+@keyframes rise{from{opacity:0;transform:translateY(30px) scale(.9)}}
+
+/* ---------- Settings ---------- */
+.sheet{position:absolute;inset:0;z-index:200;background:rgba(10,2,24,.72);display:grid;place-items:center;padding:16px}
+.sheet[hidden]{display:none!important}
+.panel{width:min(760px,100%);max-height:100%;overflow:auto;background:#22083f;border:1px solid var(--glass-line);border-radius:20px;padding:20px;display:grid;gap:14px;box-shadow:0 30px 80px -20px rgba(0,0,0,.7)}
+.panel h3{margin:0;font-family:var(--font-display);font-weight:400;font-size:28px}
+.panel label{display:grid;gap:6px;font-size:13px;color:var(--mist)}
+.panel input,.panel textarea{background:rgba(255,255,255,.06);border:1px solid var(--glass-line);color:var(--paper);border-radius:10px;padding:9px 11px;width:100%;box-sizing:border-box;min-width:0}
+.panel textarea{min-height:190px;line-height:1.7;resize:vertical}
+.panel .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.panel .help{font-size:12px;color:var(--faint);line-height:1.6;margin:0}
+.panel .acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
+.btn{border:0;border-radius:12px;padding:10px 18px;background:var(--paper);color:var(--violet);font-weight:600}
+.btn.alt{background:rgba(255,255,255,.1);color:var(--paper);border:1px solid var(--glass-line)}
+.log{display:grid;gap:4px;max-height:180px;overflow:auto;font-size:13px}
+.log div{display:flex;justify-content:space-between;gap:10px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.05)}
+.log code{direction:ltr;color:var(--gold)}
+
+/* ---------- Phone ---------- */
+.phone{
+  min-height:100%;display:grid;place-items:center;overflow:auto;position:relative;
+  background:radial-gradient(90% 60% at 50% 30%, #b02ad8, var(--violet) 55%, #2a0866);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:24px;
+  box-sizing:border-box;
+}
+body.is-phone{overflow:auto}
+.phone .rays{inset:-80%;opacity:.8}
+.card{position:relative;width:min(420px,100%);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.card .brandline{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:20px}
+.card .brandline .brand-mark{width:38px;border-radius:10px}
+.card h2{margin:6px 0 0;font-family:var(--font-display);font-weight:400;font-size:clamp(34px,10vw,56px);line-height:1.1;text-wrap:balance}
+.card .pname{font-family:var(--font-display);font-size:30px;color:var(--gold)}
+.card .ptile{width:150px;border-radius:30px}
+.card .ptile svg{width:58%;height:58%}
+.card .code{direction:ltr;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;letter-spacing:.14em;padding:10px 18px;border-radius:12px;background:rgba(0,0,0,.28);border:1px dashed rgba(255,255,255,.4)}
+.card .msg{margin:0;color:var(--mist);line-height:1.7;max-width:34ch}
+.state{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.25);font-size:14px}
+.state.ok{color:var(--ok)}.state.bad{color:#ff8a9a}.state.wait{color:var(--mist)}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;animation:spin .8s linear infinite}
+.time{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+@media (max-width:640px){
+  .head{grid-template-columns:1fr auto}
+  .titles{grid-column:1 / -1;order:3}
+  .strip-label{display:none}
+  .hint-mid{display:none}
+  .foot .lbl{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .rays,.strip.mq .track{animation:none}
+  .rv>*{animation:none}
+}
+</style>
+
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+/* ============================================================
+   CONFIG — edit here before hosting. The phone page reads these
+   names when the screen is offline, so keep them in sync with
+   any edits made from the on-screen settings.
+   ============================================================ */
+const CONFIG = {
+  store: 'متجري',
+  title: 'الحق الكود... واكتشف هديتك',
+  subtitle: 'امسح أي كود بكاميرا جوالك... واكتشف مفاجأتك',
+  stageLabel: 'هدايا من القلب',
+  footerHint: 'سارع... الكمية محدودة وكل كود يُستخدم مرة واحدة',
+  // Free public relay that links the phone to the screen. Any ntfy server works.
+  server: 'https://ntfy.sh',
+  // Prizes: name | icon | how many are available
+  prizes: [
+    { name: 'سماعة لاسلكية',        icon: 'headphones', stock: 10 },
+    { name: 'سبيكر بلوتوث RGB',     icon: 'speaker',    stock: 8  },
+    { name: 'يد تحكم ألعاب',        icon: 'gamepad',    stock: 4  },
+    { name: 'ساعة ذكية',            icon: 'watch',      stock: 5  },
+    { name: 'باور بانك 20 ألف',     icon: 'powerbank',  stock: 12 },
+    { name: 'شاحن سريع 20 واط',     icon: 'charger',    stock: 30 },
+    { name: 'كفر جوال',             icon: 'case',       stock: 40 },
+    { name: 'كيبل شحن',             icon: 'cable',      stock: 45 },
+    { name: 'خصم 10% على مشترياتك', icon: 'tag',        stock: 20 },
+  ],
+  liveCodes: 34,      // how many codes float on screen
+  revealSeconds: 10,  // how long the "you won" screen stays up
+};
+const SALT = 'hadaya-v1';
+const HUES = [285, 320, 200, 250, 340, 30, 170, 300, 45, 220];
+
+const ICONS = {
+  headphones:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4.5" height="6.5" rx="1.6"/><rect x="16.5" y="14" width="4.5" height="6.5" rx="1.6"/>',
+  speaker:'<rect x="7" y="2.5" width="10" height="19" rx="3"/><circle cx="12" cy="14.5" r="3.2"/><circle cx="12" cy="7" r="1.2"/>',
+  gamepad:'<path d="M7 8h10a4 4 0 0 1 4 4.5l-.6 4a2.5 2.5 0 0 1-4.4 1.2L14.5 16h-5L8 17.7a2.5 2.5 0 0 1-4.4-1.2l-.6-4A4 4 0 0 1 7 8z"/><path d="M8 10.8v3.4M6.3 12.5h3.4"/><circle cx="15.5" cy="11.5" r=".9"/><circle cx="17.5" cy="13.5" r=".9"/>',
+  watch:'<rect x="6" y="6" width="12" height="12" rx="3"/><path d="M9 6l1-3.5h4L15 6M9 18l1 3.5h4l1-3.5"/><path d="M12 9.5V12l1.8 1.2"/>',
+  powerbank:'<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M12.8 7.5l-2.8 4.5h4l-2.8 4.5"/>',
+  charger:'<rect x="6" y="9" width="12" height="11" rx="2.5"/><path d="M9.5 9V4M14.5 9V4M12 13v3"/>',
+  case:'<rect x="6" y="2.5" width="12" height="19" rx="3"/><rect x="8.3" y="4.8" width="4.2" height="4.2" rx="1.3"/><circle cx="10.4" cy="6.9" r=".8"/>',
+  cable:'<path d="M9 2.5v3.5M13 2.5v3.5"/><rect x="7.5" y="6" width="7" height="5.5" rx="1.2"/><path d="M11 11.5v3a4.5 4.5 0 0 0 4.5 4.5H21"/>',
+  tag:'<path d="M3.5 12.5l8-8H20v8.5l-8 8z"/><circle cx="16" cy="8" r="1.4"/><path d="M9.5 15.5l4-4"/>',
+  gift:'<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-1.5-3-5-4-5.5-2S9 8 12 8zm0 0c1.5-3 5-4 5.5-2S15 8 12 8z"/>',
+  wifi:'<path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.6 15.8a5 5 0 0 1 6.8 0"/><circle cx="12" cy="19" r="1.3" fill="currentColor"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
+  expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+};
+const icon = (k, extra='') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${ICONS[k] || ICONS.gift}</svg>`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- storage (best effort) ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} },
+};
+
+/* ---------- codes ---------- */
+function hash(str){ let h = 2166136261; for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h>>>0).toString(36); }
+const rand = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => 'abcdefghijkmnpqrstuvwxyz23456789'[b % 32]).join('');
+const sign = (i, nonce, topic) => hash(`${i}|${nonce}|${topic}|${SALT}`).slice(0,3);
+const makeG = (i, topic) => { const n = rand(6); return `${i}-${n}-${sign(i,n,topic)}`; };
+function parseG(g, topic){
+  const m = /^(\d{1,2})-([a-z0-9]{6})-([a-z0-9]{1,3})$/.exec(g || '');
+  if (!m) return null;
+  const i = +m[1], n = m[2];
+  return sign(i, n, topic) === m[3] ? { i, n } : null;
+}
+const prettyCode = n => 'GF-' + n.toUpperCase();
+
+/* ---------- transport: ntfy relay + same-browser channel ---------- */
+function makeLink(server, topic, onMsg, onStatus){
+  const seen = new Set();
+  const deliver = obj => { if (!obj || !obj.mid || seen.has(obj.mid)) return; seen.add(obj.mid); onMsg(obj); };
+  let bc = null;
+  try { bc = new BroadcastChannel('hadaya-' + topic); bc.onmessage = e => deliver(e.data); } catch {}
+  let es = null, opened = false;
+  try {
+    es = new EventSource(`${server.replace(/\/$/,'')}/${encodeURIComponent(topic)}/sse`);
+    es.onmessage = e => {
+      try {
+        const d = JSON.parse(e.data);
+        if (d.event === 'open'){ opened = true; onStatus && onStatus(true); return; }
+        if (d.event === 'message' && d.message) deliver(JSON.parse(d.message));
+      } catch {}
+    };
+    es.onopen = () => { opened = true; onStatus && onStatus(true); };
+    es.onerror = () => { onStatus && onStatus(false); };
+  } catch { onStatus && onStatus(false); }
+  return {
+    get online(){ return opened && es && es.readyState === 1; },
+    send(obj){
+      obj.mid = obj.mid || rand(10);
+      seen.add(obj.mid);
+      try { bc && bc.postMessage(obj); } catch {}
+      return fetch(`${server.replace(/\/$/,'')}/${encodeURIComponent(topic)}`, { method:'POST', body: JSON.stringify(obj) }).then(r => r.ok).catch(() => false);
+    },
+  };
+}
+
+/* ---------- sound ---------- */
+let audio = null;
+addEventListener('pointerdown', () => { try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch {} }, { once:false });
+function fanfare(){
+  if (!audio) return;
+  const t0 = audio.currentTime;
+  [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, k) => {
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t0 + k*.11); g.gain.linearRampToValueAtTime(.18, t0 + k*.11 + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + k*.11 + .6);
+    o.connect(g).connect(audio.destination); o.start(t0 + k*.11); o.stop(t0 + k*.11 + .7);
+  });
+}
+
+/* ---------- confetti ---------- */
+function confetti(canvas, ms=4200){
+  const ctx = canvas.getContext('2d'); const dpr = Math.min(devicePixelRatio || 1, 2);
+  const W = canvas.width = canvas.clientWidth * dpr, H = canvas.height = canvas.clientHeight * dpr;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#ffd36b','#ffffff','#ee5fd6','#9b6bff','#5ff0a8'];
+  const ps = Array.from({length:170}, () => ({ x: W/2 + (Math.random()-.5)*W*.2, y: H*.42, vx:(Math.random()-.5)*16*dpr, vy:(-Math.random()*16-6)*dpr, r:(Math.random()*6+4)*dpr, a:Math.random()*6, va:(Math.random()-.5)*.3, c:cols[Math.random()*cols.length|0] }));
+  const start = performance.now();
+  (function frame(t){
+    ctx.clearRect(0,0,W,H);
+    for (const p of ps){ p.vy += .35*dpr; p.vx *= .992; p.x += p.vx; p.y += p.vy; p.a += p.va;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2); ctx.restore(); }
+    if (t - start < ms) requestAnimationFrame(frame); else ctx.clearRect(0,0,W,H);
+  })(start);
+}
+
+/* ---------- QR drawing ---------- */
+function qrCanvas(text){
+  const q = qrcode(0, 'M'); q.addData(text); q.make();
+  const n = q.getModuleCount(), cell = 4, c = document.createElement('canvas');
+  c.width = c.height = n * cell;
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0,0,c.width,c.height); x.fillStyle = '#1a0533';
+  for (let r=0;r<n;r++) for (let k=0;k<n;k++) if (q.isDark(r,k)) x.fillRect(k*cell, r*cell, cell, cell);
+  return c;
+}
+
+const tileHTML = (p, idx, cls='', badge='') =>
+  `<div class="tile ${cls}" style="--h:${HUES[idx % HUES.length]}">${p.img ? `<img src="${esc(p.img)}" alt="">` : icon(p.icon)}${badge}</div>`;
+
+/* ============================================================
+   PHONE PAGE (opened by scanning a code)
+   ============================================================ */
+function phonePage(params, demo){
+  document.body.classList.add('is-phone');
+  const g = params.get('g'), topic = params.get('t') || '', server = params.get('s') || CONFIG.server;
+  const app = document.getElementById('app');
+  const parsed = demo ? { i: 1, n: 'demo42' } : parseG(g, topic);
+  const prizes = CONFIG.prizes;
+
+  const render = (prize, idx, state, stateText, codeText) => {
+    app.innerHTML = `
+      <main class="phone">
+        <div class="rays" aria-hidden="true"></div>
+        <canvas class="confetti" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none"></canvas>
+        <section class="card">
+          <div class="brandline"><span class="brand-mark">${icon('wifi')}</span>${esc(CONFIG.store)}</div>
+          ${prize ? `
+            <h2>يا سلااام... الهدية لك!</h2>
+            ${tileHTML(prize, idx, 'ptile')}
+            <div class="pname">${esc(prize.name)}</div>
+            <div class="code">${esc(codeText)}</div>
+            <p class="msg">اعرض هذه الشاشة على الكاشير لاستلام هديتك. الكود صالح لمرة واحدة.</p>
+          ` : `
+            <h2>الكود غير صالح</h2>
+            <p class="msg">ما قدرنا نقرأ هذا الكود. امسح كودًا آخر من الشاشة.</p>
+          `}
+          <div class="state ${state}">${state === 'wait' ? '<span class="spin"></span>' : ''}${esc(stateText)}</div>
+          <div class="time">${new Date().toLocaleString('ar', { dateStyle:'medium', timeStyle:'short' })}</div>
+        </section>
+      </main>`;
+    if (prize && state !== 'bad') confetti(app.querySelector('.confetti'));
+  };
+
+  if (!parsed){ render(null, 0, 'bad', 'كود غير معروف'); return; }
+  const fallback = prizes[parsed.i];
+  const code = prettyCode(parsed.n);
+  if (demo){ render(fallback, 1, 'ok', 'معاينة لصفحة الجوال', code); return; }
+
+  const memo = store.get('hadaya-claim-' + parsed.n, null);
+  if (memo){ render(memo.prize, memo.idx, memo.ok ? 'ok' : 'bad', memo.ok ? 'تم تأكيد هديتك ✓' : 'هذا الكود استُخدم من قبل', code); return; }
+
+  render(fallback || { name:'هدية', icon:'gift' }, parsed.i, 'wait', 'جارٍ تأكيد هديتك مع الشاشة...', code);
+  let done = false, posted = false;
+  const device = store.get('hadaya-device', null) || (() => { const d = rand(8); store.set('hadaya-device', d); return d; })();
+  const link = makeLink(server, topic, msg => {
+    if (done || msg.type !== 'ack' || msg.n !== parsed.n) return;
+    done = true;
+    const prize = msg.prize || fallback;
+    store.set('hadaya-claim-' + parsed.n, { ok: msg.ok, prize, idx: parsed.i });
+    render(prize, parsed.i, msg.ok ? 'ok' : 'bad', msg.ok ? 'تم تأكيد هديتك ✓' : 'هذا الكود استُخدم من قبل', code);
+    if (!msg.ok) app.querySelector('.msg').textContent = 'سبقك أحد لهذا الكود. امسح كودًا آخر من الشاشة، الأكواد تتجدد باستمرار.';
+  }, on => { if (on && !posted){ posted = true; link.send({ type:'claim', g, device }); } });
+  setTimeout(() => { if (!posted){ posted = true; link.send({ type:'claim', g, device }); } }, 1800);
+  setTimeout(() => { if (!done){ done = true; render(fallback || { name:'هدية', icon:'gift' }, parsed.i, 'wait', 'لم نصل للشاشة. اعرض هذا الكود على الكاشير للتحقق', code); } }, 9000);
+}
+
+/* ============================================================
+   TV SCREEN
+   ============================================================ */
+function tvPage(){
+  const saved = store.get('hadaya-config', null);
+  const cfg = Object.assign({}, CONFIG, saved || {});
+  let topic = store.get('hadaya-topic', null) || (() => { const t = 'hadaya-' + rand(10); store.set('hadaya-topic', t); return t; })();
+  let stock = store.get('hadaya-stock', null);
+  if (!Array.isArray(stock) || stock.length !== cfg.prizes.length) stock = cfg.prizes.map(p => p.stock);
+  let winners = store.get('hadaya-winners', []);
+  let live = store.get('hadaya-live', []).filter(g => parseG(g, topic));
+  const used = new Set(store.get('hadaya-used', []));
+  const baseURL = () => (cfg.pageURL || (location.origin + location.pathname)).replace(/[?#].*$/, '');
+  const save = () => { store.set('hadaya-stock', stock); store.set('hadaya-winners', winners.slice(0,200)); store.set('hadaya-live', live); store.set('hadaya-used', [...used].slice(-2000)); };
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+  <main class="tv">
+    <header class="head">
+      <div class="brand"><span class="brand-mark">${icon('wifi')}</span><span class="brand-name" id="brandName"></span></div>
+      <div class="titles"><h1 id="title"></h1><p id="subtitle"></p></div>
+      <div class="count" id="count"><b id="countNum">0</b><span>هدية متبقية</span></div>
+    </header>
+    <div class="strip-wrap">
+      <div class="strip-label">${icon('gift')}<span>مفاجآت<br><span id="stripStore"></span></span></div>
+      <div class="strip" id="strip"><div class="track" id="track"></div></div>
+    </div>
+    <section class="stage" id="stage" aria-label="أكواد الهدايا">
+      <div class="stage-chip dim" id="stageChip"></div>
+    </section>
+    <footer class="foot">
+      <div class="status"><span class="dot" id="dot"></span><span id="statusText">جارٍ الاتصال...</span></div>
+      <div class="hint-mid" id="footerHint"></div>
+      <div class="tools">
+        <button class="ghost" id="fsBtn" type="button" title="ملء الشاشة">${icon('expand','width="14" height="14"')}<span class="lbl"> ملء الشاشة</span></button>
+        <button class="ghost" id="setBtn" type="button" title="الإعدادات">${icon('gear','width="14" height="14"')}<span class="lbl"> الإعدادات</span></button>
+      </div>
+    </footer>
+
+    <div class="reveal" id="reveal" hidden>
+      <div class="rays" aria-hidden="true"></div>
+      <canvas class="confetti" id="confetti"></canvas>
+      <div class="rv" id="rv"></div>
+    </div>
+
+    <div class="sheet" id="sheet" hidden>
+      <form class="panel" id="form">
+        <h3>إعدادات الشاشة</h3>
+        <div class="row">
+          <label>اسم المتجر<input id="f-store"></label>
+          <label>العنوان<input id="f-title"></label>
+        </div>
+        <label>السطر الثاني<input id="f-subtitle"></label>
+        <label>الهدايا — كل سطر: الاسم | الأيقونة | الكمية
+          <textarea id="f-prizes" spellcheck="false"></textarea>
+        </label>
+        <p class="help">الأيقونات المتاحة: headphones, speaker, gamepad, watch, powerbank, charger, case, cable, tag, gift — أو ضع رابط صورة يبدأ بـ https.</p>
+        <div class="row">
+          <label>رابط هذه الصفحة على الإنترنت (يُوضع داخل الكود)<input id="f-url" dir="ltr" placeholder="https://..."></label>
+          <label>خادم الربط<input id="f-server" dir="ltr"></label>
+        </div>
+        <p class="help">قناة الربط الخاصة بك: <code dir="ltr" id="topicView"></code> — الجوال يرسل للشاشة عبرها، فلا تشاركها خارج الأكواد.</p>
+        <div>
+          <p class="help" style="margin-bottom:6px">آخر الفائزين (للتحقق عند الكاشير)</p>
+          <div class="log" id="log"></div>
+        </div>
+        <div class="acts">
+          <button class="btn" type="submit">حفظ</button>
+          <button class="btn alt" type="button" id="testBtn">تجربة فوز</button>
+          <button class="btn alt" type="button" id="resetBtn">إعادة الكميات</button>
+          <button class="btn alt" type="button" id="closeBtn">إغلاق</button>
+        </div>
+      </form>
+    </div>
+  </main>`;
+  const $ = id => document.getElementById(id);
+
+  /* header & strip */
+  function paintText(){
+    $('brandName').textContent = cfg.store; $('stripStore').textContent = cfg.store;
+    $('title').textContent = cfg.title; $('subtitle').textContent = cfg.subtitle;
+    $('stageChip').textContent = cfg.stageLabel; $('footerHint').textContent = cfg.footerHint;
+  }
+  function paintStrip(){
+    const items = cfg.prizes.map((p, i) => `<div class="prize ${stock[i] > 0 ? '' : 'out'}">${tileHTML(p, i, '', `<span class="left">${stock[i] > 0 ? stock[i] : 'نفدت'}</span>`)}<small>${esc(p.name)}</small></div>`).join('');
+    const strip = $('strip'), track = $('track');
+    track.innerHTML = items; strip.classList.remove('mq');
+    requestAnimationFrame(() => {
+      if (track.scrollWidth > strip.clientWidth + 4){
+        track.innerHTML = items + items; strip.classList.add('mq');
+        strip.style.setProperty('--mq-dur', Math.max(20, cfg.prizes.length * 5) + 's');
+      }
+    });
+  }
+  const remaining = () => stock.reduce((a, b) => a + Math.max(0, b), 0);
+  function paintCount(bump){
+    $('countNum').textContent = remaining().toLocaleString('en');
+    if (bump){ const c = $('count'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
+  }
+
+  /* codes */
+  function pickPrize(){
+    const total = remaining(); if (!total) return -1;
+    let r = Math.random() * total;
+    for (let i=0;i<stock.length;i++){ r -= Math.max(0, stock[i]); if (r < 0) return i; }
+    return stock.findIndex(s => s > 0);
+  }
+  const urlFor = g => `${baseURL()}?g=${g}&t=${topic}` + (cfg.server !== CONFIG.server ? `&s=${encodeURIComponent(cfg.server)}` : '');
+  function topUpLive(){
+    live = live.filter(g => { const p = parseG(g, topic); return p && stock[p.i] > 0 && !used.has(p.n); });
+    const target = Math.min(cfg.liveCodes, remaining() ? cfg.liveCodes : 0);
+    while (live.length < target){ const i = pickPrize(); if (i < 0) break; live.push(makeG(i, topic)); }
+    save();
+  }
+
+  /* stage animation */
+  const stage = $('stage');
+  const sprites = new Map(); // g -> sprite
+  let W = 0, H = 0, mode = 'drift', modeAt = performance.now();
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function measure(){ W = stage.clientWidth; H = stage.clientHeight; }
+  function heartPoint(k, n){
+    const t = (k / n) * Math.PI * 2, s = 1;
+    const x = 16 * Math.sin(t) ** 3, y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+    const sc = Math.min(W, H * 1.1) * .41 / 17;
+    return { x: W/2 + x * sc * s, y: H/2 + (y + 2.5) * sc * s };
+  }
+  function syncSprites(){
+    for (const [g, sp] of sprites) if (!live.includes(g)) { if (!sp.leaving){ sp.leaving = true; sp.el.classList.add('pop'); setTimeout(() => { sp.el.remove(); sprites.delete(g); }, 900); } }
+    live.forEach(g => {
+      if (sprites.has(g)) return;
+      const el = document.createElement('button');
+      el.className = 'qr'; el.type = 'button'; el.setAttribute('aria-label', 'كود هدية');
+      el.appendChild(qrCanvas(urlFor(g)));
+      el.addEventListener('click', () => handleClaim({ type:'claim', g, device:'screen-demo' }, true));
+      stage.appendChild(el);
+      const sp = { el, g, x: Math.random(), y: Math.random(), vx:(Math.random()-.5)*.018, vy:(Math.random()-.5)*.014, s:.72 + Math.random()*.45, px: W/2, py: H/2, ps: .2, op: 0 };
+      sprites.set(g, sp);
+    });
+  }
+  let last = performance.now();
+  function frame(now){
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!reduce){
+      const phase = (now - modeAt) / 1000;
+      if (mode === 'drift' && phase > 16){ mode = 'heart'; modeAt = now; $('stageChip').classList.remove('dim'); }
+      else if (mode === 'heart' && phase > 8){ mode = 'drift'; modeAt = now; $('stageChip').classList.add('dim'); }
+    }
+    const base = Math.min(W, H) * .2, small = Math.min(W, H) * .09;
+    const list = [...sprites.values()].filter(s => !s.leaving);
+    list.forEach((sp, k) => {
+      const speed = reduce ? .15 : 1;
+      sp.x += sp.vx * dt * speed; sp.y += sp.vy * dt * speed;
+      if (sp.x < .05 || sp.x > .95) sp.vx *= -1; if (sp.y < .08 || sp.y > .92) sp.vy *= -1;
+      sp.x = Math.min(.95, Math.max(.05, sp.x)); sp.y = Math.min(.92, Math.max(.08, sp.y));
+      let tx, ty, ts;
+      if (mode === 'heart'){ const h = heartPoint(k, list.length); tx = h.x; ty = h.y; ts = small / base; }
+      else { tx = sp.x * W; ty = sp.y * H; ts = sp.s; }
+      const ease = mode === 'heart' ? .06 : .04;
+      sp.px += (tx - sp.px) * ease; sp.py += (ty - sp.py) * ease; sp.ps += (ts - sp.ps) * ease; sp.op += (1 - sp.op) * .05;
+      sp.el.style.setProperty('--qs', base + 'px');
+      sp.el.style.transform = `translate(${sp.px - base/2}px, ${sp.py - base/2}px) scale(${sp.ps})`;
+      sp.el.style.opacity = (mode === 'heart' ? 1 : .55 + sp.s * .4) * sp.op;
+      sp.el.style.zIndex = Math.round(sp.s * 100);
+    });
+    requestAnimationFrame(frame);
+  }
+
+  /* reveal queue */
+  const queue = []; let showing = false;
+  function showNext(){
+    if (showing || !queue.length) return;
+    showing = true;
+    const w = queue.shift(), p = cfg.prizes[w.i] || { name:'هدية', icon:'gift' };
+    $('rv').innerHTML = `
+      <div class="chip">تم الربح من الكود ${esc(w.code)}</div>
+      <h2>يا سلااام... الهدية لك!</h2>
+      <div class="pname">${esc(p.name)}</div>
+      ${tileHTML(p, w.i, 'ptile')}
+      <div class="code">${esc(w.code)}</div>
+      <div class="note">توجّه للكاشير لاستلام هديتك</div>`;
+    $('reveal').hidden = false;
+    confetti($('confetti')); fanfare();
+    setTimeout(() => { $('reveal').hidden = true; showing = false; paintCount(true); showNext(); }, cfg.revealSeconds * 1000);
+  }
+
+  /* claims */
+  function handleClaim(msg, local){
+    const p = parseG(msg.g, topic);
+    const ok = !!p && live.includes(msg.g) && !used.has(p.n) && stock[p.i] > 0;
+    if (p && !local) link.send({ type:'ack', n:p.n, ok, prize: ok ? { name: cfg.prizes[p.i].name, icon: cfg.prizes[p.i].icon, img: cfg.prizes[p.i].img } : null });
+    if (!ok) return;
+    used.add(p.n); stock[p.i]--; live = live.filter(g => g !== msg.g);
+    winners.unshift({ code: prettyCode(p.n), i: p.i, name: cfg.prizes[p.i].name, at: Date.now(), demo: !!local });
+    topUpLive(); syncSprites(); paintStrip();
+    queue.push({ i: p.i, code: prettyCode(p.n) }); showNext();
+  }
+
+  /* link */
+  const setStatus = on => { $('dot').classList.toggle('on', on); $('statusText').textContent = on ? 'الشاشة متصلة' : 'غير متصلة — اضغط أي كود للتجربة'; };
+  const link = makeLink(cfg.server, topic, msg => { if (msg.type === 'claim') handleClaim(msg, false); }, setStatus);
+  setTimeout(() => { if (!link.online) setStatus(false); }, 6000);
+
+  /* settings */
+  function openSheet(){
+    $('f-store').value = cfg.store; $('f-title').value = cfg.title; $('f-subtitle').value = cfg.subtitle;
+    $('f-prizes').value = cfg.prizes.map((p, i) => `${p.name} | ${p.img || p.icon} | ${stock[i]}`).join('\n');
+    $('f-url').value = cfg.pageURL || ''; $('f-url').placeholder = baseURL();
+    $('f-server').value = cfg.server; $('topicView').textContent = topic;
+    $('log').innerHTML = winners.length ? winners.slice(0, 50).map(w => `<div><span>${esc(w.name)}${w.demo ? ' · تجربة' : ''}</span><code>${esc(w.code)}</code><span>${new Date(w.at).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'})}</span></div>`).join('') : '<div><span>لا يوجد فائزون بعد</span></div>';
+    $('sheet').hidden = false; $('f-store').focus();
+  }
+  $('setBtn').onclick = openSheet;
+  $('closeBtn').onclick = () => { $('sheet').hidden = true; };
+  $('testBtn').onclick = () => { $('sheet').hidden = true; if (live[0]) handleClaim({ type:'claim', g: live[0] }, true); };
+  $('resetBtn').onclick = () => { stock = cfg.prizes.map(p => p.stock); live = []; topUpLive(); syncSprites(); paintStrip(); paintCount(); openSheet(); };
+  $('form').addEventListener('submit', e => {
+    e.preventDefault();
+    const lines = $('f-prizes').value.split('\n').map(l => l.split('|').map(s => s.trim())).filter(a => a[0]);
+    const prizes = lines.map(([name, ic = 'gift', n = '1']) => /^https:\/\//.test(ic) ? { name, icon:'gift', img: ic, stock: Math.max(0, parseInt(n) || 0) } : { name, icon: ICONS[ic] ? ic : 'gift', stock: Math.max(0, parseInt(n) || 0) });
+    if (!prizes.length) return;
+    Object.assign(cfg, { store: $('f-store').value.trim() || CONFIG.store, title: $('f-title').value.trim() || CONFIG.title, subtitle: $('f-subtitle').value.trim(), prizes, pageURL: $('f-url').value.trim(), server: $('f-server').value.trim() || CONFIG.server });
+    stock = prizes.map(p => p.stock);
+    store.set('hadaya-config', { store: cfg.store, title: cfg.title, subtitle: cfg.subtitle, prizes: cfg.prizes, pageURL: cfg.pageURL, server: cfg.server });
+    for (const sp of sprites.values()) sp.el.remove(); sprites.clear(); live = [];
+    topUpLive(); syncSprites(); paintText(); paintStrip(); paintCount();
+    $('sheet').hidden = true;
+  });
+  addEventListener('keydown', e => { if (e.key === 'Escape') $('sheet').hidden = true; });
+
+  /* fullscreen + keep awake */
+  $('fsBtn').onclick = async () => {
+    try { document.fullscreenElement ? await document.exitFullscreen() : await document.documentElement.requestFullscreen(); } catch {}
+    try { await navigator.wakeLock?.request('screen'); } catch {}
+  };
+
+  paintText(); paintStrip(); paintCount();
+  measure(); topUpLive(); syncSprites();
+  new ResizeObserver(() => { measure(); }).observe(stage);
+  requestAnimationFrame(frame);
+}
+
+/* ---------- boot ---------- */
+(function boot(){
+  const params = new URLSearchParams(location.search);
+  if (params.has('g')) phonePage(params, false);
+  else if (location.hash === '#phone') phonePage(params, true);
+  else if (typeof qrcode === 'undefined') document.getElementById('app').innerHTML = '<p style="padding:24px">تعذّر تحميل مكتبة الأكواد. تأكد من الاتصال بالإنترنت ثم أعد التحميل.</p>';
+  else tvPage();
+  addEventListener('hashchange', () => location.reload());
+})();
+</script>
