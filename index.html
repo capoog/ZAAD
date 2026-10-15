@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ذِهن</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="ذِهن: أكثر من 70 أداة وحاسبة عربية مجانية — العمر والتاريخ الهجري، القروض والزكاة، الصحة والحمل، تحويل الوحدات، واختبارات ممتعة.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: one-column tool shelf (max 760px) with a sticky top bar and fixed bottom tabs; each tool opens as its own page with inputs above a live result card. */
+:root{
+  --bg:#E8EEF3; --surface:#FFFFFF; --surface-2:#DCE6EE; --line:#C6D4DF;
+  --ink:#0F2436; --ink-dim:#4A6074; --ink-faint:#7D92A4;
+  --brand:#12466D; --brand-ink:#FFFFFF; --brand-soft:#D2E3F0;
+  --accent:#EFAA12; --accent-ink:#2E2100; --accent-soft:#FBE9BD;
+  --ok:#17905F; --ok-soft:#D3F0E2; --warn:#B86E00; --warn-soft:#FBE7C6; --bad:#CC3D3D; --bad-soft:#F8DADA;
+  --shadow:0 1px 2px rgba(15,36,54,.08),0 12px 28px -16px rgba(15,36,54,.4);
+  --f-display:'Lalezar','Readex Pro',Tahoma,sans-serif;
+  --f-body:'Readex Pro',Tahoma,'Segoe UI',Arial,sans-serif;
+  --r-l:20px; --r-m:14px; --r-s:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1622; --surface:#112131; --surface-2:#192D40; --line:#244259;
+    --ink:#E6EEF5; --ink-dim:#9CB1C3; --ink-faint:#6C8398;
+    --brand:#5AAEE3; --brand-ink:#061320; --brand-soft:#163650;
+    --accent:#F6C247; --accent-ink:#271C00; --accent-soft:#3A3013;
+    --ok:#3DCB8F; --ok-soft:#113A2A; --warn:#F2A93B; --warn-soft:#3A2A10; --bad:#FF6E6E; --bad-soft:#41191C;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 30px -16px rgba(0,0,0,.75);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1622; --surface:#112131; --surface-2:#192D40; --line:#244259;
+  --ink:#E6EEF5; --ink-dim:#9CB1C3; --ink-faint:#6C8398;
+  --brand:#5AAEE3; --brand-ink:#061320; --brand-soft:#163650;
+  --accent:#F6C247; --accent-ink:#271C00; --accent-soft:#3A3013;
+  --ok:#3DCB8F; --ok-soft:#113A2A; --warn:#F2A93B; --warn-soft:#3A2A10; --bad:#FF6E6E; --bad-soft:#41191C;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 30px -16px rgba(0,0,0,.75);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+svg.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+
+#app{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px;background:var(--bg)}
+.logo{font-family:var(--f-display);font-size:34px;line-height:1;color:var(--brand);display:flex;align-items:baseline;gap:4px}
+.logo i{width:9px;height:9px;background:var(--accent);border-radius:2px;transform:rotate(45deg);display:inline-block}
+.top-actions{display:flex;gap:6px}
+.icon-btn{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-dim);flex:none}
+.icon-btn:hover{color:var(--brand)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:18px}
+.faint{color:var(--ink-faint);font-size:13px}
+.muted{color:var(--ink-dim)}
+
+/* home */
+.hero{padding-block:14px 6px}
+.hero h1{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,8vw,46px);line-height:1.15;color:var(--ink)}
+.hero h1 span{color:var(--brand)}
+.hero p{color:var(--ink-dim);margin-top:8px;max-width:58ch}
+.search{position:relative;margin-top:16px}
+.search svg{position:absolute;inset-inline-start:14px;top:50%;transform:translateY(-50%);color:var(--ink-faint)}
+.search input:focus{outline:none;border-color:var(--brand)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-block:14px 6px;scrollbar-width:none;margin-inline:-4px;padding-inline:4px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;font-size:14px;font-weight:500;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.chip small{opacity:.7;margin-inline-start:4px}
+.sec{margin-top:18px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.sec-h h2{font-family:var(--f-display);font-weight:400;font-size:24px;line-height:1.2}
+.sec-h span{color:var(--ink-faint);font-size:13px}
+.tlist{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (min-width:620px){.tlist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.trow{display:flex;align-items:stretch;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);transition:border-color .15s ease,transform .15s ease;min-width:0}
+.trow:hover{border-color:var(--brand);transform:translateY(-1px)}
+.tlink{flex:1;display:flex;gap:12px;align-items:center;padding:12px;min-width:0}
+.tic{width:42px;height:42px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.tic.fun{background:var(--accent-soft);color:var(--accent-ink)}
+:root[data-theme="dark"] .tic.fun{color:var(--accent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tic.fun{color:var(--accent)}}
+.tt{min-width:0;display:flex;flex-direction:column}
+.tt b{font-size:15px;line-height:1.4}
+.tt small{color:var(--ink-faint);font-size:12.5px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tt .ext{display:inline-flex;align-items:center;gap:4px;color:var(--brand);font-size:12px;font-weight:600}
+.star{border:0;background:none;padding:0 12px;color:var(--ink-faint);display:grid;place-items:center}
+.star svg{width:20px;height:20px}
+.star[aria-pressed="true"]{color:var(--accent)}
+.star[aria-pressed="true"] svg{fill:currentColor}
+.empty{text-align:center;color:var(--ink-dim);padding:28px 12px}
+
+/* tool page */
+.thead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:6px}
+.crumb{font-size:13px;color:var(--ink-dim);flex:1}
+.thead .star{border:1px solid var(--line);background:var(--surface);border-radius:12px;width:42px;height:42px;padding:0}
+.ttl{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,7vw,38px);line-height:1.2;margin-top:6px}
+.tdesc{color:var(--ink-dim);margin-top:4px;max-width:60ch}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+@media (max-width:420px){.fgrid{grid-template-columns:minmax(0,1fr)}}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld.wide{grid-column:1/-1}
+.fld label{font-size:13.5px;font-weight:600;color:var(--ink-dim)}
+.fld small{font-size:12px;color:var(--ink-faint)}
+input[type=text],input[type=date],input[type=time],input[type=search],select,textarea{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:var(--r-s);padding:10px 12px;font-size:16px;min-height:46px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-faint) 50%),linear-gradient(135deg,var(--ink-faint) 50%,transparent 50%);background-position:14px 50%,20px 50%;background-size:6px 6px;background-repeat:no-repeat;padding-left:32px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
+.search input[type=search]{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding-block:14px;padding-inline:46px 14px;font-size:16px}
+textarea{resize:vertical;min-height:96px;line-height:1.6}
+.numwrap{display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--surface);overflow:hidden}
+.numwrap:focus-within{border-color:var(--brand)}
+.numwrap input{border:0;border-radius:0;min-width:0;flex:1;text-align:right}
+.numwrap .unit{display:grid;place-items:center;padding-inline:12px;background:var(--surface-2);color:var(--ink-dim);font-size:13px;white-space:nowrap}
+.result{margin-top:12px;border-color:var(--brand);border-width:1.5px}
+.rbig{display:flex;flex-direction:column;gap:2px;padding-bottom:12px}
+.rbig span{font-size:13px;color:var(--ink-dim)}
+.rbig b{font-family:var(--f-display);font-weight:400;font-size:clamp(30px,8vw,44px);line-height:1.15;color:var(--brand);overflow-wrap:anywhere}
+.rbig small{font-size:14px;font-weight:600}
+.tone-ok b,.tone-ok small{color:var(--ok)}
+.tone-warn b,.tone-warn small{color:var(--warn)}
+.tone-bad b,.tone-bad small{color:var(--bad)}
+.rrows{margin:0;display:grid;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line)}
+.rrows div{display:flex;justify-content:space-between;gap:14px;padding-block:9px;border-bottom:1px dashed var(--line)}
+.rrows div:last-child{border-bottom:0}
+.rrows dt{color:var(--ink-dim);font-size:14px}
+.rrows dd{margin:0;font-weight:600;text-align:left;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.rnote{margin-top:10px;font-size:13px;color:var(--ink-dim);background:var(--surface-2);border-radius:var(--r-s);padding:10px 12px}
+.res-err{color:var(--bad);font-weight:600}
+.tbl-wrap{overflow-x:auto;margin-top:12px;border:1px solid var(--line);border-radius:var(--r-s)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{background:var(--surface-2);font-weight:600;color:var(--ink-dim)}
+tr:last-child td{border-bottom:0}
+.bars{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.bar-row{display:grid;grid-template-columns:7.5em minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13.5px}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .4s ease}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;font-weight:600;font-size:14.5px;line-height:1.2}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:default}
+.how{margin-top:16px}
+.how summary{cursor:pointer;font-weight:600;color:var(--brand)}
+.how p{margin-top:8px;color:var(--ink-dim);font-size:14px}
+.related{margin-top:18px}
+.rel-chips{display:flex;flex-wrap:wrap;gap:8px}
+.rel-chips a{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 13px;font-size:13.5px}
+.rel-chips a:hover{border-color:var(--brand);color:var(--brand)}
+
+/* custom widgets */
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;flex-wrap:wrap}
+.seg button{flex:1;border:0;background:var(--surface);padding:9px 10px;font-size:14px;min-width:70px}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+.swap{align-self:end;height:46px}
+.unit-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:end}
+@media (max-width:460px){.unit-row{grid-template-columns:minmax(0,1fr)}.swap{justify-self:center}}
+.pw{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px;direction:ltr;text-align:left;overflow-wrap:anywhere;padding:14px;border-radius:var(--r-s);background:var(--surface-2);letter-spacing:.5px}
+.check{display:flex;align-items:center;gap:8px;font-size:14.5px}
+.check input{width:20px;height:20px;accent-color:var(--brand)}
+.dice{font-family:var(--f-display);font-size:64px;line-height:1;text-align:center;color:var(--brand);padding-block:10px;overflow-wrap:anywhere}
+.flash{min-height:180px;display:grid;place-items:center;text-align:center;border-radius:var(--r-l);background:var(--brand);color:var(--brand-ink);padding:24px;cursor:pointer;user-select:none}
+.flash b{font-size:30px;display:block;direction:ltr}
+.flash span{font-size:22px;display:block}
+.flash small{opacity:.75;font-size:13px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:var(--r-m);background:var(--surface);text-align:start;font-size:15.5px}
+.opt:not(:disabled):hover{border-color:var(--brand)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.qrbox{display:grid;place-items:center;padding:16px;background:#FFFFFF;border-radius:var(--r-m);border:1px solid var(--line);min-height:120px}
+.qrbox img,.qrbox canvas{max-width:100%;height:auto}
+.prog{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--brand)}
+.gpa-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,.8fr) auto;gap:8px;align-items:center}
+.link{background:none;border:0;padding:4px;color:var(--brand);font-weight:600;font-size:14px}
+.link.danger{color:var(--bad)}
+
+/* nav, toast, sheet */
+.nav{position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.nav-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.nav a,.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:12px;color:var(--ink-faint);border-radius:12px}
+.nav [aria-current="page"]{color:var(--brand);background:var(--brand-soft)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow)}
+.sheet-bg{position:fixed;inset:0;z-index:60;background:rgba(5,15,25,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.sheet{background:var(--surface);border-radius:var(--r-l);padding:18px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.fade{animation:fade .22s ease}
+@keyframes fade{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app" dir="rtl" lang="ar">
+  <header class="top">
+    <a class="logo" href="#" aria-label="ذِهن، الصفحة الرئيسية">ذِهن<i></i></a>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="تبديل المظهر"></button>
+    </div>
+  </header>
+  <main id="view"></main>
+</div>
+<nav class="nav" dir="rtl" aria-label="التنقل الرئيسي"><div class="nav-in" id="navIn"></div></nav>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div id="sheet" hidden></div>
+<noscript><p style="padding:20px">يحتاج ذِهن إلى تفعيل JavaScript.</p></noscript>
+
+<script>
+(function(){
+'use strict';
+document.documentElement.lang='ar';
+document.documentElement.dir='rtl';
+
+/* ================= HELPERS ================= */
+const $=(s,e=document)=>e.querySelector(s);
+const $$=(s,e=document)=>[...e.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS='dhihn.tools.v1';
+function load(){const d={fav:[],rec:[],inputs:{},theme:'auto',polls:[],eng:{known:[]}};try{const s=JSON.parse(localStorage.getItem(LS)||'null');if(s&&typeof s==='object')return Object.assign(d,s);}catch(e){}return d;}
+let S=load();
+function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function parseNum(s){
+  if(typeof s==='number')return s;
+  s=String(s==null?'':s).trim().replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/٫/g,'.').replace(/[,٬\s]/g,'');
+  if(s==='')return NaN;return Number(s);
+}
+function fmt(n,dec=2){if(n==null||!isFinite(n))return '—';return Number(n).toLocaleString('en-US',{maximumFractionDigits:dec});}
+const f0=n=>fmt(n,0),f1=n=>fmt(n,1),f2=n=>fmt(n,2);
+function fmtU(n){if(!isFinite(n))return '—';const a=Math.abs(n);if(a!==0&&(a<1e-4||a>=1e13))return n.toExponential(4);return fmt(n,a<1?6:a<1000?4:2);}
+const pctS=n=>fmt(n,2)+'%';
+function pl(n,w){n=Math.round(n);const a=Math.abs(n);if(a===1)return w[0];if(a===2)return w[1];if(a>=3&&a<=10)return `${n} ${w[2]}`;return `${fmt(n,0)} ${w[3]}`;}
+const W_Y=['سنة واحدة','سنتان','سنوات','سنة'],W_M=['شهر واحد','شهران','أشهر','شهرًا'],W_D=['يوم واحد','يومان','أيام','يومًا'],W_W=['أسبوع واحد','أسبوعان','أسابيع','أسبوعًا'],W_H=['ساعة واحدة','ساعتان','ساعات','ساعة'];
+function joinAnd(parts){parts=parts.filter(Boolean);return parts.length?parts.join(' و'):'0';}
+const rnd01=()=>{try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296;}catch(e){return Math.random();}};
+const rint=(min,max)=>min+Math.floor(rnd01()*(max-min+1));
+
+/* dates (all in UTC noon to avoid DST/timezone drift) */
+const DAY=864e5;
+const utc=(y,m,d)=>new Date(Date.UTC(y,m-1,d,12));
+const todayU=()=>{const n=new Date();return utc(n.getFullYear(),n.getMonth()+1,n.getDate());};
+const parseD=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?utc(+m[1],+m[2],+m[3]):null;};
+const isoD=d=>d.toISOString().slice(0,10);
+const addDays=(d,n)=>new Date(d.getTime()+n*DAY);
+const diffDays=(a,b)=>Math.round((b-a)/DAY);
+const GM=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const WD=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const HM=['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+const fmtD=d=>d?`${WD[d.getUTCDay()]} ${d.getUTCDate()} ${GM[d.getUTCMonth()]} ${d.getUTCFullYear()}`:'—';
+const fmtDs=d=>d?`${d.getUTCDate()} ${GM[d.getUTCMonth()]} ${d.getUTCFullYear()}`:'—';
+function ymd(a,b){let y=b.getUTCFullYear()-a.getUTCFullYear(),m=b.getUTCMonth()-a.getUTCMonth(),d=b.getUTCDate()-a.getUTCDate();if(d<0){m--;d+=new Date(Date.UTC(b.getUTCFullYear(),b.getUTCMonth(),0)).getUTCDate();}if(m<0){y--;m+=12;}return{y,m,d};}
+const ymdS=o=>joinAnd([o.y?pl(o.y,W_Y):'',o.m?pl(o.m,W_M):'',o.d?pl(o.d,W_D):''])||'0 يوم';
+function addMonths(d,n){const y=d.getUTCFullYear(),m=d.getUTCMonth()+n,day=d.getUTCDate();const last=new Date(Date.UTC(y,m+1,0)).getUTCDate();return new Date(Date.UTC(y,m,Math.min(day,last),12));}
+let HF=null;try{HF=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{timeZone:'UTC',year:'numeric',month:'numeric',day:'numeric'});}catch(e){}
+function toH(d){if(!HF||!d)return null;const p={};HF.formatToParts(d).forEach(x=>{p[x.type]=x.value;});return{y:parseInt(p.year||p.relatedYear,10),m:+p.month,d:+p.day};}
+const fmtH=h=>h?`${h.d} ${HM[h.m-1]} ${h.y} هـ`:'غير متاح في هذا المتصفح';
+function fromH(y,m,d){
+  if(!HF)return null;
+  let g=new Date(Date.UTC(622,6,19,12)+Math.round((y-1)*354.36667+(m-1)*29.5306+(d-1))*DAY);
+  for(let i=0;i<25;i++){const h=toH(g);if(h.y===y&&h.m===m&&h.d===d)return g;const step=Math.round((y-h.y)*354.36667+(m-h.m)*29.5306+(d-h.d));g=addDays(g,step||(i%2?1:-1));}
+  return null;
+}
+function nextHijri(m,d,from){const h=toH(from);if(!h)return null;for(const y of [h.y,h.y+1]){const g=fromH(y,m,d)||fromH(y,m,d-1);if(g&&g>=from)return g;}return null;}
+
+/* toast + copy */
+let toastT=null;
+function toast(msg,ms=2200){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true;},ms);}
+function copyText(txt){
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast('تم النسخ'),()=>copySheet(txt));return;}}catch(e){}
+  copySheet(txt);
+}
+function copySheet(txt){
+  const sh=$('#sheet');
+  sh.innerHTML=`<div class="sheet-bg" id="sheetBg"><div class="sheet" role="dialog" aria-label="نسخ النص"><b>انسخ النص يدويًا</b><textarea id="copyArea" readonly rows="6">${esc(txt)}</textarea><button class="btn primary" id="sheetOk">تم</button></div></div>`;
+  sh.hidden=false;const close=()=>{sh.hidden=true;sh.innerHTML='';};
+  $('#sheetOk').onclick=close;$('#sheetBg').onclick=e=>{if(e.target.id==='sheetBg')close();};
+  const ta=$('#copyArea');ta.focus();ta.select();
+}
+function shareURL(id){const h=location.href.split('#')[0];if(!/^https?:/.test(h)||/claude\.ai|claudeusercontent/.test(h))return '';return h+(id?'#'+id:'');}
+const norm=s=>String(s).toLowerCase().replace(/[ً-ْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي');
+
+/* ================= ICONS ================= */
+const P={
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  coins:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+  briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  pulse:'<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+  heart:'<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
+  bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  sigma:'<path d="M18 4H6l6 8-6 8h12"/>',
+  arrows:'<path d="M4 8h15l-3-3M20 16H5l3 3"/>',
+  spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/>',
+  star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  back:'<path d="M9 6l6 6-6 6"/>',
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  cake:'<path d="M4 20h16v-7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2zM4 15c2 1.5 4 1.5 6 0s4-1.5 6 0 3 1.5 4 0M12 11V7M12 4.5v.5"/>',
+  quiz:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17v.5"/>',
+  swap:'<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  refresh:'<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4"/>',
+  speaker:'<path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>'
+};
+const ic=(n,cls='i')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
+
+/* ================= CATEGORIES ================= */
+const CATS=[
+  {id:'date',n:'التاريخ والعمر',icon:'calendar'},
+  {id:'money',n:'المال والتمويل',icon:'coins'},
+  {id:'work',n:'العمل والرواتب',icon:'briefcase'},
+  {id:'health',n:'الصحة واللياقة',icon:'pulse'},
+  {id:'women',n:'المرأة والحمل',icon:'heart'},
+  {id:'daily',n:'الحياة اليومية',icon:'bolt'},
+  {id:'math',n:'الرياضيات والدراسة',icon:'sigma'},
+  {id:'units',n:'تحويل الوحدات',icon:'arrows'},
+  {id:'fun',n:'تسلية وتعلّم',icon:'spark'}
+];
+const catOf=t=>CATS.find(c=>c.id===t.c);
+
+/* ================= FIELD BUILDERS ================= */
+const N=(k,l,d,u,x={})=>Object.assign({k,l,t:'num',d,u},x);
+const DT=(k,l,d,x={})=>Object.assign({k,l,t:'date',d},x);
+const TM=(k,l,d,x={})=>Object.assign({k,l,t:'time',d},x);
+const SEL=(k,l,o,d,x={})=>Object.assign({k,l,t:'sel',o,d:d==null?o[0][0]:d},x);
+const TX=(k,l,d,x={})=>Object.assign({k,l,t:'text',d},x);
+const AR=(k,l,d,x={})=>Object.assign({k,l,t:'area',d},x);
+const SEX=SEL('sex','الجنس',[['m','ذكر'],['f','أنثى']]);
+const tone=(v,okMax,warnMax)=>v<=okMax?'ok':v<=warnMax?'warn':'bad';
+
+const TOOLS=[];
+const T=o=>TOOLS.push(o);
+
+/* ================= FINANCE CORE ================= */
+function amort(P,ratePct,months){
+  const r=ratePct/100/12;
+  const pay=r?P*r/(1-Math.pow(1+r,-months)):P/months;
+  let bal=P,yP=0,yI=0;const rows=[];
+  for(let i=1;i<=months;i++){const int=bal*r,pr=pay-int;bal-=pr;yP+=pr;yI+=int;if(i%12===0||i===months){rows.push([String(Math.ceil(i/12)),f2(yP),f2(yI),f2(Math.max(0,bal))]);yP=0;yI=0;}}
+  return{pay,total:pay*months,interest:pay*months-P,rows};
+}
+function aprFromPay(P,pay,months){
+  if(pay*months<=P)return 0;let lo=0,hi=1;
+  for(let i=0;i<80;i++){const mid=(lo+hi)/2;const p=P*mid/(1-Math.pow(1+mid,-months));if(p>pay)hi=mid;else lo=mid;}
+  return lo*12*100;
+}
+function loanResult(P,rate,months,type,extraRows=[]){
+  if(!(P>0)||!(months>0)||!(rate>=0))return{err:'أدخل مبلغًا ومدة صحيحين ونسبة لا تقل عن صفر.'};
+  if(type==='flat'){
+    const interest=P*rate/100*months/12,pay=(P+interest)/months;
+    return{big:['القسط الشهري',f2(pay)],rows:extraRows.concat([['المبلغ الممول',f2(P)],['إجمالي الأرباح (الفائدة)',f2(interest)],['إجمالي المدفوع',f2(P+interest)],['عدد الأقساط',f0(months)],['معدل الفائدة الفعلي السنوي (APR) تقريبًا',pctS(aprFromPay(P,pay,months))]]),
+      note:'في نظام النسبة الثابتة تُحسب الأرباح على أصل المبلغ طوال المدة، لذلك يكون المعدل الفعلي أعلى من النسبة المعلنة تقريبًا بالضعف.'};
+  }
+  const a=amort(P,rate,months);
+  return{big:['القسط الشهري',f2(a.pay)],rows:extraRows.concat([['المبلغ الممول',f2(P)],['إجمالي الفوائد',f2(a.interest)],['إجمالي المدفوع',f2(a.total)],['عدد الأقساط',f0(months)]]),
+    table:{h:['السنة','المسدد من الأصل','الفوائد','الرصيد المتبقي'],r:a.rows}};
+}
+const LOAN_TYPE=SEL('type','طريقة حساب الفائدة',[['amort','متناقصة (على الرصيد المتبقي)'],['flat','ثابتة (مرابحة على أصل المبلغ)']]);
+
+/* =====================================================================
+   TOOLS: DATE & AGE
+   ===================================================================== */
+T({id:'age',c:'date',n:'حاسبة العمر',d:'عمرك بالميلادي والهجري، وبالأشهر والأيام والساعات والثواني لحظة بلحظة.',
+  kw:'العمر بالايام بالشهور بالاسابيع بالساعات بالدقائق بالثواني ملي ثانيه هجري ميلادي',live:true,
+  f:[DT('b','تاريخ الميلاد','1995-06-15',{wide:true})],
+  calc(v){
+    const b=v.b,t=todayU();if(!b)return{err:'اختر تاريخ الميلاد.'};if(b>t)return{err:'تاريخ الميلاد بعد اليوم.'};
+    const a=ymd(b,t),days=diffDays(b,t);
+    const birthLocal=new Date(b.getUTCFullYear(),b.getUTCMonth(),b.getUTCDate()).getTime(),ms=Date.now()-birthLocal;
+    let nb=utc(t.getUTCFullYear(),b.getUTCMonth()+1,b.getUTCDate());if(nb<t)nb=utc(t.getUTCFullYear()+1,b.getUTCMonth()+1,b.getUTCDate());
+    const toNb=diffDays(t,nb);
+    const hb=toH(b),ht=toH(t);let hAge='—';
+    if(hb&&ht){let hy=ht.y-hb.y,hm=ht.m-hb.m,hd=ht.d-hb.d;if(hd<0){hm--;hd+=30;}if(hm<0){hy--;hm+=12;}hAge=ymdS({y:hy,m:hm,d:hd});}
+    const ms10=Math.ceil((days+1)/5000)*5000;
+    return{big:['عمرك الآن',ymdS(a)],rows:[
+      ['تاريخ الميلاد',fmtD(b)],['بالهجري',fmtH(hb)],['العمر بالهجري (تقريبي)',hAge],
+      ['العمر بالأشهر',f0(a.y*12+a.m)+' شهرًا'],['العمر بالأسابيع',f0(Math.floor(days/7))+' أسبوعًا'],['العمر بالأيام',f0(days)+' يومًا'],
+      ['العمر بالساعات',f0(Math.floor(ms/36e5))],['العمر بالدقائق',f0(Math.floor(ms/6e4))],['العمر بالثواني',f0(Math.floor(ms/1e3))],['العمر بالملي ثانية',f0(ms)],
+      ['عيد ميلادك القادم',toNb===0?'اليوم! كل عام وأنت بخير':`بعد ${pl(toNb,W_D)} (${WD[nb.getUTCDay()]})`],
+      [`ستُتمّ ${f0(ms10)} يوم`,fmtDs(addDays(b,ms10))]]};
+  },how:'نحسب الفرق بين تاريخ ميلادك واليوم بالسنوات والأشهر والأيام التقويمية. الساعات والدقائق والثواني تُحسب من منتصف ليلة يوم ميلادك بتوقيت جهازك وتتحدث كل ثانية. التاريخ الهجري وفق تقويم أم القرى.'});
+
+T({id:'age-at',c:'date',n:'العمر في تاريخ معين',d:'كم سيكون عمرك (أو كان) في أي تاريخ تختاره.',kw:'عمر تاريخ محدد',
+  f:[DT('b','تاريخ الميلاد','1995-06-15'),DT('t','في تاريخ','2030-01-01')],
+  calc(v){if(!v.b||!v.t)return{err:'اختر التاريخين.'};if(v.t<v.b)return{err:'التاريخ المختار قبل الميلاد.'};const a=ymd(v.b,v.t);
+    return{big:['العمر في '+fmtDs(v.t),ymdS(a)],rows:[['بالأيام',f0(diffDays(v.b,v.t))],['بالأسابيع',f0(Math.floor(diffDays(v.b,v.t)/7))],['بالأشهر',f0(a.y*12+a.m)],['اليوم',WD[v.t.getUTCDay()]]]};}});
+
+T({id:'birth-year',c:'date',n:'سنة الميلاد من العمر',d:'استخرج سنة ميلادك التقريبية من عمرك الحالي.',kw:'مواليد سنه',
+  f:[N('age','العمر الحالي',30,'سنة'),SEL('passed','هل مرّ عيد ميلادك هذا العام؟',[['yes','نعم'],['no','لا'],['unk','لا أعرف']])],
+  calc(v){if(!(v.age>=0&&v.age<150))return{err:'أدخل عمرًا صحيحًا.'};const y=todayU().getUTCFullYear();
+    const yr=v.passed==='yes'?String(y-v.age):v.passed==='no'?String(y-v.age-1):`${y-v.age-1} أو ${y-v.age}`;
+    const hy=toH(utc(y-v.age,1,1));return{big:['سنة الميلاد',yr],rows:[['بالهجري تقريبًا',hy?`حوالي ${hy.y} هـ`:'—']]};}});
+
+T({id:'birthday',c:'date',n:'كم باقي على عيد الميلاد',d:'اعرف المدة المتبقية حتى عيد ميلادك القادم وفي أي يوم سيكون.',kw:'عيد ميلاد العد التنازلي',
+  f:[DT('b','تاريخ الميلاد','1995-06-15',{wide:true})],
+  calc(v){if(!v.b)return{err:'اختر تاريخ الميلاد.'};const t=todayU();let nb=utc(t.getUTCFullYear(),v.b.getUTCMonth()+1,v.b.getUTCDate());if(nb<t)nb=utc(t.getUTCFullYear()+1,v.b.getUTCMonth()+1,v.b.getUTCDate());
+    const d=diffDays(t,nb),age=nb.getUTCFullYear()-v.b.getUTCFullYear(),a=ymd(t,nb);
+    return{big:['المتبقي',d===0?'اليوم عيد ميلادك!':pl(d,W_D)],rows:[['بالأشهر والأيام',ymdS(a)],['التاريخ',fmtD(nb)],['ستُتمّ',pl(age,W_Y)],['بالهجري',fmtH(toH(nb))]]};}});
+
+T({id:'school',c:'date',n:'سن دخول المدرسة',d:'متى يدخل طفلك الصف الأول حسب تاريخ ميلاده وشرط العمر.',kw:'مدرسه اطفال صف اول',
+  f:[DT('b','تاريخ ميلاد الطفل','2021-03-10'),N('req','العمر المطلوب',6,'سنوات'),SEL('cut','يُشترط إتمام العمر قبل',[['9-1','1 سبتمبر'],['12-31','31 ديسمبر'],['8-31','31 أغسطس'],['10-1','1 أكتوبر']])],
+  calc(v){if(!v.b)return{err:'اختر تاريخ الميلاد.'};const [cm,cd]=v.cut.split('-').map(Number);let Y=v.b.getUTCFullYear();
+    while(ymd(v.b,utc(Y,cm,cd)).y<v.req)Y++;
+    const ageAt=ymd(v.b,utc(Y,9,1));
+    return{big:['يبدأ الصف الأول في العام الدراسي',`${Y} / ${Y+1}`],rows:[['عمره عند بداية الدراسة (1 سبتمبر)',ymdS(ageAt)],['آخر موعد لإتمام العمر',fmtDs(utc(Y,cm,cd))]],note:'تختلف الشروط من بلد لآخر، فتأكد من تاريخ القبول المعتمد لدى وزارة التعليم في بلدك.'};}});
+
+T({id:'date-convert',c:'date',n:'تحويل التاريخ هجري ↔ ميلادي',d:'حوّل التاريخ بين الهجري (أم القرى) والميلادي في الاتجاهين.',kw:'تحويل هجري ميلادي التقويم الهجري ام القرى',
+  f:[SEL('mode','اتجاه التحويل',[['g2h','من ميلادي إلى هجري'],['h2g','من هجري إلى ميلادي']],null,{wide:true}),
+     DT('g','التاريخ الميلادي','today',{wide:true,when:v=>v.mode==='g2h'}),
+     N('hd','اليوم',1,'',{when:v=>v.mode==='h2g'}),SEL('hm','الشهر الهجري',HM.map((m,i)=>[String(i+1),m]),'9',{when:v=>v.mode==='h2g'}),N('hy','السنة الهجرية',1448,'هـ',{when:v=>v.mode==='h2g'})],
+  calc(v){
+    if(!HF)return{err:'متصفحك لا يدعم التقويم الهجري.'};
+    if(v.mode==='g2h'){if(!v.g)return{err:'اختر التاريخ.'};const h=toH(v.g);return{big:['التاريخ الهجري',fmtH(h)],rows:[['الميلادي',fmtD(v.g)],['اليوم',WD[v.g.getUTCDay()]]],note:'وفق تقويم أم القرى، وقد يختلف يومًا عن رؤية الهلال المحلية.'};}
+    const g=fromH(v.hy,+v.hm,v.hd);if(!g)return{err:'هذا التاريخ الهجري غير موجود (قد يكون الشهر 29 يومًا) أو خارج المدى المدعوم.'};
+    return{big:['التاريخ الميلادي',fmtD(g)],rows:[['الهجري',fmtH(toH(g))]],note:'وفق تقويم أم القرى، وقد يختلف يومًا عن رؤية الهلال المحلية.'};}});
+
+T({id:'days-between',c:'date',n:'المدة بين تاريخين',d:'عدد الأيام والأسابيع والأشهر بين أي تاريخين.',kw:'فرق التاريخ ايام بين تاريخين',
+  f:[DT('a','من تاريخ','today'),DT('b','إلى تاريخ','2027-01-01'),SEL('inc','احتساب يوم النهاية',[['no','لا'],['yes','نعم']])],
+  calc(v){if(!v.a||!v.b)return{err:'اختر التاريخين.'};let a=v.a,b=v.b,sign='';if(b<a){[a,b]=[b,a];sign='(في الماضي) ';}const d=diffDays(a,b)+(v.inc==='yes'?1:0);
+    return{big:['المدة '+sign,pl(d,W_D)],rows:[['بالسنوات والأشهر والأيام',ymdS(ymd(a,v.inc==='yes'?addDays(b,1):b))],['بالأسابيع',`${f0(Math.floor(d/7))} أسبوعًا و${d%7} أيام`],['بالساعات',f0(d*24)]]};}});
+
+T({id:'add-days',c:'date',n:'إضافة أو طرح مدة من تاريخ',d:'ما التاريخ بعد 90 يومًا أو قبل 6 أشهر من أي يوم؟',kw:'اضافه ايام موعد بعد',
+  f:[DT('a','التاريخ','today',{wide:true}),SEL('op','العملية',[['add','بعد (إضافة)'],['sub','قبل (طرح)']]),N('n','المدة',90),SEL('u','الوحدة',[['d','أيام'],['w','أسابيع'],['m','أشهر'],['y','سنوات']])],
+  calc(v){if(!v.a||!isFinite(v.n))return{err:'أكمل الحقول.'};const s=v.op==='sub'?-1:1;let r;
+    if(v.u==='d')r=addDays(v.a,s*v.n);else if(v.u==='w')r=addDays(v.a,s*v.n*7);else r=addMonths(v.a,s*v.n*(v.u==='y'?12:1));
+    return{big:['التاريخ الناتج',fmtD(r)],rows:[['بالهجري',fmtH(toH(r))],['يبعد عن اليوم',pl(Math.abs(diffDays(todayU(),r)),W_D)]]};}});
+
+T({id:'occasions',c:'date',n:'كم باقي على رمضان والعيد',d:'عدّ تنازلي لرمضان وعيد الفطر ويوم عرفة وعيد الأضحى ورأس السنة الهجرية.',kw:'رمضان عيد الفطر الاضحى عرفه راس السنه الهجريه عد تنازلي',
+  f:[],
+  calc(){if(!HF)return{err:'متصفحك لا يدعم التقويم الهجري.'};const t=todayU();
+    const list=[['رمضان',9,1],['عيد الفطر',10,1],['يوم عرفة',12,9],['عيد الأضحى',12,10],['رأس السنة الهجرية',1,1]].map(([n,m,d])=>{const g=nextHijri(m,d,t);return[n,g,g?diffDays(t,g):Infinity];}).sort((a,b)=>a[2]-b[2]);
+    const [n0,g0,d0]=list[0];
+    return{big:[n0,d0===0?'اليوم! كل عام وأنتم بخير':'بعد '+pl(d0,W_D),fmtD(g0)],rows:list.slice(1).map(([n,g,d])=>[n,g?`بعد ${pl(d,W_D)} · ${fmtDs(g)}`:'—']),note:'المواعيد وفق تقويم أم القرى وقد تختلف يومًا حسب رؤية الهلال في بلدك.'};}});
+
+/* =====================================================================
+   MONEY
+   ===================================================================== */
+T({id:'loan',c:'money',n:'حاسبة القروض',d:'القسط الشهري وإجمالي الفائدة، مع جدول سداد سنوي ونظامي الفائدة الثابتة والمتناقصة.',kw:'قرض شخصي قسط فائده تمويل',
+  f:[N('p','مبلغ القرض',100000),N('r','نسبة الفائدة السنوية',5,'%'),N('y','المدة',5,'سنوات'),LOAN_TYPE],
+  calc:v=>loanResult(v.p,v.r,Math.round(v.y*12),v.type),
+  how:'القسط المتناقص: القسط = المبلغ × ر ÷ (1 − (1+ر)^−ن) حيث ر الفائدة الشهرية ون عدد الأشهر. الثابتة: الأرباح = المبلغ × النسبة × السنوات، ثم تُقسم مع المبلغ على عدد الأشهر.'});
+
+T({id:'mortgage',c:'money',n:'حاسبة التمويل العقاري',d:'قدّر قسط تمويل المنزل بعد الدفعة الأولى وتكلفة التمويل الكاملة.',kw:'عقار منزل بيت رهن سكني',
+  f:[N('price','سعر العقار',1000000),N('down','الدفعة الأولى',10,'%'),N('r','نسبة الفائدة السنوية',5,'%'),N('y','المدة',25,'سنة'),LOAN_TYPE],
+  calc(v){const dp=v.price*v.down/100;return loanResult(v.price-dp,v.r,Math.round(v.y*12),v.type,[['الدفعة الأولى',f2(dp)]]);}});
+
+T({id:'car',c:'money',n:'حاسبة تمويل السيارات',d:'قسط تمويل السيارة مع الدفعة الأولى والدفعة الأخيرة والرسوم الإدارية.',kw:'سياره تمويل قسط دفعه اخيره بالون',
+  f:[N('price','سعر السيارة',120000),N('down','الدفعة الأولى',10,'%'),N('ball','الدفعة الأخيرة',0,'%'),N('r','نسبة المرابحة السنوية',4,'%'),N('y','المدة',5,'سنوات'),N('fee','الرسوم الإدارية',1,'%')],
+  calc(v){if(!(v.price>0&&v.y>0))return{err:'أدخل سعرًا ومدة صحيحين.'};const n=Math.round(v.y*12),dp=v.price*v.down/100,fin=v.price-dp,profit=fin*v.r/100*v.y,ball=v.price*v.ball/100,fee=fin*v.fee/100;
+    const pay=(fin+profit-ball)/n;if(pay<0)return{err:'الدفعة الأخيرة أكبر من المبلغ الممول.'};
+    return{big:['القسط الشهري',f2(pay)],rows:[['الدفعة الأولى',f2(dp)],['المبلغ الممول',f2(fin)],['إجمالي الأرباح',f2(profit)],['الدفعة الأخيرة',f2(ball)],['الرسوم الإدارية',f2(fee)],['التكلفة الإجمالية للسيارة',f2(dp+pay*n+ball+fee)],['معدل الفائدة الفعلي (APR) تقريبًا',pctS(aprFromPay(fin-ball*Math.pow(1+v.r/1200,-n),pay,n))]]};}});
+
+T({id:'installment',c:'money',n:'حاسبة القسط الشهري',d:'قدّر قيمة القسط الشهري لأي مشتريات بالتقسيط.',kw:'تقسيط قسط شهري',
+  f:[N('p','السعر',5000),N('down','الدفعة المقدمة',0),N('m','عدد الأشهر',12,'شهرًا'),N('r','نسبة الربح السنوية',0,'%')],
+  calc(v){const fin=v.p-v.down;if(!(fin>0&&v.m>0))return{err:'تأكد أن السعر أكبر من الدفعة المقدمة وأن عدد الأشهر صحيح.'};const profit=fin*v.r/100*v.m/12;
+    return{big:['القسط الشهري',f2((fin+profit)/v.m)],rows:[['المبلغ المقسّط',f2(fin)],['الأرباح',f2(profit)],['الإجمالي مع المقدم',f2(v.p+profit)]]};}});
+
+T({id:'compound',c:'money',n:'حاسبة الفائدة المركبة',d:'كيف ينمو مالك مع الإيداع الشهري والعائد المركب عبر السنين.',kw:'استثمار عائد مركب نمو ادخار',
+  f:[N('p','المبلغ الأولي',10000),N('pm','إيداع شهري',500),N('r','العائد السنوي',7,'%'),N('y','المدة',10,'سنوات'),SEL('f','تكرار التركيب',[['12','شهري'],['4','ربع سنوي'],['1','سنوي'],['365','يومي']])],
+  calc(v){if(!(v.y>0))return{err:'أدخل مدة صحيحة.'};const im=Math.pow(1+v.r/100/(+v.f),(+v.f)/12)-1;let bal=v.p||0,dep=v.p||0;const rows=[];
+    for(let m=1;m<=Math.round(v.y*12);m++){bal=bal*(1+im)+(v.pm||0);dep+=v.pm||0;if(m%12===0)rows.push([String(m/12),f2(dep),f2(bal-dep),f2(bal)]);}
+    return{big:['الرصيد النهائي',f2(bal)],rows:[['إجمالي ما أودعته',f2(dep)],['الأرباح',f2(bal-dep)],['نسبة النمو',pctS(dep?(bal-dep)/dep*100:0)]],table:{h:['السنة','الإيداعات','الأرباح','الرصيد'],r:rows}};}});
+
+T({id:'savings',c:'money',n:'حاسبة الادخار',d:'كم تدّخر شهريًا لتصل إلى هدفك في الموعد؟',kw:'ادخار هدف توفير',
+  f:[N('goal','المبلغ المستهدف',50000),N('cur','المدّخر حاليًا',5000),N('m','خلال',24,'شهرًا'),N('r','العائد السنوي المتوقع',0,'%')],
+  calc(v){if(!(v.m>0))return{err:'أدخل مدة صحيحة.'};const i=v.r/100/12,fvCur=v.cur*Math.pow(1+i,v.m),need=v.goal-fvCur;
+    if(need<=0)return{big:['الادخار الشهري المطلوب','0'],rows:[['ملاحظة','مدّخراتك الحالية تكفي لبلوغ الهدف']]};
+    const pm=i?need*i/(Math.pow(1+i,v.m)-1):need/v.m;
+    return{big:['ادّخر شهريًا',f2(pm)],rows:[['يوميًا تقريبًا',f2(pm/30.44)],['إجمالي ما ستودعه',f2(pm*v.m)],['أرباح العائد',f2(v.goal-v.cur-pm*v.m)]]};}});
+
+T({id:'roi',c:'money',n:'حاسبة العائد على الاستثمار',d:'احسب نسبة العائد الإجمالي والعائد السنوي المركب (CAGR).',kw:'roi عائد استثمار ربح cagr',
+  f:[N('inv','المبلغ المستثمر',10000),N('fin','القيمة الحالية أو عند البيع',14500),N('y','مدة الاستثمار',3,'سنوات')],
+  calc(v){if(!(v.inv>0))return{err:'أدخل مبلغًا مستثمرًا أكبر من صفر.'};const roi=(v.fin-v.inv)/v.inv*100,c=v.y>0&&v.fin>0?(Math.pow(v.fin/v.inv,1/v.y)-1)*100:NaN;
+    return{big:['العائد على الاستثمار',pctS(roi)],tone:roi>=0?'ok':'bad',rows:[['الربح أو الخسارة',f2(v.fin-v.inv)],['العائد السنوي المركب',isFinite(c)?pctS(c):'—']]};}});
+
+T({id:'credit-card',c:'money',n:'حاسبة سداد بطاقة الائتمان',d:'كم شهرًا تحتاج لسداد رصيد البطاقة وكم ستدفع فوائد.',kw:'بطاقه ائتمان كريدت سداد رصيد',
+  f:[N('b','رصيد البطاقة',10000),N('apr','الفائدة السنوية',30,'%'),N('pay','الدفعة الشهرية',600)],
+  calc(v){const i=v.apr/100/12;if(!(v.b>0&&v.pay>0))return{err:'أدخل الرصيد والدفعة.'};if(v.pay<=v.b*i)return{err:'الدفعة الشهرية لا تغطي الفائدة، فلن ينتهي الدين أبدًا. زِد الدفعة.',};
+    let b=v.b,m=0,int=0;while(b>0&&m<1200){const x=b*i;int+=x;b=b+x-v.pay;m++;}
+    return{big:['مدة السداد',ymdS({y:Math.floor(m/12),m:m%12,d:0})],rows:[['عدد الدفعات',f0(m)],['إجمالي الفوائد',f2(int)],['إجمالي المدفوع',f2(v.b+int)]],note:'كل زيادة صغيرة في الدفعة الشهرية تختصر المدة والفوائد كثيرًا.'};}});
+
+T({id:'dti',c:'money',n:'نسبة الدين إلى الدخل',d:'اعرف نسبة التزاماتك الشهرية إلى دخلك وهل هي آمنة.',kw:'التزامات دين دخل نسبه استقطاع',
+  f:[N('inc','الدخل الشهري',15000),N('h','إيجار أو قسط سكن',3000),N('car','قسط سيارة',1500),N('cc','بطاقات وقروض أخرى',800)],
+  calc(v){if(!(v.inc>0))return{err:'أدخل الدخل الشهري.'};const d=(v.h||0)+(v.car||0)+(v.cc||0),r=d/v.inc*100;
+    return{big:['نسبة الدين إلى الدخل',pctS(r),r<=33?'ممتازة':r<=43?'مقبولة لكن احذر':'مرتفعة'],tone:tone(r,33,43),rows:[['إجمالي الالتزامات',f2(d)],['المتبقي من الدخل',f2(v.inc-d)]],
+      bars:[['السكن',v.h/v.inc*100],['السيارة',v.car/v.inc*100],['أخرى',v.cc/v.inc*100]].map(([l,p])=>[l,p,pctS(p)]),note:'تضع كثير من البنوك حدًا أعلى للاستقطاع بين 33% و45% من الراتب حسب البلد ونوع التمويل.'};}});
+
+T({id:'discount',c:'money',n:'حاسبة الخصم',d:'السعر بعد الخصم، وما توفّره، حتى مع خصم إضافي فوق الخصم.',kw:'تخفيض اوكازيون سعر خصم',
+  f:[N('p','السعر الأصلي',400),N('d1','نسبة الخصم',25,'%'),N('d2','خصم إضافي (اختياري)',0,'%')],
+  calc(v){const a=v.p*(1-v.d1/100),b=a*(1-(v.d2||0)/100);return{big:['السعر بعد الخصم',f2(b)],rows:[['وفّرت',f2(v.p-b)],['نسبة الخصم الفعلية',pctS(v.p?(v.p-b)/v.p*100:0)]]};}});
+
+T({id:'vat',c:'money',n:'حاسبة ضريبة القيمة المضافة',d:'أضف الضريبة إلى السعر أو استخرجها من سعر شامل.',kw:'ضريبه vat قيمه مضافه 15',
+  f:[N('a','المبلغ',1000),SEL('rate','النسبة',[['15','15% (السعودية)'],['5','5% (الإمارات، البحرين، عُمان)'],['14','14% (مصر)'],['16','16% (الأردن)'],['10','10% (البحرين 2022+)'],['c','نسبة أخرى']]),N('cr','النسبة المخصصة',12,'%',{when:v=>v.rate==='c'}),SEL('mode','العملية',[['add','إضافة الضريبة'],['ext','استخراج الضريبة من سعر شامل']])],
+  calc(v){const r=(v.rate==='c'?v.cr:+v.rate)/100;if(v.mode==='add'){const t=v.a*r;return{big:['السعر شامل الضريبة',f2(v.a+t)],rows:[['قيمة الضريبة',f2(t)],['السعر قبل الضريبة',f2(v.a)]]};}
+    const base=v.a/(1+r);return{big:['السعر قبل الضريبة',f2(base)],rows:[['قيمة الضريبة',f2(v.a-base)],['السعر الشامل',f2(v.a)]]};}});
+
+T({id:'zakat',c:'money',n:'حاسبة الزكاة',d:'زكاة المال والذهب والأسهم وعروض التجارة مع حساب النصاب بسعر الذهب.',kw:'زكاه نصاب ذهب مال',
+  f:[N('cash','النقد والأرصدة البنكية',50000),N('gold','قيمة الذهب والفضة المدّخرة',0),N('inv','أسهم واستثمارات (القيمة السوقية)',0),N('trade','عروض التجارة (البضائع)',0),N('recv','ديون لك يُرجى سدادها',0),N('debt','ديون عليك حالّة',0),N('gp','سعر غرام الذهب عيار 24',400,'',{wide:true,hint:'يُستخدم لحساب النصاب = 85 غرامًا من الذهب'})],
+  calc(v){const tot=['cash','gold','inv','trade','recv'].reduce((s,k)=>s+(v[k]||0),0)-(v.debt||0),nis=85*(v.gp||0);
+    if(!(nis>0))return{err:'أدخل سعر غرام الذهب لحساب النصاب.'};
+    if(tot<nis)return{big:['الزكاة الواجبة','0'],rows:[['صافي المال الزكوي',f2(tot)],['النصاب',f2(nis)]],note:'مالك أقل من النصاب فلا زكاة عليه الآن.'};
+    return{big:['الزكاة الواجبة (2.5%)',f2(tot*0.025)],tone:'ok',rows:[['صافي المال الزكوي',f2(tot)],['النصاب',f2(nis)]],note:'تجب الزكاة إذا بلغ المال النصاب وحال عليه الحول (سنة هجرية). للحالات الخاصة كالأسهم والرواتب المتراكمة يُستحسن سؤال أهل العلم.'};}});
+
+T({id:'split',c:'money',n:'تقسيم الفاتورة والبقشيش',d:'قسّم حساب المطعم بين الأصدقاء مع البقشيش.',kw:'فاتوره مطعم بقشيش تقسيم',
+  f:[N('b','قيمة الفاتورة',450),N('tip','البقشيش',10,'%'),N('n','عدد الأشخاص',4)],
+  calc(v){if(!(v.n>=1))return{err:'أدخل عدد الأشخاص.'};const t=v.b*v.tip/100;return{big:['على كل شخص',f2((v.b+t)/v.n)],rows:[['البقشيش',f2(t)],['الإجمالي',f2(v.b+t)]]};}});
+
+/* =====================================================================
+   WORK
+   ===================================================================== */
+T({id:'net-salary',c:'work',n:'حاسبة الراتب الصافي',d:'احسب صافي راتبك بعد التأمينات والاستقطاعات.',kw:'راتب صافي تامينات اجتماعيه gosi استقطاع',
+  f:[N('basic','الراتب الأساسي',10000),N('house','بدل السكن',2500),N('trans','بدل النقل',1000),N('other','بدلات أخرى',0),N('gosi','نسبة التأمينات على (الأساسي + السكن)',9.75,'%',{hint:'9.75% للسعوديين في القطاع الخاص؛ عدّلها حسب بلدك'}),N('ded','استقطاعات أخرى ثابتة',0)],
+  calc(v){const gross=(v.basic||0)+(v.house||0)+(v.trans||0)+(v.other||0),g=((v.basic||0)+(v.house||0))*(v.gosi||0)/100,net=gross-g-(v.ded||0);
+    return{big:['الراتب الصافي',f2(net)],rows:[['إجمالي الراتب',f2(gross)],['التأمينات',f2(g)],['استقطاعات أخرى',f2(v.ded||0)],['الصافي السنوي',f2(net*12)]]};}});
+
+T({id:'eos',c:'work',n:'حاسبة مكافأة نهاية الخدمة',d:'تقدير المكافأة وفق نظام العمل السعودي حسب مدة الخدمة وسبب انتهاء العقد.',kw:'نهايه خدمه مكافاه استقاله نظام العمل',
+  f:[N('w','آخر أجر شهري',12000),SEL('why','سبب انتهاء العلاقة',[['end','انتهاء العقد أو إنهاء من صاحب العمل'],['res','استقالة']]),DT('s','تاريخ بداية العمل','2016-01-01'),DT('e','تاريخ نهاية العمل','today')],
+  calc(v){if(!v.s||!v.e||v.e<=v.s)return{err:'تأكد من التواريخ.'};const a=ymd(v.s,v.e),yrs=a.y+a.m/12+a.d/365;
+    const full=Math.min(yrs,5)*v.w/2+Math.max(0,yrs-5)*v.w;let f=1;if(v.why==='res')f=yrs<2?0:yrs<5?1/3:yrs<10?2/3:1;
+    return{big:['المكافأة التقديرية',f2(full*f)],rows:[['مدة الخدمة',ymdS(a)],['المكافأة الكاملة',f2(full)],['النسبة المستحقة',v.why==='res'?(f===0?'لا شيء (أقل من سنتين)':f===1?'كاملة':f<.5?'الثلث':'الثلثان'):'كاملة']],
+      note:'نصف أجر شهر عن كل سنة من السنوات الخمس الأولى، وأجر شهر كامل عن كل سنة بعدها (المادة 84). وفي الاستقالة: لا شيء قبل سنتين، والثلث من 2 إلى 5 سنوات، والثلثان من 5 إلى 10، وكاملة بعد 10 (المادة 85). الأجر يشمل الأساسي والبدلات الثابتة.'};}});
+
+T({id:'hourly',c:'work',n:'حاسبة الأجر بالساعة',d:'حوّل راتبك الشهري إلى أجر تقريبي بالساعة واليوم.',kw:'اجر ساعه يومي راتب',
+  f:[N('s','الراتب الشهري',8000),N('h','ساعات العمل يوميًا',8,'ساعات'),N('d','أيام العمل أسبوعيًا',5,'أيام')],
+  calc(v){const hrs=v.h*v.d*52/12;if(!(hrs>0))return{err:'أدخل ساعات وأيام العمل.'};return{big:['الأجر بالساعة',f2(v.s/hrs)],rows:[['الأجر اليومي',f2(v.s*12/52/v.d)],['ساعات العمل شهريًا',f1(hrs)],['الراتب السنوي',f2(v.s*12)]]};}});
+
+T({id:'work-hours',c:'work',n:'حاسبة ساعات العمل',d:'احسب ساعات العمل اليومية والأسبوعية والإضافية من وقت الحضور والانصراف.',kw:'دوام حضور انصراف ساعات اضافي',
+  f:[TM('a','وقت الحضور','08:00'),TM('b','وقت الانصراف','17:00'),N('br','الاستراحة',60,'دقيقة'),N('d','أيام العمل أسبوعيًا',5,'أيام'),N('std','ساعات الدوام الرسمي يوميًا',8,'ساعات',{wide:true})],
+  calc(v){const tm=s=>{const m=/^(\d{1,2}):(\d{2})/.exec(s||'');return m?+m[1]*60+ +m[2]:NaN;};let a=tm(v.a),b=tm(v.b);if(!isFinite(a)||!isFinite(b))return{err:'أدخل الوقتين.'};if(b<=a)b+=1440;
+    const mins=Math.max(0,b-a-(v.br||0)),h=mins/60,ot=Math.max(0,h-(v.std||0));
+    return{big:['ساعات العمل يوميًا',`${Math.floor(mins/60)} س ${mins%60} د`],rows:[['أسبوعيًا',f1(h*v.d)+' ساعة'],['شهريًا تقريبًا',f1(h*v.d*52/12)+' ساعة'],['ساعات إضافية يوميًا',f2(ot)],['ساعات إضافية أسبوعيًا',f2(ot*v.d)]]};}});
+
+T({id:'work-days',c:'work',n:'حاسبة أيام العمل بين تاريخين',d:'عدد أيام العمل بين تاريخين مع استبعاد العطلة الأسبوعية والإجازات.',kw:'ايام عمل دوام عطله اجازه',
+  f:[DT('a','من تاريخ','today'),DT('b','إلى تاريخ','2026-12-31'),SEL('we','العطلة الأسبوعية',[['5,6','الجمعة والسبت'],['6,0','السبت والأحد'],['5','الجمعة فقط'],['','لا يوجد']]),N('hol','إجازات رسمية في الفترة',0,'يوم')],
+  calc(v){if(!v.a||!v.b||v.b<v.a)return{err:'تأكد من التواريخ.'};const we=v.we===''?[]:v.we.split(',').map(Number);let w=0,o=0;
+    for(let d=v.a;d<=v.b;d=addDays(d,1)){if(we.includes(d.getUTCDay()))o++;else w++;}
+    return{big:['أيام العمل',f0(Math.max(0,w-(v.hol||0)))],rows:[['إجمالي الأيام (شاملة البداية والنهاية)',f0(w+o)],['أيام العطلة الأسبوعية',f0(o)],['الإجازات المستبعدة',f0(v.hol||0)]]};}});
+
+/* =====================================================================
+   HEALTH
+   ===================================================================== */
+const bmiCat=b=>b<18.5?['نقص في الوزن','warn']:b<25?['وزن طبيعي','ok']:b<30?['زيادة في الوزن','warn']:['سمنة','bad'];
+T({id:'bmi',c:'health',n:'حساب الوزن ومؤشر كتلة الجسم',d:'احسب BMI والوزن المثالي والوزن الصحي المناسب لطولك.',kw:'bmi وزن مثالي كتله الجسم سمنه رجيم',
+  f:[N('w','الوزن',75,'كغ'),N('h','الطول',170,'سم'),SEX],
+  calc(v){const m=v.h/100;if(!(v.w>0&&m>0))return{err:'أدخل الوزن والطول.'};const b=v.w/(m*m),[cat,tn]=bmiCat(b);const inch=v.h/2.54,dev=(v.sex==='m'?50:45.5)+2.3*Math.max(0,inch-60);
+    const lo=18.5*m*m,hi=24.9*m*m;const diff=v.w<lo?`تحتاج زيادة ${f1(lo-v.w)} كغ`:v.w>hi?`تحتاج إنقاص ${f1(v.w-hi)} كغ`:'وزنك ضمن النطاق الصحي';
+    return{big:['مؤشر كتلة الجسم',f1(b),cat],tone:tn,rows:[['الوزن الصحي لطولك',`${f1(lo)} – ${f1(hi)} كغ`],['الوزن المثالي (معادلة ديفاين)',f1(dev)+' كغ'],['للوصول للنطاق الصحي',diff]],
+      bars:[['نقص < 18.5',b<18.5?100:0,''],['طبيعي 18.5–25',b>=18.5&&b<25?100:0,''],['زيادة 25–30',b>=25&&b<30?100:0,''],['سمنة ≥ 30',b>=30?100:0,'']],note:'مؤشر الكتلة لا يفرّق بين العضل والدهون، ولا يناسب الحوامل والأطفال.'};}});
+
+T({id:'bodyfat',c:'health',n:'حاسبة نسبة الدهون في الجسم',d:'تقدير تقريبي لنسبة الدهون باستخدام BMI والعمر والجنس.',kw:'دهون الجسم نسبه',
+  f:[N('w','الوزن',75,'كغ'),N('h','الطول',170,'سم'),N('age','العمر',30,'سنة'),SEX],
+  calc(v){const m=v.h/100,b=v.w/(m*m),bf=1.2*b+0.23*v.age-10.8*(v.sex==='m'?1:0)-5.4;const r=v.sex==='m'?[[6,'رياضي'],[18,'لياقة جيدة'],[25,'متوسط'],[99,'مرتفع']]:[[14,'رياضي'],[25,'لياقة جيدة'],[32,'متوسط'],[99,'مرتفع']];
+    const lbl=r.find(x=>bf<=x[0])[1];return{big:['نسبة الدهون التقديرية',pctS(bf),lbl],tone:lbl==='مرتفع'?'bad':'ok',rows:[['كتلة الدهون',f1(v.w*bf/100)+' كغ'],['الكتلة الخالية من الدهون',f1(v.w*(1-bf/100))+' كغ']],note:'معادلة دورنبرغ تقديرية؛ القياس بالأجهزة أو بالمقص (Skinfold) أدق.'};}});
+
+const ACT=[['1.2','قليل الحركة (عمل مكتبي)'],['1.375','نشاط خفيف (1–3 أيام رياضة)'],['1.55','نشاط متوسط (3–5 أيام)'],['1.725','نشاط عالٍ (6–7 أيام)'],['1.9','رياضي محترف أو عمل بدني شاق']];
+const bmr=v=>10*v.w+6.25*v.h-5*v.age+(v.sex==='m'?5:-161);
+T({id:'bmr',c:'health',n:'حاسبة معدل الأيض الأساسي BMR',d:'عدد السعرات التي يحرقها جسمك في الراحة بمعادلة Mifflin-St Jeor.',kw:'bmr حرق سعرات ايض',
+  f:[N('w','الوزن',75,'كغ'),N('h','الطول',170,'سم'),N('age','العمر',30,'سنة'),SEX],
+  calc:v=>({big:['معدل الأيض الأساسي',f0(bmr(v))+' سعرة/يوم'],rows:[['في الساعة',f0(bmr(v)/24)+' سعرة']]}),how:'للرجال: 10×الوزن + 6.25×الطول − 5×العمر + 5. للنساء: نفسها − 161.'});
+
+T({id:'tdee',c:'health',n:'حاسبة السعرات اليومية TDEE',d:'احتياجك اليومي من السعرات حسب نشاطك، ولإنقاص الوزن أو زيادته.',kw:'سعرات حراريه tdee رجيم دايت',
+  f:[N('w','الوزن',75,'كغ'),N('h','الطول',170,'سم'),N('age','العمر',30,'سنة'),SEX,SEL('act','مستوى النشاط',ACT,'1.375',{wide:true})],
+  calc(v){const t=bmr(v)*+v.act;return{big:['للحفاظ على وزنك',f0(t)+' سعرة/يوم'],rows:[['لإنقاص 0.5 كغ أسبوعيًا',f0(t-500)],['لإنقاص 1 كغ أسبوعيًا',f0(Math.max(t-1000,v.sex==='m'?1500:1200))],['لزيادة الوزن ببطء',f0(t+300)],['معدل الأيض الأساسي',f0(bmr(v))]],
+    bars:[['بروتين 30%',30,f0(t*.3/4)+' غ'],['كربوهيدرات 40%',40,f0(t*.4/4)+' غ'],['دهون 30%',30,f0(t*.3/9)+' غ']]};}});
+
+T({id:'protein',c:'health',n:'حاسبة البروتين اليومي',d:'كم غرامًا من البروتين تحتاج يوميًا حسب وزنك وهدفك.',kw:'بروتين عضلات تضخيم',
+  f:[N('w','الوزن',75,'كغ'),SEL('g','هدفك',[['0.8,1','صحة عامة'],['1.2,1.6','نشاط رياضي منتظم'],['1.6,2.2','بناء العضلات'],['1.2,1.6','إنقاص الوزن مع الحفاظ على العضل'],['1.1,1.3','كبار السن']])],
+  calc(v){const [a,b]=v.g.split(',').map(Number);return{big:['احتياجك اليومي',`${f0(v.w*a)} – ${f0(v.w*b)} غ`],rows:[['في 3 وجبات',`${f0(v.w*a/3)} – ${f0(v.w*b/3)} غ لكل وجبة`],['يعادل تقريبًا',`${f1(v.w*(a+b)/2/31)} صدر دجاج (100 غ)`]]};}});
+
+T({id:'water',c:'health',n:'حاسبة احتياج الماء اليومي',d:'تقدير مبسط لكمية الماء التي يحتاجها جسمك يوميًا.',kw:'ماء شرب ترطيب لتر',
+  f:[N('w','الوزن',75,'كغ'),N('ex','رياضة يوميًا',30,'دقيقة'),SEL('hot','الطقس',[['0','معتدل'],['0.5','حار'],['0.75','حار جدًا']])],
+  calc(v){const l=v.w*0.033+(v.ex||0)/30*0.35+ +v.hot;return{big:['احتياجك اليومي',f1(l)+' لتر'],rows:[['أكواب (250 مل)',f0(l*4)],['قارورات (500 مل)',f1(l*2)]],note:'يشمل الماء من الطعام والمشروبات. يحتاج المرضى (الكلى والقلب) لاستشارة الطبيب.'};}});
+
+T({id:'bio-age',c:'health',n:'حاسبة العمر البيولوجي',d:'تقدير مبسط لعمر جسمك الحقيقي بناءً على نمط حياتك.',kw:'عمر بيولوجي نمط الحياه صحه',
+  f:[N('age','عمرك الفعلي',35,'سنة'),N('w','الوزن',75,'كغ'),N('h','الطول',170,'سم'),
+    SEL('smoke','التدخين',[['0','لا أدخن'],['2','أقلعت عنه'],['6','أدخن']]),SEL('ex','الرياضة أسبوعيًا',[['3','لا أمارس'],['1','مرة أو مرتين'],['-1','3 إلى 4 مرات'],['-3','5 مرات أو أكثر']],'1'),
+    SEL('sleep','النوم ليلًا',[['2','أقل من 6 ساعات'],['-1','من 7 إلى 8 ساعات'],['1','أكثر من 9 ساعات']],'-1'),SEL('diet','غذاؤك',[['2','وجبات سريعة كثيرًا'],['0','متوسط'],['-2','صحي وخضار يوميًا']],'0'),
+    SEL('stress','التوتر',[['2','مرتفع أغلب الوقت'],['0','متوسط'],['-1','منخفض']],'0'),SEL('social','العلاقات الاجتماعية',[['1','قليلة'],['0','متوسطة'],['-1','قوية']],'0')],
+  calc(v){if(!(v.age>0))return{err:'أدخل عمرك.'};const b=v.w/((v.h/100)**2);const bAdj=b<18.5?1:b<25?-1:b<30?1:3;
+    const adj=['smoke','ex','sleep','diet','stress','social'].reduce((s,k)=>s+ +v[k],0)+bAdj,bio=Math.max(18,v.age+adj);
+    return{big:['عمرك البيولوجي التقديري',pl(Math.round(bio),W_Y),adj<0?`أصغر من عمرك بـ ${Math.abs(adj)}`:adj>0?`أكبر من عمرك بـ ${adj}`:'مطابق لعمرك'],tone:adj<=0?'ok':adj<=4?'warn':'bad',
+      rows:[['مؤشر كتلة الجسم',f1(b)]],note:'تقدير للتوعية والمتعة مبني على عوامل نمط الحياة المعروفة، وليس فحصًا طبيًا.'};}});
+
+T({id:'sleep',c:'health',n:'حاسبة النوم',d:'أفضل أوقات النوم أو الاستيقاظ حسب دورات النوم (90 دقيقة).',kw:'نوم استيقاظ دورات منبه',
+  f:[SEL('mode','أريد أن',[['wake','أستيقظ في وقت محدد'],['now','أنام الآن']],null,{wide:true}),TM('t','وقت الاستيقاظ','06:30',{when:v=>v.mode==='wake'})],
+  calc(v){const h=m=>{m=((m%1440)+1440)%1440;const H=Math.floor(m/60),M=m%60,ap=H<12?'ص':'م';return `${(H%12)||12}:${String(M).padStart(2,'0')} ${ap}`;};
+    if(v.mode==='now'){const n=new Date(),m=n.getHours()*60+n.getMinutes()+15;return{big:['استيقظ في',h(m+90*6)+' أو '+h(m+90*5)],rows:[4,3].map(c=>[`${c} دورات (${c*1.5} ساعات)`,h(m+90*c)]),note:'حسبنا 15 دقيقة حتى تغفو.'};}
+    const mm=/^(\d{1,2}):(\d{2})/.exec(v.t||'');if(!mm)return{err:'أدخل وقت الاستيقاظ.'};const w=+mm[1]*60+ +mm[2];
+    return{big:['نم في',h(w-90*6-15)+' أو '+h(w-90*5-15)],rows:[6,5,4].map(c=>[`${c} دورات (${c*1.5} ساعات نوم)`,h(w-90*c-15)]),note:'الاستيقاظ في نهاية دورة نوم يجعلك أنشط. حسبنا 15 دقيقة حتى تغفو.'};}});
+
+/* =====================================================================
+   WOMEN
+   ===================================================================== */
+T({id:'pregnancy',c:'women',n:'حاسبة الحمل والولادة',d:'موعد الولادة المتوقع وعمر الحمل بالأسابيع ومراحله.',kw:'حمل ولاده موعد اسبوع ثلث',
+  f:[SEL('m','الحساب من',[['lmp','أول يوم في آخر دورة'],['conc','تاريخ الإخصاب'],['due','موعد الولادة المعروف']]),DT('d','التاريخ',-60)],
+  calc(v){if(!v.d)return{err:'اختر التاريخ.'};const lmp=v.m==='lmp'?v.d:v.m==='conc'?addDays(v.d,-14):addDays(v.d,-280);const due=addDays(lmp,280),t=todayU(),ga=diffDays(lmp,t);
+    if(ga<0)return{err:'التاريخ في المستقبل.'};const w=Math.floor(ga/7),d=ga%7,tri=w<13?'الثلث الأول':w<27?'الثلث الثاني':'الثلث الثالث';
+    const ms=[['نهاية الثلث الأول',13],['فحص السونار المفصّل',20],['بداية الثلث الثالث',27],['اكتمال الحمل',37],['موعد الولادة',40]];
+    return{big:['موعد الولادة المتوقع',fmtD(due),ga>294?'تجاوزتِ الموعد المتوقع':`${pl(w,W_W)} و${pl(d,W_D)} · ${tri}`],rows:[['المتبقي',ga<=280?pl(280-ga,W_D):'—'],['الموعد بالهجري',fmtH(toH(due))],['الإخصاب التقريبي',fmtDs(addDays(lmp,14))]],
+      bars:[['التقدم',Math.min(100,ga/280*100),pctS(Math.min(100,ga/280*100))]],table:{h:['المرحلة','الأسبوع','التاريخ'],r:ms.map(([n,wk])=>[n,String(wk),fmtDs(addDays(lmp,wk*7))])},note:'معادلة نايجل التقديرية؛ 4% فقط يولدون في الموعد بالضبط. تابعي مع طبيبتك.'};}});
+
+T({id:'ovulation',c:'women',n:'حاسبة التبويض وأيام الخصوبة',d:'تقدير موعد الإباضة وفترة الخصوبة للدورات الثلاث القادمة.',kw:'تبويض اباضه خصوبه حمل',
+  f:[DT('l','أول يوم في آخر دورة',-10),N('c','طول الدورة',28,'يومًا',{hint:'المعتاد بين 21 و35 يومًا'})],
+  calc(v){if(!v.l||!(v.c>=20&&v.c<=45))return{err:'تأكدي من التاريخ وطول الدورة (20–45).'};const rows=[];
+    for(let i=0;i<3;i++){const s=addDays(v.l,i*v.c),ov=addDays(s,v.c-14);rows.push([fmtDs(s),`${fmtDs(addDays(ov,-5))} – ${fmtDs(addDays(ov,1))}`,fmtDs(ov)]);}
+    const ov0=addDays(v.l,v.c-14);return{big:['يوم التبويض المتوقع',fmtD(ov0)],rows:[['أيام الخصوبة',`${fmtDs(addDays(ov0,-5))} – ${fmtDs(addDays(ov0,1))}`],['الدورة القادمة',fmtDs(addDays(v.l,+v.c))]],
+      table:{h:['بداية الدورة','أيام الخصوبة','التبويض'],r:rows},note:'تقدير مبني على أن التبويض يحدث قبل الدورة التالية بـ 14 يومًا تقريبًا. لا يُعتمد عليه وسيلةً لمنع الحمل.'};}});
+
+T({id:'period',c:'women',n:'حاسبة الدورة الشهرية',d:'مواعيد الدورة الشهرية القادمة لستة أشهر.',kw:'دوره شهريه حيض موعد',
+  f:[DT('l','أول يوم في آخر دورة',-10),N('c','طول الدورة',28,'يومًا'),N('n','مدة الدورة',5,'أيام')],
+  calc(v){if(!v.l||!(v.c>=20&&v.c<=45))return{err:'تأكدي من التاريخ وطول الدورة.'};const t=todayU();let s=v.l;while(s<=t)s=addDays(s,v.c);const rows=[];
+    for(let i=0;i<6;i++){const a=addDays(s,i*v.c);rows.push([fmtDs(a),fmtDs(addDays(a,(v.n||5)-1)),fmtH(toH(a))]);}
+    return{big:['الدورة القادمة',fmtD(s),'بعد '+pl(diffDays(t,s),W_D)],table:{h:['البداية','النهاية','بالهجري'],r:rows}};}});
+
+/* =====================================================================
+   DAILY LIFE
+   ===================================================================== */
+T({id:'fuel',c:'daily',n:'حاسبة استهلاك الوقود',d:'احسب استهلاك سيارتك لكل 100 كم وعدد الكيلومترات لكل لتر.',kw:'بنزين وقود استهلاك سياره',
+  f:[N('km','المسافة المقطوعة',450,'كم'),N('l','الوقود المستهلك',35,'لتر')],
+  calc(v){if(!(v.km>0&&v.l>0))return{err:'أدخل المسافة والوقود.'};return{big:['الاستهلاك',f2(v.l/v.km*100)+' لتر / 100 كم'],rows:[['كم لكل لتر',f2(v.km/v.l)],['ميل لكل غالون أمريكي',f1(v.km/v.l*2.352145)]]};}});
+
+T({id:'trip',c:'daily',n:'حاسبة تكلفة الوقود للرحلة',d:'كم ستكلّفك الرحلة بالسيارة، ونصيب كل راكب.',kw:'رحله سفر بنزين تكلفه',
+  f:[N('km','المسافة',500,'كم'),N('c','استهلاك السيارة',8,'لتر/100كم'),N('p','سعر اللتر',2.33),SEL('rt','الرحلة',[['1','ذهاب فقط'],['2','ذهاب وعودة']],'2'),N('n','عدد الركاب',1)],
+  calc(v){const L=v.km*(+v.rt)*v.c/100,c=L*v.p;return{big:['تكلفة الوقود',f2(c)],rows:[['كمية الوقود',f1(L)+' لتر'],['على كل راكب',f2(c/Math.max(1,v.n||1))]]};}});
+
+T({id:'speed',c:'daily',n:'حاسبة المسافة والسرعة والزمن',d:'احسب أيًّا منها إذا عرفت الآخرَين.',kw:'سرعه مسافه زمن وقت الوصول',
+  f:[SEL('find','أريد حساب',[['t','الزمن'],['d','المسافة'],['s','السرعة']],null,{wide:true}),N('d','المسافة',300,'كم',{when:v=>v.find!=='d'}),N('s','السرعة',100,'كم/س',{when:v=>v.find!=='s'}),N('t','الزمن',2.5,'ساعة',{when:v=>v.find!=='t'})],
+  calc(v){const hm=h=>`${Math.floor(h)} ساعة و${Math.round((h%1)*60)} دقيقة`;
+    if(v.find==='t'){if(!(v.s>0))return{err:'أدخل السرعة.'};const t=v.d/v.s;return{big:['الزمن',hm(t)],rows:[['بالدقائق',f0(t*60)]]};}
+    if(v.find==='d')return{big:['المسافة',f2(v.s*v.t)+' كم'],rows:[['بالميل',f2(v.s*v.t/1.609344)]]};
+    if(!(v.t>0))return{err:'أدخل الزمن.'};return{big:['السرعة',f2(v.d/v.t)+' كم/س'],rows:[['متر/ثانية',f2(v.d/v.t/3.6)]]};}});
+
+T({id:'electricity',c:'daily',n:'استهلاك الكهرباء وتكلفة الأجهزة',d:'كم يستهلك جهازك من الكيلوواط ساعة وكم يكلّفك شهريًا.',kw:'كهرباء فاتوره كيلوواط مكيف جهاز تكلفه تشغيل',
+  f:[N('w','قدرة الجهاز',1500,'واط'),N('h','ساعات التشغيل يوميًا',8,'ساعات'),N('q','عدد الأجهزة',1),N('p','سعر الكيلوواط ساعة',0.18)],
+  calc(v){const d=v.w*v.h*(v.q||1)/1000;return{big:['التكلفة الشهرية',f2(d*30*v.p)],rows:[['الاستهلاك اليومي',f2(d)+' ك.و.س'],['الاستهلاك الشهري',f1(d*30)+' ك.و.س'],['التكلفة اليومية',f2(d*v.p)],['التكلفة السنوية',f2(d*365*v.p)]],note:'المكيفات والسخانات تعمل بدورات تشغيل وإيقاف، فالاستهلاك الفعلي غالبًا أقل من القدرة القصوى.'};}});
+
+T({id:'battery',c:'daily',n:'حاسبة عمر البطارية',d:'قدّر مدة عمل البطارية من سعتها واستهلاك الجهاز.',kw:'بطاريه شحن باور بانك mah',
+  f:[N('c','سعة البطارية',5000,'mAh'),N('l','استهلاك الجهاز',500,'mA'),N('e','الكفاءة',85,'%')],
+  calc(v){if(!(v.l>0))return{err:'أدخل الاستهلاك.'};const h=v.c/v.l*(v.e/100);return{big:['مدة التشغيل',`${Math.floor(h)} ساعة و${Math.round(h%1*60)} دقيقة`],rows:[['بالساعات',f2(h)]]};}});
+
+/* tafqeet */
+const ONES=['','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة'];
+const TEENS=['عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+const TENS=['','','عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+const HUND=['','مائة','مائتان','ثلاثمائة','أربعمائة','خمسمائة','ستمائة','سبعمائة','ثمانمائة','تسعمائة'];
+function w999(n){const h=Math.floor(n/100),r=n%100,parts=[];if(h)parts.push(HUND[h]);if(r){if(r<10)parts.push(ONES[r]);else if(r<20)parts.push(TEENS[r-10]);else{const o=r%10,t=Math.floor(r/10);parts.push(o?`${ONES[o]} و${TENS[t]}`:TENS[t]);}}return parts.join(' و');}
+const SCALES=[[1e9,['مليار','ملياران','مليارات','مليارًا']],[1e6,['مليون','مليونان','ملايين','مليونًا']],[1e3,['ألف','ألفان','آلاف','ألفًا']]];
+function scaleWord(n,f){if(n===1)return f[0];if(n===2)return f[1];const r=n%100;if(n>=3&&n<=10)return `${w999(n)} ${f[2]}`;if(r>=11&&r<=99)return `${w999(n)} ${f[3]}`;return `${w999(n)} ${f[0]}`;}
+function tafqeet(n){if(n===0)return 'صفر';const parts=[];for(const [v,f] of SCALES){const q=Math.floor(n/v);if(q){parts.push(scaleWord(q,f));n%=v;}}if(n)parts.push(w999(n));return parts.join(' و');}
+const CUR={none:null,sar:['ريال سعودي','ريالان سعوديان','ريالات سعودية','ريالًا سعوديًا','هللة',100],egp:['جنيه مصري','جنيهان مصريان','جنيهات مصرية','جنيهًا مصريًا','قرش',100],aed:['درهم إماراتي','درهمان إماراتيان','دراهم إماراتية','درهمًا إماراتيًا','فلس',100],kwd:['دينار كويتي','ديناران كويتيان','دنانير كويتية','دينارًا كويتيًا','فلس',1000],usd:['دولار أمريكي','دولاران أمريكيان','دولارات أمريكية','دولارًا أمريكيًا','سنت',100]};
+T({id:'tafqeet',c:'daily',n:'تفقيط الأرقام (الرقم كتابةً)',d:'حوّل أي مبلغ إلى كلمات عربية لكتابة الشيكات والعقود والفواتير.',kw:'تفقيط كتابه الارقام بالحروف شيك',
+  f:[TX('n','المبلغ أو الرقم','12500.75',{wide:true}),SEL('cur','العملة',[['sar','ريال سعودي'],['egp','جنيه مصري'],['aed','درهم إماراتي'],['kwd','دينار كويتي'],['usd','دولار أمريكي'],['none','بدون عملة']])],
+  calc(v){const s=String(v.n).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace(/[,٬\s]/g,'').replace('٫','.');if(!/^\d{1,12}(\.\d+)?$/.test(s))return{err:'أدخل رقمًا موجبًا حتى 12 خانة.'};
+    const [ip,fp='']=s.split('.'),n=+ip,c=CUR[v.cur];
+    if(!c){let out=tafqeet(n);if(fp)out+=` فاصلة ${tafqeet(+fp)}`;return{big:['كتابةً',out]};}
+    const sub=Math.round(+('0.'+(fp||'0'))*c[5]);const r=n%100;
+    const main=n===0?'':n===1?`${c[0]} واحد`:n===2?c[1]:r>=3&&r<=10?`${tafqeet(n)} ${c[2]}`:r>=11?`${tafqeet(n)} ${c[3]}`:`${tafqeet(n)} ${c[0]}`;
+    let out='فقط '+(main||'')+(sub?`${main?' و':''}${sub} ${c[4]}`:'')+' لا غير';
+    return{big:['كتابةً',out],rows:[['الرقم',fmt(+s,3)]]};}});
+
+T({id:'password',c:'daily',n:'مولّد كلمات المرور',d:'أنشئ كلمة مرور قوية وعشوائية فعلًا على جهازك.',kw:'باسورد كلمه سر مرور قويه',custom:passwordTool});
+T({id:'random',c:'daily',n:'القرعة والاختيار العشوائي',d:'اسحب اسمًا فائزًا، ارمِ عملة أو نردًا، أو اختر رقمًا عشوائيًا.',kw:'قرعه سحب عشوائي عمله نرد',custom:randomTool});
+T({id:'words',c:'daily',n:'عدّاد الكلمات والحروف',d:'عدد الكلمات والحروف والجمل ومدة القراءة لأي نص.',kw:'عد كلمات حروف نص مقال',
+  f:[AR('t','النص','اكتب أو الصق النص هنا لتعرف عدد كلماته وحروفه. الأداة تعمل مع العربية والإنجليزية.',{wide:true})],
+  calc(v){const t=v.t||'',w=(t.match(/[^\s.,،؛;:!؟?\-–—()"'«»]+/g)||[]).length;
+    return{big:['عدد الكلمات',f0(w)],rows:[['الحروف مع المسافات',f0([...t].length)],['الحروف بدون مسافات',f0([...t.replace(/\s/g,'')].length)],['الحروف العربية',f0((t.match(/[ء-ي]/g)||[]).length)],['الجمل',f0((t.match(/[^.!?؟\n]+[.!?؟]+/g)||[]).length||(t.trim()?1:0))],['الفقرات',f0(t.split(/\n\s*\n/).filter(x=>x.trim()).length)],['مدة القراءة',`${Math.max(1,Math.ceil(w/180))} دقيقة تقريبًا`],['مدة الإلقاء',`${Math.max(1,Math.ceil(w/120))} دقيقة تقريبًا`]]};}});
+T({id:'qr',c:'daily',n:'مولّد رمز QR',d:'حوّل أي رابط أو نص أو رقم هاتف إلى رمز QR.',kw:'باركود كيو ار qr رمز',custom:qrTool});
+
+/* =====================================================================
+   MATH
+   ===================================================================== */
+T({id:'percent',c:'math',n:'حاسبة النسبة المئوية',d:'كم تساوي نسبة من رقم، أو نسبة رقم من آخر، أو نسبة الزيادة والنقصان.',kw:'نسبه مئويه بالميه زياده نقصان',
+  f:[SEL('m','نوع الحساب',[['of','كم تساوي س% من ص؟'],['is','س تمثّل كم % من ص؟'],['ch','نسبة التغيّر من س إلى ص']],null,{wide:true}),N('x','س',15),N('y','ص',200)],
+  calc(v){if(v.m==='of')return{big:[`${fmt(v.x,4)}% من ${fmt(v.y,4)}`,fmt(v.x*v.y/100,4)]};if(!v.y&&v.m==='is')return{err:'ص لا يمكن أن تكون صفرًا.'};
+    if(v.m==='is')return{big:[`${fmt(v.x,4)} من ${fmt(v.y,4)}`,pctS(v.x/v.y*100)]};if(!v.x)return{err:'س لا يمكن أن تكون صفرًا.'};const c=(v.y-v.x)/Math.abs(v.x)*100;
+    return{big:[c>=0?'نسبة الزيادة':'نسبة النقصان',pctS(Math.abs(c))],tone:c>=0?'ok':'bad',rows:[['الفرق',fmt(v.y-v.x,4)]]};}});
+
+T({id:'ratio',c:'math',n:'حاسبة النسبة والتناسب',d:'حل التناسب أ : ب = ج : س (الضرب التبادلي).',kw:'تناسب طردي مقادير وصفه',
+  f:[N('a','أ',2),N('b','ب',5),N('c','ج',8)],
+  calc(v){if(!v.a)return{err:'أ لا يمكن أن تكون صفرًا.'};return{big:['س',fmt(v.b*v.c/v.a,6)],rows:[['المعادلة',`${fmt(v.a)} : ${fmt(v.b)} = ${fmt(v.c)} : ${fmt(v.b*v.c/v.a,6)}`]],note:'مفيدة لتكبير الوصفات: إذا كانت الوصفة لـ 2 أشخاص وتحتاج 5 أكواب، فلـ 8 أشخاص تحتاج 20 كوبًا.'};}});
+
+T({id:'average',c:'math',n:'حاسبة المتوسط والإحصاء',d:'المتوسط والوسيط والمنوال والانحراف المعياري لمجموعة أرقام.',kw:'متوسط حسابي وسيط منوال انحراف معياري معدل درجات',
+  f:[AR('t','الأرقام (افصل بفاصلة أو مسافة أو سطر)','85, 92, 78, 95, 88, 92',{wide:true})],
+  calc(v){const a=(String(v.t).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace(/٫/g,'.').match(/-?\d+(\.\d+)?/g)||[]).map(Number);if(!a.length)return{err:'أدخل رقمًا واحدًا على الأقل.'};
+    const s=a.reduce((x,y)=>x+y,0),m=s/a.length,so=[...a].sort((x,y)=>x-y),md=so.length%2?so[(so.length-1)/2]:(so[so.length/2-1]+so[so.length/2])/2;
+    const cnt={};a.forEach(x=>cnt[x]=(cnt[x]||0)+1);const mx=Math.max(...Object.values(cnt)),mode=mx>1?Object.keys(cnt).filter(k=>cnt[k]===mx).join('، '):'لا يوجد';
+    const sd=Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length);
+    return{big:['المتوسط الحسابي',fmt(m,4)],rows:[['العدد',f0(a.length)],['المجموع',fmt(s,4)],['الوسيط',fmt(md,4)],['المنوال',mode],['أصغر قيمة',fmt(so[0],4)],['أكبر قيمة',fmt(so[so.length-1],4)],['المدى',fmt(so[so.length-1]-so[0],4)],['الانحراف المعياري',fmt(sd,4)]]};}});
+
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+T({id:'fractions',c:'math',n:'حاسبة الكسور',d:'اجمع واطرح واضرب واقسم الكسور مع التبسيط والعدد الكسري.',kw:'كسور بسط مقام تبسيط',
+  f:[N('a','بسط الكسر الأول',3),N('b','مقام الكسر الأول',4),SEL('op','العملية',[['+','جمع +'],['-','طرح −'],['*','ضرب ×'],['/','قسمة ÷']],null,{wide:true}),N('c','بسط الكسر الثاني',2),N('d','مقام الكسر الثاني',3)],
+  calc(v){if(![v.a,v.b,v.c,v.d].every(Number.isInteger))return{err:'استخدم أعدادًا صحيحة.'};if(!v.b||!v.d)return{err:'المقام لا يمكن أن يكون صفرًا.'};let n,d;
+    if(v.op==='+'){n=v.a*v.d+v.c*v.b;d=v.b*v.d;}else if(v.op==='-'){n=v.a*v.d-v.c*v.b;d=v.b*v.d;}else if(v.op==='*'){n=v.a*v.c;d=v.b*v.d;}else{if(!v.c)return{err:'لا يمكن القسمة على صفر.'};n=v.a*v.d;d=v.b*v.c;}
+    if(d<0){n=-n;d=-d;}const g=gcd(n,d);n/=g;d/=g;const whole=Math.trunc(n/d),rem=Math.abs(n%d);
+    return{big:['الناتج',d===1?String(n):`${n}/${d}`],rows:[['عدد كسري',whole&&rem?`${whole} و ${rem}/${d}`:d===1?String(n):`${n}/${d}`],['عدد عشري',fmt(n/d,6)]]};}});
+
+const shapeF=k=>v=>v.s===k;
+T({id:'area',c:'math',n:'حاسبة مساحة الأشكال الهندسية',d:'مساحة ومحيط المستطيل والمربع والدائرة والمثلث وشبه المنحرف.',kw:'مساحه محيط مستطيل دائره مثلث',
+  f:[SEL('s','الشكل',[['rect','مستطيل'],['sq','مربع'],['circ','دائرة'],['tri','مثلث'],['trap','شبه منحرف']],null,{wide:true}),
+    N('a','الطول',10,'',{when:v=>['rect','sq'].includes(v.s)}),N('b','العرض',6,'',{when:shapeF('rect')}),N('r','نصف القطر',5,'',{when:shapeF('circ')}),
+    N('tb','القاعدة',8,'',{when:shapeF('tri')}),N('th','الارتفاع',5,'',{when:v=>v.s==='tri'||v.s==='trap'}),N('t1','القاعدة الكبرى',10,'',{when:shapeF('trap')}),N('t2','القاعدة الصغرى',6,'',{when:shapeF('trap')})],
+  calc(v){const pi=Math.PI;if(v.s==='rect')return{big:['المساحة',fmt(v.a*v.b,4)],rows:[['المحيط',fmt(2*(v.a+v.b),4)],['القطر',fmt(Math.hypot(v.a,v.b),4)]]};
+    if(v.s==='sq')return{big:['المساحة',fmt(v.a*v.a,4)],rows:[['المحيط',fmt(4*v.a,4)]]};
+    if(v.s==='circ')return{big:['المساحة',fmt(pi*v.r*v.r,4)],rows:[['المحيط',fmt(2*pi*v.r,4)],['القطر',fmt(2*v.r,4)]]};
+    if(v.s==='tri')return{big:['المساحة',fmt(v.tb*v.th/2,4)]};return{big:['المساحة',fmt((v.t1+v.t2)/2*v.th,4)]};}});
+
+T({id:'volume',c:'math',n:'حاسبة حجم الأشكال الهندسية',d:'حجم المكعب ومتوازي المستطيلات والكرة والأسطوانة والمخروط.',kw:'حجم مكعب كره اسطوانه خزان',
+  f:[SEL('s','الشكل',[['box','متوازي مستطيلات'],['cube','مكعب'],['sph','كرة'],['cyl','أسطوانة'],['cone','مخروط']],null,{wide:true}),
+    N('l','الطول',4,'م',{when:v=>v.s==='box'||v.s==='cube'}),N('w','العرض',3,'م',{when:shapeF('box')}),N('h','الارتفاع',2,'م',{when:v=>['box','cyl','cone'].includes(v.s)}),N('r','نصف القطر',1,'م',{when:v=>['sph','cyl','cone'].includes(v.s)})],
+  calc(v){const pi=Math.PI;const V=v.s==='box'?v.l*v.w*v.h:v.s==='cube'?v.l**3:v.s==='sph'?4/3*pi*v.r**3:v.s==='cyl'?pi*v.r*v.r*v.h:pi*v.r*v.r*v.h/3;
+    return{big:['الحجم',fmt(V,4)+' م³'],rows:[['باللتر',fmt(V*1000,2)],['بالجالون الأمريكي',fmt(V*264.172,2)]],note:'إذا أدخلت القياسات بوحدة غير المتر، فالناتج بالوحدة المكعبة نفسها.'};}});
+
+T({id:'gpa',c:'math',n:'حاسبة المعدل الجامعي GPA',d:'احسب معدلك الفصلي على نظام 5 أو 4 مع الساعات المعتمدة.',kw:'معدل جامعي gpa تراكمي ساعات',custom:gpaTool});
+
+/* =====================================================================
+   UNITS
+   ===================================================================== */
+const UNITS={
+  length:{n:'الطول',u:[['متر',1],['كيلومتر',1000],['سنتيمتر',.01],['مليمتر',.001],['ميل',1609.344],['ياردة',.9144],['قدم',.3048],['بوصة (إنش)',.0254],['ميل بحري',1852]]},
+  weight:{n:'الوزن',u:[['كيلوغرام',1],['غرام',.001],['مليغرام',1e-6],['طن',1000],['رطل (باوند)',.45359237],['أونصة',.028349523125],['قيراط',.0002]]},
+  area:{n:'المساحة',u:[['متر مربع',1],['كيلومتر مربع',1e6],['سنتيمتر مربع',1e-4],['هكتار',1e4],['دونم',1000],['فدان مصري',4200.83],['إيكر',4046.8564224],['قدم مربع',.09290304],['ياردة مربعة',.83612736]]},
+  volume:{n:'الحجم',u:[['لتر',1],['مليلتر',.001],['متر مكعب',1000],['سنتيمتر مكعب',.001],['غالون أمريكي',3.785411784],['غالون إمبراطوري',4.54609],['كوب أمريكي',.2365882365],['ملعقة كبيرة',.01478676478125],['ملعقة صغيرة',.00492892159375],['برميل نفط',158.987294928]]},
+  temp:{n:'الحرارة',u:[['مئوية °C'],['فهرنهايت °F'],['كلفن K']]},
+  speed:{n:'السرعة',u:[['كم/ساعة',1/3.6],['متر/ثانية',1],['ميل/ساعة',.44704],['عقدة',1852/3600],['قدم/ثانية',.3048]]},
+  time:{n:'الزمن',u:[['ثانية',1],['مللي ثانية',.001],['دقيقة',60],['ساعة',3600],['يوم',86400],['أسبوع',604800],['شهر (متوسط)',2629800],['سنة (365.25 يوم)',31557600]]},
+  pressure:{n:'الضغط',u:[['باسكال',1],['كيلوباسكال',1000],['بار',1e5],['PSI',6894.757293168],['ضغط جوي',101325],['ملم زئبق',133.322387415]]},
+  energy:{n:'الطاقة',u:[['جول',1],['كيلوجول',1000],['سعرة',4.184],['سعرة حرارية (كيلو)',4184],['واط ساعة',3600],['كيلوواط ساعة',3.6e6],['BTU',1055.05585262]]},
+  power:{n:'القدرة',u:[['واط',1],['كيلوواط',1000],['حصان ميكانيكي',745.69987158227],['حصان متري',735.49875],['BTU/ساعة',.29307107]]},
+  data:{n:'البيانات والتخزين',u:[['بايت',1],['بت',.125],['كيلوبايت KB',1e3],['ميغابايت MB',1e6],['غيغابايت GB',1e9],['تيرابايت TB',1e12],['KiB',1024],['MiB',1048576],['GiB',1073741824]]},
+  angle:{n:'الزوايا',u:[['درجة',1],['راديان',57.29577951308232],['غراد',.9],['دقيقة قوسية',1/60],['ثانية قوسية',1/3600],['دورة كاملة',360]]},
+  density:{n:'الكثافة',u:[['كغ/م³',1],['غ/سم³',1000],['غ/مل',1000],['كغ/لتر',1000],['رطل/قدم³',16.01846337]]}
+};
+const toC=[x=>x,x=>(x-32)*5/9,x=>x-273.15],fromC=[x=>x,x=>x*9/5+32,x=>x+273.15];
+Object.entries(UNITS).forEach(([k,U])=>T({id:'u-'+k,c:'units',n:'تحويل وحدات '+U.n,d:'حوّل بين '+U.u.slice(0,4).map(x=>x[0]).join(' و')+' وغيرها.',kw:U.u.map(x=>x[0]).join(' '),unit:k}));
+
+/* =====================================================================
+   FUN & LEARN
+   ===================================================================== */
+T({id:'quizzes',c:'fun',n:'اختبر نفسك: مسابقات ثقافية',d:'128 سؤالًا في 8 أقسام، تحدٍّ يومي، تحدَّ صديقك، ووسائل مساعدة.',kw:'مسابقه اسئله ثقافيه اختبار',href:'quizzes/index.html'});
+T({id:'personality',c:'fun',n:'اختبارات الشخصية',d:'كيف تتعلّم أفضل؟ ما دورك في الفريق؟ أي مدينة عربية تشبهك؟',kw:'شخصيه اختبار نفسي',href:'quizzes/index.html#persona'});
+T({id:'make-quiz',c:'fun',n:'اصنع مسابقتك وتحدَّ أصدقاءك',d:'اكتب أسئلتك وشاركها برمز يستورده أصدقاؤك.',kw:'صنع مسابقه انشاء اسئله',href:'quizzes/index.html#make'});
+T({id:'love',c:'fun',n:'مقياس الحب',d:'اكتشف نسبة التوافق بين اسمين (للتسلية فقط).',kw:'حب توافق اسماء',
+  f:[TX('a','الاسم الأول','أحمد'),TX('b','الاسم الثاني','سارة')],
+  calc(v){const a=norm(v.a||'').replace(/\s+/g,''),b=norm(v.b||'').replace(/\s+/g,'');if(!a||!b)return{err:'اكتب الاسمين.'};const k=[a,b].sort().join('♥');let h=7;for(const ch of k)h=(h*31+ch.charCodeAt(0))>>>0;const p=40+h%61;
+    const msg=p>=90?'ثنائي مثالي! ما شاء الله':p>=75?'توافق رائع':p>=60?'فيه انسجام جميل':'صداقة لطيفة على الأقل';
+    return{big:[`${v.a} و${v.b}`,p+'%',msg],tone:p>=60?'ok':'warn',bars:[['التوافق',p,p+'%']],note:'نتيجة للتسلية تعتمد على الحروف فقط، والحب الحقيقي تبنيه المودة والرحمة.'};}});
+T({id:'mental-age',c:'fun',n:'اختبار العمر العقلي',d:'12 موقفًا قصيرًا تكشف عمرك العقلي. لا توجد إجابة صحيحة أو خاطئة.',kw:'عمر عقلي اختبار نفسي',custom:mentalTool});
+T({id:'english',c:'fun',n:'طريقي للإنجليزي',d:'كلمات وعبارات إنجليزية أساسية مع النطق وبطاقات واختبار سريع.',kw:'انجليزي تعلم كلمات english لغه',custom:englishTool});
+T({id:'poll',c:'fun',n:'أنشئ استطلاعًا وتصويتًا',d:'استطلاع سريع للعائلة أو الفصل أو الاجتماع على جهاز واحد مع نتائج فورية.',kw:'استطلاع تصويت رأي',custom:pollTool});
+
+/* ================= CUSTOM TOOLS ================= */
+function unitTool(el,t){
+  const U=UNITS[t.unit],isT=t.unit==='temp',sv=S.inputs[t.id]||{v:'1',a:0,b:1};
+  el.innerHTML=`<div class="card stack">
+    <div class="fld"><label for="uv">القيمة</label><div class="numwrap"><input type="text" inputmode="decimal" dir="ltr" id="uv" value="${esc(sv.v)}"></div></div>
+    <div class="unit-row">
+      <div class="fld"><label for="ua">من</label><select id="ua">${U.u.map((x,i)=>`<option value="${i}" ${i==sv.a?'selected':''}>${x[0]}</option>`).join('')}</select></div>
+      <button class="icon-btn swap" id="uswap" aria-label="تبديل الوحدتين">${ic('swap')}</button>
+      <div class="fld"><label for="ub">إلى</label><select id="ub">${U.u.map((x,i)=>`<option value="${i}" ${i==sv.b?'selected':''}>${x[0]}</option>`).join('')}</select></div>
+    </div></div>
+    <section class="card result" id="ures" aria-live="polite"></section>
+    <div class="btn-row"><button class="btn" id="copyRes">${ic('copy')}انسخ النتيجة</button></div>`;
+  const conv=(x,a,b)=>isT?fromC[b](toC[a](x)):x*U.u[a][1]/U.u[b][1];
+  const run=()=>{const x=parseNum($('#uv').value),a=+$('#ua').value,b=+$('#ub').value;S.inputs[t.id]={v:$('#uv').value,a,b};save();
+    if(!isFinite(x)){$('#ures').innerHTML='<div class="res-err">أدخل رقمًا.</div>';return;}
+    const r={big:[`${fmtU(x)} ${U.u[a][0]} =`,`${fmtU(conv(x,a,b))} ${U.u[b][0]}`],table:{h:['الوحدة','القيمة'],r:U.u.map((u,i)=>[u[0],fmtU(conv(x,a,i))])}};
+    $('#ures').innerHTML=resHTML(r);LAST={t,r};};
+  ['input','change'].forEach(e=>el.addEventListener(e,run));
+  $('#uswap').onclick=()=>{const a=$('#ua').value;$('#ua').value=$('#ub').value;$('#ub').value=a;run();};
+  $('#copyRes').onclick=()=>copyText(resText(t,LAST.r));run();
+}
+
+function passwordTool(el){
+  const sv=Object.assign({len:16,up:true,lo:true,di:true,sy:true,sim:false},S.inputs.password||{});
+  el.innerHTML=`<div class="card stack">
+    <div class="pw num" id="pwOut" aria-live="polite"></div>
+    <div class="fld"><label for="pwLen">الطول: <b id="pwLenV">${sv.len}</b> حرفًا</label><input type="range" id="pwLen" min="6" max="64" value="${sv.len}" style="accent-color:var(--brand)"></div>
+    <div class="fgrid">
+      ${[['up','حروف كبيرة A-Z'],['lo','حروف صغيرة a-z'],['di','أرقام 0-9'],['sy','رموز !@#$'],['sim','استبعد المتشابهة (O0Il1)']].map(([k,l])=>`<label class="check"><input type="checkbox" id="pw_${k}" ${sv[k]?'checked':''}>${l}</label>`).join('')}
+    </div>
+    <div><div class="bar"><i id="pwBar"></i></div><small class="faint" id="pwStr"></small></div>
+    <div class="btn-row"><button class="btn primary" id="pwGen">${ic('refresh')}كلمة جديدة</button><button class="btn accent" id="pwCopy">${ic('copy')}انسخ</button></div>
+    <p class="faint">تُولَّد كلمة المرور على جهازك باستخدام مولّد الأرقام العشوائية الآمن في المتصفح، ولا تُرسل إلى أي مكان.</p></div>`;
+  let cur='';
+  const gen=()=>{const o={len:+$('#pwLen').value};['up','lo','di','sy','sim'].forEach(k=>o[k]=$('#pw_'+k).checked);S.inputs.password=o;save();$('#pwLenV').textContent=o.len;
+    const sets=[];if(o.up)sets.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');if(o.lo)sets.push('abcdefghijklmnopqrstuvwxyz');if(o.di)sets.push('0123456789');if(o.sy)sets.push('!@#$%^&*()-_=+[]{};:,.?/');
+    if(!sets.length){$('#pwOut').textContent='اختر نوعًا واحدًا على الأقل';cur='';return;}
+    const clean=s=>o.sim?s.replace(/[O0Il1|]/g,''):s;const all=sets.map(clean).join('');
+    const chars=sets.map(s=>{const c=clean(s);return c[Math.floor(rnd01()*c.length)];});while(chars.length<o.len)chars.push(all[Math.floor(rnd01()*all.length)]);
+    for(let i=chars.length-1;i>0;i--){const j=Math.floor(rnd01()*(i+1));[chars[i],chars[j]]=[chars[j],chars[i]];}
+    cur=chars.slice(0,o.len).join('');$('#pwOut').textContent=cur;
+    const bits=o.len*Math.log2(all.length),p=Math.min(100,bits/1.28),lbl=bits<40?'ضعيفة':bits<60?'متوسطة':bits<90?'قوية':'قوية جدًا';
+    $('#pwBar').style.width=p+'%';$('#pwBar').style.background=bits<40?'var(--bad)':bits<60?'var(--warn)':'var(--ok)';$('#pwStr').textContent=`${lbl} · ${Math.round(bits)} بت من العشوائية`;};
+  el.addEventListener('input',gen);$('#pwGen').onclick=gen;$('#pwCopy').onclick=()=>{if(cur)copyText(cur);};gen();
+}
+
+function randomTool(el){
+  let mode='names';
+  const draw=()=>{
+    const body=mode==='names'?`<div class="fld"><label for="rNames">الأسماء (اسم في كل سطر)</label><textarea id="rNames" rows="6">${esc((S.inputs.random&&S.inputs.random.names)||'أحمد\nسارة\nمحمد\nنورة\nخالد')}</textarea></div><button class="btn primary block" id="rGo">${ic('refresh')}اسحب فائزًا</button>`
+      :mode==='coin'?`<button class="btn primary block" id="rGo">ارمِ العملة</button>`
+      :mode==='dice'?`<div class="fld"><label for="rDice">عدد أحجار النرد</label><select id="rDice">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div><button class="btn primary block" id="rGo">ارمِ النرد</button>`
+      :`<div class="fgrid"><div class="fld"><label for="rMin">من</label><input type="text" inputmode="numeric" dir="ltr" id="rMin" value="1"></div><div class="fld"><label for="rMax">إلى</label><input type="text" inputmode="numeric" dir="ltr" id="rMax" value="100"></div></div><button class="btn primary block" id="rGo">اختر رقمًا</button>`;
+    el.innerHTML=`<div class="card stack"><div class="seg" role="group">${[['names','سحب اسم'],['coin','عملة'],['dice','نرد'],['num','رقم']].map(([k,l])=>`<button data-m="${k}" aria-pressed="${mode===k}">${l}</button>`).join('')}</div>${body}<div class="dice" id="rOut" aria-live="polite">؟</div><p class="faint" id="rSub" style="text-align:center"></p></div>`;
+    $$('[data-m]',el).forEach(b=>b.onclick=()=>{mode=b.dataset.m;draw();});
+    $('#rGo').onclick=()=>{const out=$('#rOut'),sub=$('#rSub');
+      if(mode==='names'){const ns=$('#rNames').value.split('\n').map(s=>s.trim()).filter(Boolean);S.inputs.random={names:$('#rNames').value};save();if(!ns.length){out.textContent='؟';sub.textContent='اكتب اسمًا واحدًا على الأقل';return;}out.textContent=ns[Math.floor(rnd01()*ns.length)];sub.textContent=`من بين ${ns.length} أسماء`;}
+      else if(mode==='coin'){out.textContent=rnd01()<.5?'ملك':'كتابة';sub.textContent='';}
+      else if(mode==='dice'){const n=+$('#rDice').value,r=Array.from({length:n},()=>rint(1,6));out.textContent=r.join('  ');sub.textContent=n>1?'المجموع: '+r.reduce((a,b)=>a+b,0):'';}
+      else{const a=parseNum($('#rMin').value),b=parseNum($('#rMax').value);if(!isFinite(a)||!isFinite(b)||b<a){sub.textContent='تأكد أن الرقم الثاني أكبر';return;}out.textContent=rint(Math.ceil(a),Math.floor(b));sub.textContent=`بين ${a} و${b}`;}
+      out.classList.remove('fade');void out.offsetWidth;out.classList.add('fade');};
+  };draw();
+}
+
+let qrLoading=null;
+function loadQR(){if(window.QRCode)return Promise.resolve();if(qrLoading)return qrLoading;qrLoading=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';s.onload=res;s.onerror=()=>{qrLoading=null;rej();};document.head.appendChild(s);});return qrLoading;}
+function qrTool(el){
+  const sv=(S.inputs.qr&&S.inputs.qr.t)||'https://example.com';
+  el.innerHTML=`<div class="card stack"><div class="fld"><label for="qrT">الرابط أو النص</label><textarea id="qrT" rows="3" dir="auto">${esc(sv)}</textarea></div>
+    <div class="qrbox" id="qrBox"><span class="faint">جارٍ التحميل…</span></div><p class="faint">لحفظ الرمز: اضغط مطولًا على الصورة أو انقر عليها بالزر الأيمن واختر «حفظ الصورة».</p></div>`;
+  let tm=null;const draw=()=>{const t=$('#qrT').value.trim();S.inputs.qr={t};save();const box=$('#qrBox');if(!t){box.innerHTML='<span class="faint">اكتب نصًا</span>';return;}
+    loadQR().then(()=>{box.innerHTML='';try{new window.QRCode(box,{text:t,width:240,height:240,colorDark:'#0F2436',colorLight:'#FFFFFF',correctLevel:window.QRCode.CorrectLevel.M});}catch(e){box.innerHTML='<span class="res-err">النص طويل جدًا لرمز واحد.</span>';}})
+      .catch(()=>{box.innerHTML='<span class="res-err">تعذّر تحميل مكتبة QR. تحقق من الاتصال بالإنترنت.</span>';});};
+  $('#qrT').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(draw,300);});draw();
+}
+
+const GRADES5=[['A+',5],['A',4.75],['B+',4.5],['B',4],['C+',3.5],['C',3],['D+',2.5],['D',2],['F',1]];
+const GRADES4=[['A+',4],['A',3.75],['B+',3.5],['B',3],['C+',2.5],['C',2],['D+',1.5],['D',1],['F',0]];
+function gpaTool(el){
+  const st=Object.assign({scale:5,rows:[['الرياضيات','A',3],['الفيزياء','B+',4],['اللغة العربية','A+',2],['البرمجة','B',3]],prevG:'',prevH:''},S.inputs.gpa||{});
+  const draw=()=>{const G=st.scale==5?GRADES5:GRADES4;
+    el.innerHTML=`<div class="card stack"><div class="seg" role="group" aria-label="النظام">${[[5,'من 5'],[4,'من 4']].map(([k,l])=>`<button data-sc="${k}" aria-pressed="${st.scale==k}">${l}</button>`).join('')}</div>
+      ${st.rows.map((r,i)=>`<div class="gpa-row"><input type="text" data-i="${i}" data-k="0" value="${esc(r[0])}" placeholder="المادة" aria-label="اسم المادة"><select data-i="${i}" data-k="1" aria-label="التقدير">${G.map(g=>`<option ${g[0]===r[1]?'selected':''}>${g[0]}</option>`).join('')}</select><input type="text" inputmode="numeric" dir="ltr" data-i="${i}" data-k="2" value="${esc(r[2])}" aria-label="الساعات"><button class="link danger" data-del="${i}" aria-label="حذف">${ic('trash')}</button></div>`).join('')}
+      <button class="btn" id="gAdd">${ic('plus')}أضف مادة</button>
+      <div class="fgrid"><div class="fld"><label for="gpG">المعدل التراكمي السابق (اختياري)</label><input type="text" inputmode="decimal" dir="ltr" id="gpG" value="${esc(st.prevG)}"></div><div class="fld"><label for="gpH">الساعات السابقة</label><input type="text" inputmode="numeric" dir="ltr" id="gpH" value="${esc(st.prevH)}"></div></div></div>
+      <section class="card result" id="gRes" aria-live="polite"></section>`;
+    $$('[data-sc]',el).forEach(b=>b.onclick=()=>{st.scale=+b.dataset.sc;persist();draw();});
+    $$('[data-del]',el).forEach(b=>b.onclick=()=>{st.rows.splice(+b.dataset.del,1);persist();draw();});
+    $('#gAdd').onclick=()=>{st.rows.push(['',G[0][0],3]);persist();draw();};
+    calc();};
+  const persist=()=>{S.inputs.gpa=st;save();};
+  const calc=()=>{const G=st.scale==5?GRADES5:GRADES4;let pts=0,hrs=0;st.rows.forEach(r=>{const g=G.find(x=>x[0]===r[1]),h=parseNum(r[2]);if(g&&h>0){pts+=g[1]*h;hrs+=h;}});
+    const sem=hrs?pts/hrs:NaN,pg=parseNum(st.prevG),ph=parseNum(st.prevH),cum=isFinite(pg)&&ph>0?(pg*ph+pts)/(ph+hrs):NaN;
+    const lbl=x=>{const r=x/st.scale;return r>=.9?'ممتاز':r>=.75?'جيد جدًا':r>=.6?'جيد':r>=.4?'مقبول':'ضعيف';};
+    $('#gRes').innerHTML=resHTML(hrs?{big:['المعدل الفصلي',fmt(sem,2)+' من '+st.scale,lbl(sem)],rows:[['الساعات',f0(hrs)],['النقاط',fmt(pts,2)]].concat(isFinite(cum)?[['المعدل التراكمي الجديد',fmt(cum,2)+' ('+lbl(cum)+')']]:[])}:{err:'أضف مادة واحدة على الأقل بساعات صحيحة.'});};
+  el.addEventListener('input',e=>{const x=e.target;if(x.dataset.i!=null){st.rows[+x.dataset.i][+x.dataset.k]=x.value;}else if(x.id==='gpG')st.prevG=x.value;else if(x.id==='gpH')st.prevH=x.value;persist();calc();});
+  el.addEventListener('change',e=>{const x=e.target;if(x.dataset.i!=null){st.rows[+x.dataset.i][+x.dataset.k]=x.value;persist();calc();}});
+  draw();
+}
+
+const MENTAL=[
+['وصلتك هدية ملفوفة بشكل جميل، ماذا تفعل؟',['أمزّق الغلاف فورًا','أفتحها بحماس أمام الجميع','أقرأ البطاقة أولًا ثم أفتحها بهدوء','أشكر المُهدي قبل فتحها وأحتفظ بالغلاف']],
+['يوم إجازة بلا خطط:',['ألعاب وكرتون طوال اليوم','خروجة مع الأصحاب','أرتّب أموري ثم أستمتع','قراءة وزيارة الأهل']],
+['خسرت في لعبة أمام صديق:',['أزعل وأطلب إعادة فورًا','أضحك وأتوعّده بالمرة القادمة','أهنّئه وأفكر أين أخطأت','لا يهمني الفوز أصلًا']],
+['وصلك مبلغ كبير فجأة:',['أشتري ما أريده الآن','سهرة وتسوّق مع الأصدقاء','أقسّمه بين الادخار والمصروف','أستثمره وأتصدق بجزء منه']],
+['موعد النوم المثالي عندك:',['لا أريد أن أنام أبدًا','بعد منتصف الليل','حوالي 11 مساءً','بعد العشاء بقليل']],
+['نقاش حاد في مجموعة واتساب:',['أرسل ملصقات مضحكة','أدخل بقوة وأدافع عن رأيي','أكتب رأيي بهدوء وأنسحب','أتجاهله تمامًا']],
+['أي نوع من الأفلام تختار؟',['رسوم متحركة','أكشن ومغامرات','دراما بقصة عميقة','وثائقي تاريخي']],
+['صديق يطلب نصيحتك في مشكلة:',['أقول له انسَ الموضوع ولنلعب','أنصحه بما كنت سأفعله أنا','أسأله أسئلة لأفهم الموقف','أحكي له تجربة مشابهة وما تعلمته منها']],
+['رأيت لعبة أطفال في متجر:',['أريدها!','أصوّرها وأضحك','أفكر في طفل أعرفه أهديها له','أتذكر طفولتي بابتسامة']],
+['عند تعلّم شيء جديد:',['أملّ بسرعة','أتحمس في البداية ثم أنتقل لغيره','أضع خطة وأتابعها','أتعلم بصبر حتى أتقنه']],
+['كيف تتابع الأخبار؟',['لا أتابعها','أقرأ العناوين على مواقع التواصل','أتابع ما يهمني من مصادر موثوقة','أقرأ تحليلات مطوّلة وأناقشها']],
+['أكثر ما يسعدك:',['الحلويات والمفاجآت','المغامرة والسفر','الإنجاز في العمل أو الدراسة','راحة البال واجتماع العائلة']]];
+function mentalTool(el){
+  let i=0,score=0,order=[0,1,2,3];const sh=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a;};
+  const draw=()=>{
+    if(i>=MENTAL.length){const age=Math.round(9+score*1.35),lbl=age<18?'روح طفل مرِح':age<28?'شاب متحمّس':age<42?'ناضج ومتوازن':'حكيم هادئ';
+      el.innerHTML=`<section class="card result">${resHTML({big:['عمرك العقلي',pl(age,W_Y),lbl],note:'اختبار للتسلية مبني على اختياراتك، وليس قياسًا نفسيًا علميًا.'})}</section><div class="btn-row"><button class="btn accent" id="mCopy">${ic('copy')}انسخ النتيجة</button><button class="btn" id="mAgain">${ic('refresh')}أعد الاختبار</button></div>`;
+      $('#mAgain').onclick=()=>{i=0;score=0;draw();};$('#mCopy').onclick=()=>copyText(`ذِهن · اختبار العمر العقلي\nعمري العقلي: ${pl(age,W_Y)} (${lbl})${shareURL('mental-age')?'\n'+shareURL('mental-age'):''}`);return;}
+    order=sh([0,1,2,3]);const q=MENTAL[i];
+    el.innerHTML=`<div class="card stack"><div class="prog"><i style="width:${i/MENTAL.length*100}%"></i></div><span class="faint num">${i+1} / ${MENTAL.length}</span><h2 style="font-size:20px">${q[0]}</h2>
+      <div class="opts">${order.map(k=>`<button class="opt" data-s="${k}">${q[1][k]}</button>`).join('')}</div></div>`;
+    $$('[data-s]',el).forEach(b=>b.onclick=()=>{score+= +b.dataset.s;i++;draw();});};
+  draw();
+}
+
+const ENG=[
+['تحيات وعبارات',[['Hello','مرحبًا'],['Good morning','صباح الخير'],['Good evening','مساء الخير'],['Thank you','شكرًا لك'],['Please','من فضلك'],['Sorry','آسف'],['Excuse me','لو سمحت'],['How are you?','كيف حالك؟'],['Nice to meet you','سعدت بلقائك'],['Goodbye','مع السلامة'],['Yes','نعم'],['No','لا']]],
+['أرقام',[['One','واحد'],['Two','اثنان'],['Three','ثلاثة'],['Four','أربعة'],['Five','خمسة'],['Ten','عشرة'],['Twenty','عشرون'],['Hundred','مائة'],['Thousand','ألف']]],
+['ألوان',[['Red','أحمر'],['Blue','أزرق'],['Green','أخضر'],['Yellow','أصفر'],['Black','أسود'],['White','أبيض'],['Orange','برتقالي'],['Brown','بنّي']]],
+['أيام وأوقات',[['Saturday','السبت'],['Sunday','الأحد'],['Monday','الاثنين'],['Tuesday','الثلاثاء'],['Wednesday','الأربعاء'],['Thursday','الخميس'],['Friday','الجمعة'],['Today','اليوم'],['Tomorrow','غدًا'],['Yesterday','أمس']]],
+['العائلة',[['Father','أب'],['Mother','أم'],['Brother','أخ'],['Sister','أخت'],['Son','ابن'],['Daughter','ابنة'],['Grandfather','جد'],['Grandmother','جدة'],['Friend','صديق']]],
+['الطعام',[['Water','ماء'],['Bread','خبز'],['Rice','أرز'],['Chicken','دجاج'],['Fish','سمك'],['Apple','تفاحة'],['Milk','حليب'],['Coffee','قهوة'],['Tea','شاي'],['Sugar','سكر']]],
+['السفر',[['Airport','مطار'],['Ticket','تذكرة'],['Passport','جواز سفر'],['Hotel','فندق'],['Where is the bathroom?','أين دورة المياه؟'],['How much is this?','بكم هذا؟'],['I need help','أحتاج مساعدة'],['Left','يسار'],['Right','يمين'],['Straight ahead','إلى الأمام مباشرة']]],
+['أفعال شائعة',[['Eat','يأكل'],['Drink','يشرب'],['Go','يذهب'],['Come','يأتي'],['Read','يقرأ'],['Write','يكتب'],['Sleep','ينام'],['Work','يعمل'],['Learn','يتعلّم'],['Speak','يتحدّث']]]];
+function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){toast('النطق غير متاح في هذا المتصفح');}}
+function englishTool(el){
+  let cat=0,idx=0,flip=false,mode='cards',qz=null;const canSpeak='speechSynthesis' in window;
+  const all=ENG.flatMap(c=>c[1]);
+  const draw=()=>{
+    const head=`<div class="seg" role="group">${[['cards','بطاقات'],['quiz','اختبرني']].map(([k,l])=>`<button data-md="${k}" aria-pressed="${mode===k}">${l}</button>`).join('')}</div>`;
+    if(mode==='cards'){const w=ENG[cat][1][idx],known=S.eng.known.includes(w[0]);
+      el.innerHTML=`<div class="card stack">${head}<div class="fld"><label for="eCat">المجموعة</label><select id="eCat">${ENG.map((c,i)=>`<option value="${i}" ${i===cat?'selected':''}>${c[0]} (${c[1].length})</option>`).join('')}</select></div>
+        <div class="flash" id="eCard" role="button" tabindex="0" aria-label="اقلب البطاقة">${flip?`<span>${w[1]}</span><small>${esc(w[0])}</small>`:`<b>${esc(w[0])}</b><small>اضغط لرؤية المعنى</small>`}</div>
+        <div class="btn-row" style="justify-content:space-between"><button class="btn" id="ePrev">السابق</button>${canSpeak?`<button class="btn" id="eSay">${ic('speaker')}انطق</button>`:''}<button class="btn ${known?'accent':''}" id="eKnow">${known?'حفظتها ✓':'حفظتها'}</button><button class="btn primary" id="eNext">التالي</button></div>
+        <p class="faint num">${idx+1} / ${ENG[cat][1].length} · حفظت ${S.eng.known.length} من ${all.length} كلمة</p></div>`;
+      $('#eCat').onchange=e=>{cat=+e.target.value;idx=0;flip=false;draw();};
+      const fl=()=>{flip=!flip;draw();};$('#eCard').onclick=fl;$('#eCard').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fl();}};
+      $('#ePrev').onclick=()=>{idx=(idx-1+ENG[cat][1].length)%ENG[cat][1].length;flip=false;draw();};
+      $('#eNext').onclick=()=>{idx=(idx+1)%ENG[cat][1].length;flip=false;draw();};
+      if(canSpeak)$('#eSay').onclick=()=>speak(w[0]);
+      $('#eKnow').onclick=()=>{const k=S.eng.known,j=k.indexOf(w[0]);if(j>=0)k.splice(j,1);else k.push(w[0]);save();draw();};
+    }else{
+      if(!qz){const pool=[...all].sort(()=>rnd01()-.5).slice(0,10);qz={i:0,score:0,pool,ans:null};}
+      if(qz.i>=qz.pool.length){el.innerHTML=`<div class="card stack">${head}${resHTML({big:['نتيجتك',`${qz.score} / ${qz.pool.length}`,qz.score>=8?'ممتاز!':qz.score>=5?'جيد، استمر':'راجع البطاقات وحاول مرة أخرى'],tone:qz.score>=8?'ok':'warn'})}<button class="btn primary" id="qAgain">${ic('refresh')}اختبار جديد</button></div>`;
+        $('#qAgain').onclick=()=>{qz=null;draw();};bindMode();return;}
+      const w=qz.pool[qz.i];if(!qz.opts){const wrong=all.filter(x=>x[0]!==w[0]).sort(()=>rnd01()-.5).slice(0,3);qz.opts=[w,...wrong].sort(()=>rnd01()-.5);}
+      el.innerHTML=`<div class="card stack">${head}<div class="prog"><i style="width:${qz.i/qz.pool.length*100}%"></i></div><span class="faint num">${qz.i+1} / ${qz.pool.length} · النتيجة ${qz.score}</span>
+        <div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><h2 style="font-size:26px;direction:ltr">${esc(w[0])}</h2>${canSpeak?`<button class="icon-btn" id="qSay" aria-label="انطق">${ic('speaker')}</button>`:''}</div>
+        <div class="opts">${qz.opts.map((o,k)=>`<button class="opt ${qz.ans!=null?(o===w?'right':k===qz.ans?'wrong':''):''}" data-k="${k}" ${qz.ans!=null?'disabled':''}>${o[1]}</button>`).join('')}</div>
+        ${qz.ans!=null?`<button class="btn primary" id="qNext">التالي</button>`:''}</div>`;
+      if(canSpeak)$('#qSay').onclick=()=>speak(w[0]);
+      $$('[data-k]',el).forEach(b=>b.onclick=()=>{qz.ans=+b.dataset.k;if(qz.opts[qz.ans]===w)qz.score++;draw();});
+      if(qz.ans!=null)$('#qNext').onclick=()=>{qz.i++;qz.ans=null;qz.opts=null;draw();};
+    }
+    bindMode();};
+  const bindMode=()=>$$('[data-md]',el).forEach(b=>b.onclick=()=>{mode=b.dataset.md;qz=null;draw();});
+  draw();
+}
+
+function pollTool(el){
+  let view=S.polls.length?'list':'new',cur=null,arm=null;
+  const draw=()=>{
+    if(view==='new'){
+      el.innerHTML=`<div class="card stack"><div class="fld"><label for="pQ">السؤال</label><input type="text" id="pQ" maxlength="140" placeholder="أين نقضي العطلة؟"></div>
+        <div class="fld"><label for="pO">الخيارات (خيار في كل سطر، من 2 إلى 8)</label><textarea id="pO" rows="5" placeholder="البحر\nالجبل\nالبيت"></textarea></div>
+        <div id="pErr" class="res-err" role="alert"></div><button class="btn primary block" id="pMake">أنشئ الاستطلاع</button>
+        ${S.polls.length?`<button class="btn ghost" id="pList">استطلاعاتي (${S.polls.length})</button>`:''}
+        <p class="faint">مناسب للتصويت في الفصل أو الاجتماع أو العائلة على جهاز واحد: كل شخص يضغط اختياره ثم يمرّر الجهاز. النتائج محفوظة على هذا الجهاز.</p></div>`;
+      $('#pMake').onclick=()=>{const q=$('#pQ').value.trim(),o=$('#pO').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,8);if(!q){$('#pErr').textContent='اكتب السؤال.';return;}if(o.length<2){$('#pErr').textContent='أضف خيارين على الأقل.';return;}
+        const p={id:Date.now().toString(36),q,o:o.map(t=>({t,v:0})),hide:false};S.polls.unshift(p);save();cur=p;view='vote';draw();};
+      if($('#pList'))$('#pList').onclick=()=>{view='list';draw();};return;}
+    if(view==='list'){
+      el.innerHTML=`<div class="stack"><button class="btn primary" id="pNew">${ic('plus')}استطلاع جديد</button>${S.polls.map(p=>{const t=p.o.reduce((a,b)=>a+b.v,0);return `<div class="card" style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><div style="min-width:0"><b>${esc(p.q)}</b><div class="faint num">${t} صوتًا · ${p.o.length} خيارات</div></div><div class="btn-row" style="margin:0"><button class="btn" data-open="${p.id}">فتح</button><button class="link danger" data-del="${p.id}">${arm===p.id?'تأكيد الحذف':ic('trash')}</button></div></div>`;}).join('')}</div>`;
+      $('#pNew').onclick=()=>{view='new';draw();};
+      $$('[data-open]',el).forEach(b=>b.onclick=()=>{cur=S.polls.find(p=>p.id===b.dataset.open);view='vote';draw();});
+      $$('[data-del]',el).forEach(b=>b.onclick=()=>{const id=b.dataset.del;if(arm===id){S.polls=S.polls.filter(p=>p.id!==id);arm=null;save();if(!S.polls.length)view='new';}else arm=id;draw();});return;}
+    const p=cur,t=p.o.reduce((a,b)=>a+b.v,0),mx=Math.max(...p.o.map(x=>x.v));
+    el.innerHTML=`<div class="card stack"><h2 style="font-size:22px">${esc(p.q)}</h2><div class="opts">${p.o.map((x,i)=>`<button class="opt" data-v="${i}">${esc(x.t)}</button>`).join('')}</div>
+      <label class="check"><input type="checkbox" id="pHide" ${p.hide?'checked':''}>إخفاء النتائج حتى انتهاء التصويت</label></div>
+      <section class="card result" aria-live="polite">${p.hide?`<div class="rbig"><span>عدد الأصوات</span><b class="num">${t}</b></div>`:resHTML({big:['إجمالي الأصوات',f0(t),t&&mx?'الأعلى: '+p.o.filter(x=>x.v===mx).map(x=>x.t).join('، '):''],bars:p.o.map(x=>[x.t,t?x.v/t*100:0,`${x.v} (${f0(t?x.v/t*100:0)}%)`])})}</section>
+      <div class="btn-row"><button class="btn" id="pCopy">${ic('copy')}انسخ النتائج</button><button class="btn ghost" id="pReset">تصفير الأصوات</button><button class="btn ghost" id="pBack">كل الاستطلاعات</button></div>`;
+    $$('[data-v]',el).forEach(b=>b.onclick=()=>{p.o[+b.dataset.v].v++;save();toast('تم تسجيل صوتك، مرّر الجهاز');draw();});
+    $('#pHide').onchange=e=>{p.hide=e.target.checked;save();draw();};
+    $('#pReset').onclick=()=>{if(arm!=='reset'){arm='reset';$('#pReset').textContent='اضغط مجددًا للتأكيد';return;}p.o.forEach(x=>x.v=0);arm=null;save();draw();};
+    $('#pBack').onclick=()=>{view='list';draw();};
+    $('#pCopy').onclick=()=>copyText(`استطلاع: ${p.q}\n`+p.o.map(x=>`${x.t}: ${x.v} (${f0(t?x.v/t*100:0)}%)`).join('\n')+`\nالإجمالي: ${t}`);};
+  draw();
+}
+
+/* ================= GENERIC FORM ENGINE ================= */
+let LAST=null,liveT=null;
+function defVal(f){if(f.t==='date'){if(f.d==='today')return isoD(todayU());if(typeof f.d==='number')return isoD(addDays(todayU(),f.d));return f.d||'';}return f.d==null?'':String(f.d);}
+function fieldHTML(f,val){
+  const id='f_'+f.k;let inp;
+  if(f.t==='sel')inp=`<select id="${id}" name="${f.k}">${f.o.map(([v,l])=>`<option value="${esc(v)}" ${String(val)===String(v)?'selected':''}>${l}</option>`).join('')}</select>`;
+  else if(f.t==='date')inp=`<input type="date" id="${id}" name="${f.k}" value="${esc(val)}">`;
+  else if(f.t==='time')inp=`<input type="time" id="${id}" name="${f.k}" value="${esc(val)}">`;
+  else if(f.t==='area')inp=`<textarea id="${id}" name="${f.k}" rows="5" dir="auto">${esc(val)}</textarea>`;
+  else if(f.t==='text')inp=`<input type="text" id="${id}" name="${f.k}" value="${esc(val)}" maxlength="80" dir="auto">`;
+  else inp=`<div class="numwrap"><input type="text" inputmode="decimal" dir="ltr" id="${id}" name="${f.k}" value="${esc(val)}" autocomplete="off">${f.u?`<span class="unit">${f.u}</span>`:''}</div>`;
+  return `<div class="fld${f.wide||f.t==='area'?' wide':''}" id="w_${f.k}"><label for="${id}">${f.l}</label>${inp}${f.hint?`<small>${f.hint}</small>`:''}</div>`;
+}
+function parseVals(t,raw){const v={};t.f.forEach(f=>{const x=raw[f.k];v[f.k]=f.t==='num'?parseNum(x):f.t==='date'?parseD(x):x;});return v;}
+function resHTML(r){
+  if(!r)return '';if(r.err)return `<div class="res-err">${esc(r.err)}</div>`;let h='';
+  if(r.big)h+=`<div class="rbig ${r.tone?'tone-'+r.tone:''}"><span>${esc(r.big[0])}</span><b class="num">${esc(r.big[1])}</b>${r.big[2]?`<small>${esc(r.big[2])}</small>`:''}</div>`;
+  if(r.rows&&r.rows.length)h+=`<dl class="rrows">${r.rows.map(([l,v])=>`<div><dt>${esc(l)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
+  if(r.bars)h+=`<div class="bars">${r.bars.map(([l,p,txt])=>`<div class="bar-row"><span>${esc(l)}</span><div class="bar"><i style="width:${Math.max(0,Math.min(100,p||0))}%"></i></div><span class="num">${esc(txt||'')}</span></div>`).join('')}</div>`;
+  if(r.table)h+=`<div class="tbl-wrap"><table><thead><tr>${r.table.h.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${r.table.r.map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  if(r.note)h+=`<p class="rnote">${esc(r.note)}</p>`;
+  return h;
+}
+function resText(t,r){if(!r||r.err)return t.n;const L=[`ذِهن · ${t.n}`];if(r.big)L.push(`${r.big[0]}: ${r.big[1]}${r.big[2]?' ('+r.big[2]+')':''}`);(r.rows||[]).forEach(([l,v])=>L.push(`${l}: ${v}`));const u=shareURL(t.id);if(u)L.push(u);return L.join('\n');}
+function formTool(el,t){
+  const saved=S.inputs[t.id]||{};
+  el.innerHTML=`${t.f.length?`<form class="card" id="tform" autocomplete="off" novalidate><div class="fgrid">${t.f.map(f=>fieldHTML(f,saved[f.k]!==undefined?saved[f.k]:defVal(f))).join('')}</div></form>`:''}
+    <section class="card result" id="tres" aria-live="polite"></section>
+    <div class="btn-row"><button class="btn" id="copyRes">${ic('copy')}انسخ النتيجة</button>${t.f.length?'<button class="btn ghost" id="resetF">القيم الافتراضية</button>':''}</div>`;
+  const form=$('#tform',el);
+  const compute=persist=>{const raw={};t.f.forEach(f=>{raw[f.k]=form.elements[f.k].value;});if(persist&&t.f.length){S.inputs[t.id]=raw;save();}
+    const v=parseVals(t,raw);t.f.forEach(f=>{if(f.when)$('#w_'+f.k,el).hidden=!f.when(v);});
+    let r;try{r=t.calc(v);}catch(e){r={err:'تعذّر الحساب، راجع القيم المدخلة.'};}
+    $('#tres',el).innerHTML=resHTML(r);LAST={t,r};};
+  if(form){form.addEventListener('input',()=>compute(true));form.addEventListener('change',()=>compute(true));form.addEventListener('submit',e=>e.preventDefault());}
+  $('#copyRes',el).onclick=()=>copyText(resText(t,LAST&&LAST.r));
+  const rb=$('#resetF',el);if(rb)rb.onclick=()=>{delete S.inputs[t.id];save();formTool(el,t);toast('أُعيدت القيم الافتراضية');};
+  compute(false);
+  if(t.live){clearInterval(liveT);liveT=setInterval(()=>compute(false),1000);}
+}
+
+/* ================= HOME ================= */
+let UIc='all',UIq='';
+const isFav=id=>S.fav.includes(id);
+function toggleFav(id){const i=S.fav.indexOf(id);if(i>=0)S.fav.splice(i,1);else S.fav.push(id);save();toast(i>=0?'أُزيلت من المفضلة':'أُضيفت إلى المفضلة');}
+function rowHTML(t){const c=catOf(t);return `<div class="trow"><a class="tlink" href="${t.href?esc(t.href):'#'+t.id}"><span class="tic ${t.c==='fun'?'fun':''}">${ic(c.icon)}</span><span class="tt"><b>${t.n}</b><small>${t.d}</small>${t.href?`<span class="ext">${ic('ext')}صفحة المسابقات</span>`:''}</span></a><button class="star" data-fav="${t.id}" aria-pressed="${isFav(t.id)}" aria-label="${isFav(t.id)?'إزالة من':'إضافة إلى'} المفضلة: ${t.n}">${ic('star')}</button></div>`;}
+function renderHome(){
+  document.title='ذِهن';
+  $('#view').innerHTML=`<section class="hero"><h1>أدوات وحاسبات <span>لكل يوم</span></h1>
+    <p>${TOOLS.length} أداة عربية مجانية: حاسبات العمر والهجري، القروض والزكاة، الصحة والحمل، تحويل الوحدات، ومسابقات واختبارات ممتعة. كل شيء يعمل على جهازك دون تسجيل.</p>
+    <div class="search">${ic('search')}<input id="q" type="search" placeholder="ابحث: العمر، القرض، الوزن، رمضان…" value="${esc(UIq)}" aria-label="ابحث عن أداة"></div></section>
+    <div class="chips" id="chips" role="group" aria-label="الأقسام"></div><div id="list"></div>`;
+  $('#q').addEventListener('input',e=>{UIq=e.target.value;renderList();});
+  renderChips();renderList();
+}
+function renderChips(){
+  const ch=[['all','الكل',TOOLS.length],['fav','المفضلة',S.fav.length]].concat(CATS.map(c=>[c.id,c.n,TOOLS.filter(t=>t.c===c.id).length]));
+  $('#chips').innerHTML=ch.map(([k,l,n])=>`<button class="chip" data-cat="${k}" aria-pressed="${UIc===k}">${l}<small class="num">${n}</small></button>`).join('');
+}
+function renderList(){
+  const L=$('#list');if(!L)return;const q=norm(UIq.trim());
+  if(q){const words=q.split(/\s+/);const res=TOOLS.filter(t=>{const hay=norm(t.n+' '+t.d+' '+(t.kw||'')+' '+catOf(t).n);return words.every(w=>hay.includes(w));});
+    L.innerHTML=`<div class="sec"><div class="sec-h"><h2>نتائج البحث</h2><span class="num">${res.length}</span></div>${res.length?`<div class="tlist">${res.map(rowHTML).join('')}</div>`:`<div class="card empty">لا توجد أداة بهذا الاسم. جرّب كلمة أخرى مثل «قسط» أو «هجري».</div>`}</div>`;return;}
+  if(UIc==='fav'){const f=S.fav.map(id=>TOOLS.find(t=>t.id===id)).filter(Boolean);
+    L.innerHTML=`<div class="sec"><div class="sec-h"><h2>المفضلة</h2></div>${f.length?`<div class="tlist">${f.map(rowHTML).join('')}</div>`:`<div class="card empty">اضغط النجمة بجانب أي أداة لتظهر هنا وتصل إليها بسرعة.</div>`}</div>`;return;}
+  let h='';
+  if(UIc==='all'&&S.rec.length){const r=S.rec.map(id=>TOOLS.find(t=>t.id===id)).filter(Boolean).slice(0,4);if(r.length)h+=`<div class="sec"><div class="sec-h"><h2>استخدمتها مؤخرًا</h2></div><div class="tlist">${r.map(rowHTML).join('')}</div></div>`;}
+  CATS.filter(c=>UIc==='all'||UIc===c.id).forEach(c=>{const ts=TOOLS.filter(t=>t.c===c.id);h+=`<div class="sec"><div class="sec-h"><h2>${c.n}</h2><span class="num">${ts.length} أداة</span></div><div class="tlist">${ts.map(rowHTML).join('')}</div></div>`;});
+  L.innerHTML=h;
+}
+
+/* ================= TOOL PAGE ================= */
+function renderTool(t){
+  const c=catOf(t);document.title=t.n+' | ذِهن';
+  S.rec=[t.id].concat(S.rec.filter(x=>x!==t.id)).slice(0,8);save();
+  const rel=TOOLS.filter(x=>x.c===t.c&&x.id!==t.id).slice(0,8);
+  $('#view').innerHTML=`<div class="thead"><a class="icon-btn" href="#" aria-label="رجوع إلى كل الأدوات">${ic('back')}</a><span class="crumb">${c.n}</span><button class="star" data-fav="${t.id}" aria-pressed="${isFav(t.id)}" aria-label="المفضلة">${ic('star')}</button></div>
+    <h1 class="ttl">${t.n}</h1><p class="tdesc">${t.d}</p><div id="tbody" style="margin-top:14px"></div>
+    ${t.how?`<details class="card how"><summary>كيف نحسبها؟</summary><p>${t.how}</p></details>`:''}
+    ${rel.length?`<div class="related"><div class="sec-h"><h2>أدوات مشابهة</h2></div><div class="rel-chips">${rel.map(x=>`<a href="${x.href?esc(x.href):'#'+x.id}">${x.n}</a>`).join('')}</div></div>`:''}`;
+  const body=$('#tbody');
+  if(t.custom)t.custom(body,t);else if(t.unit)unitTool(body,t);else formTool(body,t);
+}
+
+/* ================= ROUTER, NAV, THEME ================= */
+function route(){
+  clearInterval(liveT);liveT=null;
+  const h=decodeURIComponent(location.hash.slice(1));
+  const v=$('#view');v.classList.remove('fade');void v.offsetWidth;v.classList.add('fade');
+  if(h==='fav'){UIc='fav';UIq='';renderHome();}
+  else{const t=TOOLS.find(x=>x.id===h&&!x.href);if(t)renderTool(t);else{if(h==='')UIc=UIc==='fav'?'all':UIc;renderHome();}}
+  window.scrollTo(0,0);renderNav(h);
+}
+function renderNav(h){
+  const items=[['','grid','كل الأدوات'],['age','cake','حساب العمر'],['quizzes/index.html','quiz','اختبر نفسك'],['fav','star','المفضلة']];
+  $('#navIn').innerHTML=items.map(([k,i,l])=>{const href=k.includes('/')?k:'#'+k;const cur=(k===''&&(h===''||!TOOLS.some(t=>t.id===h)&&h!=='fav'))||k===h;return `<a href="${href}" ${cur?'aria-current="page"':''}>${ic(i)}<span>${l}</span></a>`;}).join('');
+}
+const hostTheme=document.documentElement.getAttribute('data-theme');
+function effectiveDark(){const a=document.documentElement.getAttribute('data-theme');if(a)return a==='dark';try{return matchMedia('(prefers-color-scheme: dark)').matches;}catch(e){return false;}}
+function applyTheme(){const r=document.documentElement;if(S.theme==='light'||S.theme==='dark')r.setAttribute('data-theme',S.theme);else if(hostTheme)r.setAttribute('data-theme',hostTheme);else r.removeAttribute('data-theme');$('#themeBtn').innerHTML=ic(effectiveDark()?'sun':'moon');}
+$('#themeBtn').onclick=()=>{S.theme=effectiveDark()?'light':'dark';save();applyTheme();};
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);}catch(e){}
+
+document.addEventListener('click',e=>{
+  const f=e.target.closest('[data-fav]');if(f){e.preventDefault();toggleFav(f.dataset.fav);f.setAttribute('aria-pressed',isFav(f.dataset.fav));if($('#chips'))renderChips();if(UIc==='fav'&&$('#list'))renderList();return;}
+  const c=e.target.closest('[data-cat]');if(c){UIc=c.dataset.cat;UIq='';const q=$('#q');if(q)q.value='';renderChips();renderList();if(UIc==='fav'&&location.hash!=='#fav')history.replaceState(null,'','#fav');else if(UIc!=='fav'&&location.hash==='#fav')history.replaceState(null,'',location.pathname+location.search);renderNav(UIc==='fav'?'fav':'');}
+});
+window.addEventListener('hashchange',route);
+applyTheme();route();
+})();
+</script>
+</body>
+</html>
