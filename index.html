@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ذِهن</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="ذِهن: أكثر من 70 أداة وحاسبة عربية مجانية — العمر والتاريخ الهجري، القروض والزكاة، الصحة والحمل، تحويل الوحدات، واختبارات ممتعة.">
+<meta name="description" content="ذِهن: نحو 100 أداة وحاسبة عربية مجانية — العمر والتاريخ الهجري، القروض والزكاة، الصحة والحمل، تحويل الوحدات، واختبارات ممتعة.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
@@ -194,9 +194,10 @@ tr:last-child td{border-bottom:0}
 
 /* nav, toast, sheet */
 .nav{position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.nav-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.nav-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
 .nav a,.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:12px;color:var(--ink-faint);border-radius:12px}
 .nav [aria-current="page"]{color:var(--brand);background:var(--brand-soft)}
+.nav span{white-space:nowrap;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:600;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow)}
 .sheet-bg{position:fixed;inset:0;z-index:60;background:rgba(5,15,25,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
 .sheet{background:var(--surface);border-radius:var(--r-l);padding:18px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px;margin-bottom:env(safe-area-inset-bottom,0px)}
@@ -318,7 +319,8 @@ const P={
   refresh:'<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4"/>',
   speaker:'<path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7"/>',
   trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
-  plus:'<path d="M12 5v14M5 12h14"/>'
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h7"/>'
 };
 const ic=(n,cls='i')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
 
@@ -332,7 +334,8 @@ const CATS=[
   {id:'daily',n:'الحياة اليومية',icon:'bolt'},
   {id:'math',n:'الرياضيات والدراسة',icon:'sigma'},
   {id:'units',n:'تحويل الوحدات',icon:'arrows'},
-  {id:'fun',n:'تسلية وتعلّم',icon:'spark'}
+  {id:'edu',n:'التعليم',icon:'book'},
+  {id:'fun',n:'ترفيه ومعلومات',icon:'spark'}
 ];
 const catOf=t=>CATS.find(c=>c.id===t.c);
 
@@ -729,7 +732,7 @@ T({id:'volume',c:'math',n:'حاسبة حجم الأشكال الهندسية',d:
   calc(v){const pi=Math.PI;const V=v.s==='box'?v.l*v.w*v.h:v.s==='cube'?v.l**3:v.s==='sph'?4/3*pi*v.r**3:v.s==='cyl'?pi*v.r*v.r*v.h:pi*v.r*v.r*v.h/3;
     return{big:['الحجم',fmt(V,4)+' م³'],rows:[['باللتر',fmt(V*1000,2)],['بالجالون الأمريكي',fmt(V*264.172,2)]],note:'إذا أدخلت القياسات بوحدة غير المتر، فالناتج بالوحدة المكعبة نفسها.'};}});
 
-T({id:'gpa',c:'math',n:'حاسبة المعدل الجامعي GPA',d:'احسب معدلك الفصلي على نظام 5 أو 4 مع الساعات المعتمدة.',kw:'معدل جامعي gpa تراكمي ساعات',custom:gpaTool});
+T({id:'gpa',c:'edu',n:'حاسبة المعدل الجامعي GPA',d:'احسب معدلك الفصلي على نظام 5 أو 4 مع الساعات المعتمدة.',kw:'معدل جامعي gpa تراكمي ساعات',custom:gpaTool});
 
 /* =====================================================================
    UNITS
@@ -764,8 +767,234 @@ T({id:'love',c:'fun',n:'مقياس الحب',d:'اكتشف نسبة التواف
     const msg=p>=90?'ثنائي مثالي! ما شاء الله':p>=75?'توافق رائع':p>=60?'فيه انسجام جميل':'صداقة لطيفة على الأقل';
     return{big:[`${v.a} و${v.b}`,p+'%',msg],tone:p>=60?'ok':'warn',bars:[['التوافق',p,p+'%']],note:'نتيجة للتسلية تعتمد على الحروف فقط، والحب الحقيقي تبنيه المودة والرحمة.'};}});
 T({id:'mental-age',c:'fun',n:'اختبار العمر العقلي',d:'12 موقفًا قصيرًا تكشف عمرك العقلي. لا توجد إجابة صحيحة أو خاطئة.',kw:'عمر عقلي اختبار نفسي',custom:mentalTool});
-T({id:'english',c:'fun',n:'طريقي للإنجليزي',d:'كلمات وعبارات إنجليزية أساسية مع النطق وبطاقات واختبار سريع.',kw:'انجليزي تعلم كلمات english لغه',custom:englishTool});
+T({id:'english',c:'edu',n:'طريقي للإنجليزي',d:'كلمات وعبارات إنجليزية أساسية مع النطق وبطاقات واختبار سريع.',kw:'انجليزي تعلم كلمات english لغه',custom:englishTool});
 T({id:'poll',c:'fun',n:'أنشئ استطلاعًا وتصويتًا',d:'استطلاع سريع للعائلة أو الفصل أو الاجتماع على جهاز واحد مع نتائج فورية.',kw:'استطلاع تصويت رأي',custom:pollTool});
+
+/* =====================================================================
+   MORE: date info, work paydays, education, entertainment, info tools
+   ===================================================================== */
+const ORD=['الأول','الثاني','الثالث','الرابع','الخامس','السادس'];
+let CF=null;try{CF=new Intl.DateTimeFormat('en-u-ca-chinese',{timeZone:'UTC',year:'numeric',month:'numeric',day:'numeric'});}catch(e){}
+function toCN(d){if(!CF||!d)return null;const p={};CF.formatToParts(d).forEach(x=>{p[x.type]=x.value;});return{y:parseInt(p.relatedYear||p.year,10),m:parseInt(p.month,10),leap:/bis|L/i.test(p.month||'')};}
+
+T({id:'age-diff',c:'date',n:'حساب فرق العمر',d:'الفرق الدقيق في العمر بين شخصين بالسنوات والأشهر والأيام.',kw:'فرق العمر بين شخصين اخوه زوجين',
+  f:[TX('na','الاسم الأول','أحمد'),DT('a','تاريخ ميلاده','1990-03-12'),TX('nb','الاسم الثاني','سارة'),DT('b','تاريخ ميلادها','1994-08-25')],
+  calc(v){if(!v.a||!v.b)return{err:'اختر التاريخين.'};if(+v.a===+v.b)return{big:['فرق العمر','لا يوجد فرق، وُلدا في اليوم نفسه']};
+    const older=v.a<v.b?v.na:v.nb,[x,y]=v.a<v.b?[v.a,v.b]:[v.b,v.a],d=diffDays(x,y);
+    return{big:[`${older||'الأول'} أكبر بـ`,ymdS(ymd(x,y))],rows:[['بالأيام',f0(d)],['بالأسابيع',f0(Math.floor(d/7))],['بالأشهر تقريبًا',f1(d/30.4375)]]};}});
+
+T({id:'child-age',c:'date',n:'حاسبة عمر الطفل',d:'عمر طفلك بالأشهر والأسابيع والأيام، ومرحلته العمرية.',kw:'عمر الطفل رضيع بالشهور تطعيم',
+  f:[DT('b','تاريخ ميلاد الطفل',-200,{wide:true})],
+  calc(v){if(!v.b)return{err:'اختر تاريخ الميلاد.'};const t=todayU();if(v.b>t)return{err:'التاريخ في المستقبل.'};const a=ymd(v.b,t),d=diffDays(v.b,t),mo=a.y*12+a.m;
+    const st=d<28?'حديث الولادة':mo<12?'رضيع':mo<36?'طفل صغير (مرحلة الحبو والمشي)':a.y<6?'ما قبل المدرسة':a.y<12?'مرحلة الطفولة المتوسطة':'مرحلة المراهقة';
+    const rows=[['بالأشهر',`${mo} شهرًا و${a.d} يومًا`],['بالأسابيع',`${Math.floor(d/7)} أسبوعًا و${d%7} أيام`],['بالأيام',f0(d)],['المرحلة',st]];
+    if(mo<6)rows.push(['بدء الطعام الصلب (توصية منظمة الصحة العالمية)','عند إتمام 6 أشهر: '+fmtDs(addMonths(v.b,6))]);
+    rows.push(['عيد ميلاده القادم',fmtDs(utc(t.getUTCFullYear()+(utc(t.getUTCFullYear(),v.b.getUTCMonth()+1,v.b.getUTCDate())<t?1:0),v.b.getUTCMonth()+1,v.b.getUTCDate()))]);
+    return{big:['عمر الطفل',ymdS(a)],rows,note:'مواعيد التطعيمات تختلف من بلد لآخر؛ راجع جدول وزارة الصحة وطبيب الأطفال.'};}});
+
+const ANNIV={1:'الورقي',2:'القطني',3:'الجلدي',4:'الكتاني',5:'الخشبي',6:'الحديدي',7:'الصوفي',8:'البرونزي',9:'الفخاري',10:'القصديري',15:'الكريستالي',20:'الخزفي',25:'الفضي',30:'اللؤلؤي',35:'المرجاني',40:'الياقوتي',45:'الياقوت الأزرق',50:'الذهبي',55:'الزمردي',60:'الماسي'};
+T({id:'marriage',c:'date',n:'كم مضى على الزواج',d:'مدة زواجكما بدقة، وموعد ذكرى الزواج القادمة واسمها.',kw:'زواج ذكرى سنويه عيد زواج',
+  f:[DT('w','تاريخ الزواج','2015-05-20',{wide:true})],
+  calc(v){if(!v.w)return{err:'اختر تاريخ الزواج.'};const t=todayU();if(v.w>t)return{err:'التاريخ في المستقبل.'};const a=ymd(v.w,t),d=diffDays(v.w,t);
+    let nx=utc(t.getUTCFullYear(),v.w.getUTCMonth()+1,v.w.getUTCDate());if(nx<t)nx=utc(t.getUTCFullYear()+1,v.w.getUTCMonth()+1,v.w.getUTCDate());const n=nx.getUTCFullYear()-v.w.getUTCFullYear();
+    return{big:['مضى على زواجكما',ymdS(a)],rows:[['بالأيام',f0(d)],['بالأسابيع',f0(Math.floor(d/7))],['الذكرى القادمة',`الذكرى ${n} · ${fmtD(nx)}`],['متبقٍّ عليها',diffDays(t,nx)===0?'اليوم! مبارك':pl(diffDays(t,nx),W_D)],['اسم الذكرى',ANNIV[n]?'العيد '+ANNIV[n]:'—'],['تاريخ الزواج بالهجري',fmtH(toH(v.w))]]};}});
+
+const HNOTE=['من الأشهر الحُرُم، وفيه يوم عاشوراء (10 محرم)','','شهر مولد النبي ﷺ في المشهور','','','','من الأشهر الحُرُم','شهر يكثر فيه الصيام قبل رمضان','شهر الصيام ونزول القرآن، وفيه ليلة القدر','أوله عيد الفطر، ويُستحب صيام ستة أيام منه','من الأشهر الحُرُم','من الأشهر الحُرُم، فيه الحج ويوم عرفة وعيد الأضحى'];
+T({id:'hijri-months',c:'date',n:'الشهور الهجرية',d:'أسماء الشهور الهجرية وترتيبها ومواعيد بدايتها هذا العام.',kw:'اشهر هجريه محرم صفر رجب شعبان الاشهر الحرم',
+  f:[],calc(){const h=toH(todayU());if(!h)return{err:'متصفحك لا يدعم التقويم الهجري.'};
+    return{big:['الشهر الحالي',`${HM[h.m-1]} ${h.y} هـ`,`اليوم ${h.d} من الشهر`],table:{h:['#','الشهر',`بداية عام ${h.y}`,'ملاحظة'],r:HM.map((m,i)=>[String(i+1),m,fmtDs(fromH(h.y,i+1,1)),HNOTE[i]||''])},note:'المواعيد وفق تقويم أم القرى.'};}});
+
+const GLEV=['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
+const GMOR=['يناير','فبراير','مارس','أبريل','ماي','يونيو','يوليوز','غشت','شتنبر','أكتوبر','نونبر','دجنبر'];
+const GALG=['جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+T({id:'greg-months',c:'date',n:'الشهور الميلادية',d:'أسماء الشهور الميلادية في مصر والخليج والشام والمغرب العربي.',kw:'اشهر ميلاديه كانون شباط اذار يناير جانفي',
+  f:[],calc(){const t=todayU(),y=t.getUTCFullYear();
+    return{big:['الشهر الحالي',`${GM[t.getUTCMonth()]} (${GLEV[t.getUTCMonth()]})`,`الشهر رقم ${t.getUTCMonth()+1}`],table:{h:['#','مصر والخليج','الشام والعراق','المغرب','الجزائر وتونس',`أيام ${y}`],r:GM.map((m,i)=>[String(i+1),m,GLEV[i],GMOR[i],GALG[i],String(new Date(Date.UTC(y,i+1,0)).getUTCDate())])}};}});
+
+T({id:'julian',c:'date',n:'تاريخ يوليان',d:'رقم اليوم اليولياني (JDN)، والتاريخ في التقويم اليولياني، وترتيب اليوم في السنة.',kw:'يوليان julian jdn ترتيب اليوم',
+  f:[DT('d','التاريخ الميلادي','today',{wide:true})],
+  calc(v){if(!v.d)return{err:'اختر التاريخ.'};const Y=v.d.getUTCFullYear(),M=v.d.getUTCMonth()+1,D=v.d.getUTCDate(),a=Math.floor((14-M)/12),y=Y+4800-a,m=M+12*a-3;
+    const jdn=D+Math.floor((153*m+2)/5)+365*y+Math.floor(y/4)-Math.floor(y/100)+Math.floor(y/400)-32045;
+    const c=jdn+32082,dd=Math.floor((4*c+3)/1461),e=c-Math.floor(1461*dd/4),mm=Math.floor((5*e+2)/153),jD=e-Math.floor((153*mm+2)/5)+1,jM=mm+3-12*Math.floor(mm/10),jY=dd-4800+Math.floor(mm/10);
+    const doy=diffDays(utc(Y,1,1),v.d)+1;
+    return{big:['رقم اليوم اليولياني (JDN)',f0(jdn)],rows:[['التاريخ اليولياني الفلكي (منتصف الليل)',fmt(jdn-.5,1)],['اليولياني المعدّل (MJD)',f0(jdn-2400001)],['في التقويم اليولياني',`${jD} ${GM[jM-1]} ${jY}`],['ترتيب اليوم في السنة',`${doy} من ${diffDays(utc(Y,1,1),utc(Y+1,1,1))}`],['صيغة YYDDD',String(Y%100).padStart(2,'0')+String(doy).padStart(3,'0')]]};}});
+
+/* paydays */
+const PAY=[['27','الرواتب الحكومية (السعودية)'],['10','حساب المواطن'],['1','المعاشات التقاعدية'],['c','يوم مخصص']];
+T({id:'payday',c:'work',n:'موعد صرف الرواتب والدعم',d:'متى يُصرف الراتب أو حساب المواطن أو المعاش القادم، والعد التنازلي له.',kw:'موعد صرف الرواتب حساب المواطن المتقاعدين معاش حافز ايداع',
+  f:[SEL('p','نوع الصرف',PAY,null,{wide:true}),N('day','يوم الصرف من الشهر الميلادي',25,'',{when:v=>v.p==='c'}),SEL('we','إذا وافق عطلة نهاية الأسبوع',[['prev','يُقدَّم إلى يوم العمل السابق'],['next','يُؤخَّر إلى يوم العمل التالي'],['same','لا يتغير']])],
+  calc(v){const day=v.p==='c'?Math.round(v.day):+v.p;if(!(day>=1&&day<=31))return{err:'أدخل يومًا بين 1 و31.'};const t=todayU();
+    const at=(y,m)=>{const last=new Date(Date.UTC(y,m,0)).getUTCDate();let d=utc(y,m,Math.min(day,last));if(v.we!=='same'){while([5,6].includes(d.getUTCDay()))d=addDays(d,v.we==='prev'?-1:1);}return d;};
+    const list=[];let y=t.getUTCFullYear(),m=t.getUTCMonth()+1;for(let i=0;list.length<6&&i<14;i++){const d=at(y,m);if(d>=t)list.push(d);m++;if(m>12){m=1;y++;}}
+    const nx=list[0],dl=diffDays(t,nx);
+    return{big:['موعد الصرف القادم',fmtD(nx),dl===0?'اليوم':'بعد '+pl(dl,W_D)],table:{h:['الشهر','موعد الصرف','بالهجري'],r:list.map(d=>[GM[d.getUTCMonth()]+' '+d.getUTCFullYear(),fmtD(d),fmtH(toH(d))])},
+      note:'المواعيد المعتادة: الرواتب الحكومية يوم 27، وحساب المواطن يوم 10، والمعاشات أول الشهر الميلادي، مع التقديم إذا وافقت الجمعة أو السبت. قد تعلن الجهات تقديم الصرف في المناسبات، فتأكد من الإعلان الرسمي. لـ«حافز» وغيره اختر «يوم مخصص».'};}});
+
+/* education */
+const GRADE=n=>n<=-2?'لم يبلغ سن الروضة بعد':n===-1?'الروضة (المستوى الأول)':n===0?'الروضة (التمهيدي)':n<=6?`الصف ${ORD[n-1]} الابتدائي`:n<=9?`الصف ${ORD[n-7]} المتوسط (الإعدادي)`:n<=12?`الصف ${ORD[n-10]} الثانوي`:'أنهى المرحلة الثانوية';
+T({id:'student-age',c:'edu',n:'حاسبة عمر الطالب وصفّه',d:'عمر الطالب في بداية العام الدراسي والصف المتوقع له حسب تاريخ ميلاده.',kw:'عمر الطالب الصف الدراسي مرحله',
+  f:[DT('b','تاريخ ميلاد الطالب','2016-02-10'),SEL('cut','يُشترط إتمام 6 سنوات قبل',[['9-1','1 سبتمبر'],['12-31','31 ديسمبر'],['8-31','31 أغسطس'],['10-1','1 أكتوبر']])],
+  calc(v){if(!v.b)return{err:'اختر تاريخ الميلاد.'};const [cm,cd]=v.cut.split('-').map(Number);let Y=v.b.getUTCFullYear();while(ymd(v.b,utc(Y,cm,cd)).y<6)Y++;
+    const t=todayU(),sy=t.getUTCMonth()>=7?t.getUTCFullYear():t.getUTCFullYear()-1,g=sy-Y+1;
+    return{big:[`العام الدراسي ${sy}/${sy+1}`,GRADE(g)],rows:[['عمره في 1 سبتمبر '+sy,ymdS(ymd(v.b,utc(sy,9,1)))],['العمر الآن',ymdS(ymd(v.b,t))],['بداية الصف الأول',`${Y}/${Y+1}`],['التخرج من الثانوية المتوقع',String(Y+12)]],note:'الحساب على نظام 6 ابتدائي + 3 متوسط + 3 ثانوي، دون اعتبار الإعادة أو التسريع.'};}});
+
+T({id:'semester',c:'edu',n:'مخطط الفصل الدراسي',d:'في أي أسبوع دراسي أنت، وكم بقي على نهاية الفصل أو الاختبارات.',kw:'التقويم الدراسي الفصل الاسبوع الدراسي اختبارات نهايه الترم',
+  f:[DT('s','بداية الفصل',-50),DT('e','نهاية الفصل أو موعد الاختبارات',60),SEL('we','العطلة الأسبوعية',[['5,6','الجمعة والسبت'],['6,0','السبت والأحد'],['5','الجمعة فقط']])],
+  calc(v){if(!v.s||!v.e||v.e<=v.s)return{err:'تأكد أن النهاية بعد البداية.'};const t=todayU(),we=v.we.split(',').map(Number),tot=diffDays(v.s,v.e);
+    if(t<v.s)return{big:['يبدأ الفصل بعد',pl(diffDays(t,v.s),W_D)],rows:[['مدة الفصل',`${Math.ceil(tot/7)} أسبوعًا`]]};
+    const done=Math.min(tot,diffDays(v.s,t)),p=done/tot*100;let sd=0;for(let d=addDays(t,1);d<=v.e;d=addDays(d,1))if(!we.includes(d.getUTCDay()))sd++;
+    return{big:[t>v.e?'انتهى الفصل':'الأسبوع الدراسي',t>v.e?'بالتوفيق!':`الأسبوع ${Math.floor(done/7)+1} من ${Math.ceil(tot/7)}`],rows:[['الأيام المتبقية',pl(Math.max(0,diffDays(t,v.e)),W_D)],['أيام الدراسة المتبقية',f0(sd)],['الأسابيع المتبقية',f1(Math.max(0,diffDays(t,v.e))/7)]],bars:[['التقدم',p,pctS(p)]],
+      note:'التقويم الرسمي يتغير كل عام، لذلك أدخل تواريخ فصلك من تقويم وزارة التعليم أو مدرستك.'};}});
+
+/* zodiac */
+const ZOD=[['الحمل',3,21,'ناري','المريخ','شجاع ومبادر، متحمس وصريح، يحب التحدي وقد يتسرّع أحيانًا.'],['الثور',4,20,'ترابي','الزهرة','صبور وعملي ووفيّ، يحب الاستقرار والراحة، وعنيد أحيانًا.'],['الجوزاء',5,21,'هوائي','عطارد','ذكي واجتماعي وفضولي، سريع البديهة ومتعدد الاهتمامات، وقد يتقلب مزاجه.'],
+  ['السرطان',6,21,'مائي','القمر','عاطفي وحنون ومخلص لعائلته، يحمي من يحب، وحساس جدًا.'],['الأسد',7,23,'ناري','الشمس','واثق وكريم وقيادي، يحب الظهور والتقدير، وقلبه كبير.'],['العذراء',8,23,'ترابي','عطارد','دقيق ومنظم وخدوم، يهتم بالتفاصيل، وناقد لنفسه.'],
+  ['الميزان',9,23,'هوائي','الزهرة','دبلوماسي وعادل ويحب الجمال والانسجام، لكنه يتردد في القرارات.'],['العقرب',10,23,'مائي','المريخ','عميق وشغوف ومثابر، وفيّ جدًا وكتوم لأسراره.'],['القوس',11,22,'ناري','المشتري','متفائل ومغامر وصريح، يحب السفر والحرية ويملّ الروتين.'],
+  ['الجدي',12,22,'ترابي','زحل','طموح ومنضبط ومسؤول، يبني نجاحه خطوة خطوة، وجاد أكثر من اللازم.'],['الدلو',1,20,'هوائي','زحل','مستقل ومبتكر وإنساني، يفكر خارج الصندوق ويتمسك بأفكاره.'],['الحوت',2,19,'مائي','المشتري','حالم ورحيم وفنان بطبعه، يشعر بالآخرين ويهرب من المواجهة.']];
+const ZEND=['19 أبريل','20 مايو','20 يونيو','22 يوليو','22 أغسطس','22 سبتمبر','22 أكتوبر','21 نوفمبر','21 ديسمبر','19 يناير','18 فبراير','20 مارس'];
+function signOf(d){const m=d.getUTCMonth()+1,dd=d.getUTCDate();for(let i=0;i<12;i++){const [,sm,sd]=ZOD[i],[,nm,nd]=ZOD[(i+1)%12];if((m===sm&&dd>=sd)||(m===nm&&dd<nd))return i;}return 0;}
+const FUN_NOTE='محتوى ترفيهي فقط؛ الأبراج لا تحدد الشخصية ولا المستقبل.';
+const ZSEL=(k,l,d)=>SEL(k,l,ZOD.map((z,i)=>[String(i),z[0]]),d);
+T({id:'zodiac',c:'fun',n:'اعرف شخصيتك من برجك',d:'برجك وعنصره وكوكبه وصفاته العامة من تاريخ ميلادك.',kw:'برجي الابراج صفات برج الحمل الثور الجوزاء',
+  f:[DT('b','تاريخ الميلاد','1995-06-15',{wide:true})],
+  calc(v){if(!v.b)return{err:'اختر التاريخ.'};const i=signOf(v.b),z=ZOD[i];return{big:['برجك',z[0],`${z[2]} ${GM[z[1]-1]} – ${ZEND[i]}`],rows:[['العنصر',z[3]],['الكوكب',z[4]],['الصفات',z[5]],['الأبراج الأقرب إليك',ZOD.filter((x,j)=>j!==i&&x[3]===z[3]).map(x=>x[0]).join(' و')]],note:FUN_NOTE};}});
+
+const ELC={'ناري':{'ناري':88,'هوائي':90,'ترابي':55,'مائي':45},'ترابي':{'ترابي':85,'مائي':92,'ناري':55,'هوائي':50},'هوائي':{'هوائي':86,'ناري':90,'مائي':50,'ترابي':50},'مائي':{'مائي':88,'ترابي':92,'ناري':45,'هوائي':50}};
+T({id:'zodiac-love',c:'fun',n:'الأبراج والزواج',d:'نسبة التوافق بين برجين في الزواج والعلاقة (للتسلية).',kw:'توافق الابراج زواج حب',
+  f:[ZSEL('a','برجك','0'),ZSEL('b','برج الطرف الآخر','4')],
+  calc(v){const a=ZOD[+v.a],b=ZOD[+v.b];let p=ELC[a[3]][b[3]];const dist=Math.min(Math.abs(+v.a-+v.b),12-Math.abs(+v.a-+v.b));if(dist===6)p=Math.max(p,72);if(dist===0)p-=6;
+    const msg=p>=88?'انسجام كبير وتفاهم سريع':p>=70?'علاقة متوازنة تحتاج قليلًا من الصبر':p>=50?'اختلاف في الطباع يحتاج حوارًا وتنازلات':'طباع متعاكسة، والنجاح ممكن بالتفاهم';
+    return{big:[`${a[0]} و${b[0]}`,p+'%',msg],tone:p>=70?'ok':'warn',bars:[['التوافق',p,p+'%']],rows:[['العنصران',`${a[3]} + ${b[3]}`]],note:FUN_NOTE+' والزواج الناجح يقوم على الدين والخُلق والتفاهم.'};}});
+
+T({id:'marriage-month',c:'fun',n:'شهر الزواج والأبراج',d:'الأشهر الأنسب للزواج حسب برجك (محتوى ترفيهي).',kw:'شهر الزواج المناسب الابراج',
+  f:[ZSEL('s','برجك','0',{wide:true})],
+  calc(v){const z=ZOD[+v.s],same=ZOD.filter(x=>x[3]===z[3]),comp={'ناري':'هوائي','هوائي':'ناري','ترابي':'مائي','مائي':'ترابي'}[z[3]],cmp=ZOD.filter(x=>x[3]===comp);
+    const rng=x=>{const i=ZOD.indexOf(x);return `${x[2]} ${GM[x[1]-1]} – ${ZEND[i]}`;};
+    return{big:['الأنسب لبرج '+z[0],same.map(x=>GM[x[1]-1]).join('، ')],table:{h:['الفترة','البرج','السبب'],r:same.map(x=>[rng(x),x[0],'نفس عنصرك ('+z[3]+')']).concat(cmp.map(x=>[rng(x),x[0],'عنصر متوافق ('+comp+')']))},note:FUN_NOTE};}});
+
+const CN_AN=['الفأر','الثور','النمر','الأرنب','التنين','الأفعى','الحصان','الماعز','القرد','الديك','الكلب','الخنزير'];
+const CN_TR=['ذكي وسريع التكيف وحريص على الفرص.','مجتهد وصبور ويُعتمد عليه.','شجاع وواثق ويحب المنافسة.','لطيف وهادئ وأنيق ويحب السلام.','طموح وحيوي وكاريزمي.','حكيم وغامض وهادئ التفكير.','نشيط ومستقل ويحب الحرية.','حنون ومبدع ومسالم.','ذكي ومرح وفضولي.','مجتهد وصريح ومنظم.','مخلص وأمين ويحب العدل.','كريم وطيب ويستمتع بالحياة.'];
+const CN_EL=['الخشب','النار','الأرض','المعدن','الماء'];
+T({id:'chinese-zodiac',c:'fun',n:'البرج الصيني',d:'اعرف حيوانك في الأبراج الصينية وعنصرك من تاريخ ميلادك.',kw:'البرج الصيني الحيوان السنه الصينيه',
+  f:[DT('b','تاريخ الميلاد','1995-06-15',{wide:true})],
+  calc(v){if(!v.b)return{err:'اختر التاريخ.'};const c=toCN(v.b),y=c?c.y:v.b.getUTCFullYear(),i=((y-4)%12+12)%12,e=Math.floor((((y-4)%10)+10)%10/2);
+    const nx=[...Array(12)].map((_,k)=>y+12*(k+1)).find(x=>x>todayU().getUTCFullYear());
+    return{big:['برجك الصيني',CN_AN[i],'عنصر '+CN_EL[e]],rows:[['الصفات',CN_TR[i]],['السنة الصينية',String(y)+(c?'':' (تقريبية)')],['سنتك القادمة',String(nx)],['من نفس برجك مواليد',[y-24,y-12,y+12].join('، ')]],note:'تبدأ السنة الصينية بين 21 يناير و20 فبراير، فمواليد يناير وأوائل فبراير قد يتبعون السنة السابقة. '+FUN_NOTE};}});
+
+const ABJ={'ا':1,'أ':1,'إ':1,'آ':1,'ء':1,'ب':2,'ج':3,'د':4,'ه':5,'ة':5,'و':6,'ؤ':6,'ز':7,'ح':8,'ط':9,'ي':10,'ى':10,'ئ':10,'ك':20,'ل':30,'م':40,'ن':50,'س':60,'ع':70,'ف':80,'ص':90,'ق':100,'ر':200,'ش':300,'ت':400,'ث':500,'خ':600,'ذ':700,'ض':800,'ظ':900,'غ':1000};
+const PLAN=['القمر','زحل','المشتري','المريخ','الشمس','الزهرة','عطارد'];
+T({id:'name-zodiac',c:'fun',n:'برجك وكوكبك من اسمك',d:'احسب برجك وكوكبك من اسمك واسم والدتك بحساب الجُمَّل (ترفيهي).',kw:'برج من الاسم حساب الجمل ابجد اسم الام',
+  f:[TX('n','اسمك','محمد'),TX('m','اسم الوالدة (اختياري)','فاطمة')],
+  calc(v){const sum=s=>[...String(s||'')].reduce((a,ch)=>a+(ABJ[ch]||0),0),a=sum(v.n),b=sum(v.m);if(!a)return{err:'اكتب الاسم بحروف عربية.'};const tot=a+b,s=(tot-1)%12,p=tot%7;
+    return{big:['برجك من اسمك',ZOD[s][0],'كوكبك: '+PLAN[p]],rows:[['قيمة اسمك بالجُمَّل',f0(a)],['قيمة اسم الوالدة',f0(b)],['المجموع',f0(tot)],['صفات البرج',ZOD[s][5]]],note:'حساب الجُمَّل يعطي كل حرف قيمة عددية (أ=1، ب=2، ج=3…). '+FUN_NOTE};}});
+
+const SLEEP=[['الوضعية الجنينية (على الجنب مع ضم الركبتين)','قوي من الخارج وحساس من الداخل، يبدو خجولًا عند اللقاء الأول ثم ينفتح بسرعة.'],['وضعية الجذع (على الجنب والذراعان بجانبك)','اجتماعي وبسيط ويثق بالناس بسهولة، وقد يكون ساذجًا أحيانًا.'],['وضعية المشتاق (على الجنب والذراعان ممدودتان)','منفتح لكنه حذر، يأخذ وقته قبل القرار ثم يتمسك به.'],['وضعية الجندي (على الظهر والذراعان بجانبك)','هادئ ومتحفظ، يضع لنفسه ولغيره معايير عالية.'],['وضعية السقوط الحر (على البطن والذراعان حول الوسادة)','اجتماعي وجريء، لكنه حساس للنقد ولا يحب أن يُفرض عليه شيء.'],['وضعية نجم البحر (على الظهر والذراعان للأعلى)','صديق وفيّ ومستمع جيد، يساعد الآخرين ولا يحب أن يكون محور الاهتمام.']];
+T({id:'sleep-position',c:'fun',n:'شخصيتك من طريقة نومك',d:'ماذا تقول وضعية نومك عن شخصيتك؟ (محتوى ترفيهي)',kw:'وضعيه النوم شخصيه',
+  f:[SEL('p','كيف تنام غالبًا؟',SLEEP.map((s,i)=>[String(i),s[0]]),'0',{wide:true})],
+  calc(v){const s=SLEEP[+v.p];return{big:['شخصيتك',s[0].split(' (')[0]],rows:[['الوصف',s[1]],['معلومة صحية',+v.p<3?'النوم على الجانب الأيسر قد يخفف حرقة المعدة ويُنصح به للحوامل.':+v.p===4?'النوم على البطن قد يجهد الرقبة وأسفل الظهر.':'النوم على الظهر مريح للعمود الفقري لكنه قد يزيد الشخير.']],note:'مبني على دراسة شهيرة لخبير النوم كريس إدزيكوفسكي، وهو للتسلية وليس تحليلًا نفسيًا.'};}});
+
+T({id:'chinese-gender',c:'women',n:'الجدول الصيني للحمل',d:'توقّع جنس المولود بطريقة الجدول الصيني الشعبية (للتسلية فقط).',kw:'الجدول الصيني جنس المولود ولد بنت',
+  f:[DT('mb','تاريخ ميلاد الأم','1995-04-10'),SEL('k','أعرف',[['conc','تاريخ الإخصاب'],['due','موعد الولادة المتوقع']]),DT('d','التاريخ',-30)],
+  calc(v){if(!v.mb||!v.d)return{err:'اختاري التاريخين.'};const conc=v.k==='due'?addDays(v.d,-266):v.d,cm=toCN(v.mb),cc=toCN(conc);if(!cm||!cc)return{err:'متصفحك لا يدعم التقويم الصيني.'};
+    const age=cc.y-cm.y+1,mon=cc.m,girl=(age+mon)%2===0;
+    return{big:['التوقع حسب الجدول',girl?'بنت':'ولد'],tone:'warn',rows:[['عمر الأم القمري عند الحمل',String(age)],['الشهر القمري للحمل',String(mon)],['تاريخ الإخصاب المقدّر',fmtDs(conc)]],
+      note:'يعتمد على التقويم القمري الصيني بالطريقة الشائعة (العمر القمري + شهر الحمل: زوجي = بنت، فردي = ولد). الدراسات العلمية وجدت أن دقته نحو 50% فقط، أي مثل رمي العملة، فلا تعتمدي عليه. السونار أو التحليل هما الطريقة الموثوقة.'};}});
+
+const MBTI={INTJ:'المهندس',INTP:'المفكّر',ENTJ:'القائد',ENTP:'المحاور',INFJ:'المستشار',INFP:'الوسيط',ENFJ:'المعلّم',ENFP:'الملهِم',ISTJ:'المسؤول',ISFJ:'الحامي',ESTJ:'المدير',ESFJ:'المضيف',ISTP:'الحرفي',ISFP:'الفنان',ESTP:'المغامر',ESFP:'المؤدّي'};
+const AXES=[['E','I','منفتح اجتماعي','متأمل هادئ'],['S','N','واقعي','حدسي'],['T','F','منطقي','عاطفي'],['J','P','منظّم','مرن']];
+const PQ=[[0,'بعد يوم طويل، ما الذي يعيد طاقتك؟','لقاء الأصدقاء والحديث معهم','وقت هادئ وحدي'],[0,'في مناسبة فيها أناس لا تعرفهم:','أتعرف عليهم بسهولة','أبقى مع من أعرفهم'],[0,'حين تفكر في مشكلة:','أتكلم عنها مع غيري لأفهمها','أفكر فيها بيني وبين نفسي أولًا'],
+  [1,'تهتم أكثر بـ:','الحقائق والتفاصيل','الأفكار والاحتمالات'],[1,'عند شرح شيء لغيرك:','أعطي أمثلة واقعية خطوة بخطوة','أبدأ بالصورة الكبيرة والفكرة العامة'],[1,'تثق أكثر بـ:','التجربة والخبرة','الحدس والإحساس'],
+  [2,'عند اتخاذ قرار مهم:','أعتمد على المنطق والأرقام','أراعي مشاعر الناس وقيمي'],[2,'صديقك أخطأ في حقك:','أصارحه بالحقيقة مباشرة','أختار كلماتي بلطف حتى لا أجرحه'],[2,'يمدحك الناس بأنك:','عادل وموضوعي','متعاطف وطيب القلب'],
+  [3,'في السفر:','أخطط لكل شيء مسبقًا','أحب العفوية وأقرر في وقتها'],[3,'المهام والواجبات:','أنهيها قبل موعدها','أنجزها تحت ضغط آخر لحظة'],[3,'غرفتك أو مكتبك:','مرتب ومنظم','فوضى أعرف فيها مكان كل شيء']];
+T({id:'personality-test',c:'fun',n:'اختبار وتحليل الشخصية',d:'12 سؤالًا تكشف نمط شخصيتك على أربعة محاور مع وصف مبسط.',kw:'تحليل الشخصيه نمط mbti انطوائي اجتماعي',custom:personalityTool});
+function personalityTool(el){
+  let i=0,sc=[0,0,0,0];
+  const draw=()=>{
+    if(i>=PQ.length){const code=AXES.map((a,k)=>sc[k]>=2?a[0]:a[1]).join('');
+      el.innerHTML=`<section class="card result">${resHTML({big:['نمط شخصيتك',`${code} · ${MBTI[code]}`],bars:AXES.map((a,k)=>{const p=sc[k]/3*100;return[p>=50?a[2]:a[3],p>=50?p:100-p,`${Math.round(p>=50?p:100-p)}%`];}),
+        rows:AXES.map((a,k)=>[`${a[2]} أم ${a[3]}؟`,sc[k]>=2?a[2]:a[3]]),note:'مستوحى من نماذج الأنماط الشخصية الشائعة بشكل مبسط وللتسلية؛ الشخصية أوسع من أربعة حروف.'})}</section>
+        <div class="btn-row"><button class="btn accent" id="ptCopy">${ic('copy')}انسخ النتيجة</button><button class="btn" id="ptAgain">${ic('refresh')}أعد الاختبار</button></div>`;
+      $('#ptAgain').onclick=()=>{i=0;sc=[0,0,0,0];draw();};$('#ptCopy').onclick=()=>copyText(`ذِهن · تحليل الشخصية\nنمطي: ${code} (${MBTI[code]})${shareURL('personality-test')?'\n'+shareURL('personality-test'):''}`);return;}
+    const q=PQ[i],flip=rnd01()<.5,opts=flip?[[q[3],0],[q[2],1]]:[[q[2],1],[q[3],0]];
+    el.innerHTML=`<div class="card stack"><div class="prog"><i style="width:${i/PQ.length*100}%"></i></div><span class="faint num">${i+1} / ${PQ.length}</span><h2 style="font-size:20px">${q[1]}</h2>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-s="${o[1]}">${o[0]}</button>`).join('')}</div></div>`;
+    $$('[data-s]',el).forEach(b=>b.onclick=()=>{sc[q[0]]+= +b.dataset.s;i++;draw();});};
+  draw();
+}
+
+const BDAY=[['للأصدقاء',['كل عام وأنت بخير يا {name}! عسى أيامك القادمة أجمل من كل ما مضى، وأن تبقى صديقي الذي لا يتغير.','سنة جديدة من عمرك يا {name}، أتمنى لك فيها نجاحًا يليق بك وفرحًا لا ينتهي. عيد ميلاد سعيد!','يا {name}، وجودك في حياتي هدية، فكيف لا أحتفل بيوم وصولك للدنيا؟ كل عام وأنت أجمل.','عيد ميلاد سعيد يا {name}! أسأل الله أن يكتب لك في عامك الجديد الخير كله والصحة والسعادة.']],
+  ['للأم والأب',['أمي الغالية، كل عام وأنتِ نور البيت وسرّ سعادتنا. أطال الله عمرك في طاعته وصحة وعافية.','أبي الحبيب، في يوم ميلادك أقول لك شكرًا على كل ما قدّمته. كل عام وأنت سندنا وفخرنا.','كل عام وأنتِ بخير يا {name}، يا أجمل أم وأحنّ قلب. عسى الله يحفظك لنا ويديم ضحكتك.']],
+  ['للزوج والزوجة',['كل عام وأنت رفيق عمري يا {name}. أدعو الله أن يجمعنا على الخير دائمًا وأن تبقى أيامنا عامرة بالمودة.','في عيد ميلادك يا {name}، أشكر الله أنك نصيبي. كل عام وأنتِ أجمل ما في حياتي.','يا {name}، سنة جديدة نكملها معًا بإذن الله. كل عام وأنت حبيبي وسعادتي.']],
+  ['للأطفال',['عيد ميلاد سعيد يا {name}! كبرت سنة وكبرت فرحتنا بك. الله يحفظك ويجعلك قرة عين لوالديك.','يا بطل يا {name}، كل عام وأنت أشطر وأذكى وأجمل! عيد ميلاد سعيد.','يا أميرتنا {name}، كل عام وأنتِ زهرة البيت. عيد ميلاد سعيد مليء بالحلويات والضحكات!']],
+  ['للزملاء ورسمية',['الأستاذ/ة {name}، نتمنى لكم عيد ميلاد سعيدًا وعامًا حافلًا بالنجاحات والإنجازات.','كل عام وأنتم بخير يا {name}. يسعدنا العمل معكم، ونتمنى لكم عامًا مليئًا بالصحة والتوفيق.','بمناسبة عيد ميلادكم، يتقدم لكم فريق العمل بأطيب التهاني والأمنيات. كل عام وأنتم بخير.']],
+  ['قصيرة للحالة',['كل عام وأنت بخير يا {name} 🎂','سنة سعيدة يا {name}، ومن العايدين.','عسى عمرك كله أعياد يا {name}.','يوم ميلادك يوم عيد لنا يا {name}.']]];
+T({id:'birthday-messages',c:'fun',n:'رسائل عيد الميلاد',d:'رسائل تهنئة جاهزة للأصدقاء والأهل والأطفال والزملاء، باسم من تحب.',kw:'رسائل تهنئه عيد ميلاد عبارات',custom:bdayTool});
+function bdayTool(el){
+  let cat=0;const name=()=>(($('#bdName')||{}).value||'').trim();
+  const draw=()=>{const nm=name()||(S.inputs.bday!=null?S.inputs.bday:'نورة');el.innerHTML=`<div class="card stack"><div class="fld"><label for="bdName">اسم صاحب المناسبة</label><input type="text" id="bdName" maxlength="40" value="${esc(nm)}" placeholder="مثال: نورة"></div>
+      <div class="chips" role="group" style="padding-block:0">${BDAY.map((c,i)=>`<button class="chip" data-c="${i}" aria-pressed="${i===cat}">${c[0]}</button>`).join('')}</div></div>
+      <div class="stack" style="margin-top:12px" id="bdList"></div>`;
+    $('#bdList').innerHTML=list();
+    $$('[data-c]',el).forEach(b=>b.onclick=()=>{cat=+b.dataset.c;draw();});
+    $('#bdName').oninput=()=>{S.inputs.bday=name();save();$('#bdList').innerHTML=list();bind();};bind();};
+  const fill=s=>{const n=name();return n?s.replace(/\{name\}/g,n):s.replace(/ يا \{name\}|\{name\}،? ?/g,'').replace(/\s+([!،.])/g,'$1');};
+  const list=()=>BDAY[cat][1].map((m,i)=>`<div class="card" style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between"><p style="flex:1;min-width:0">${esc(fill(m))}</p><button class="icon-btn" data-cp="${i}" aria-label="انسخ الرسالة">${ic('copy')}</button></div>`).join('');
+  const bind=()=>$$('[data-cp]',el).forEach(b=>b.onclick=()=>copyText(fill(BDAY[cat][1][+b.dataset.cp])));
+  draw();
+}
+
+/* info */
+const DIAL=[['السعودية',966],['مصر',20],['الإمارات',971],['الكويت',965],['قطر',974],['البحرين',973],['عُمان',968],['اليمن',967],['الأردن',962],['فلسطين',970],['لبنان',961],['سوريا',963],['العراق',964],['ليبيا',218],['تونس',216],['الجزائر',213],['المغرب',212],['السودان',249],['موريتانيا',222],['الصومال',252],['جيبوتي',253],['جزر القمر',269],
+  ['تركيا',90],['إيران',98],['باكستان',92],['الهند',91],['بنغلاديش',880],['أفغانستان',93],['سريلانكا',94],['نيبال',977],['إندونيسيا',62],['ماليزيا',60],['الفلبين',63],['تايلاند',66],['سنغافورة',65],['فيتنام',84],['الصين',86],['اليابان',81],['كوريا الجنوبية',82],
+  ['الولايات المتحدة وكندا',1],['المكسيك',52],['البرازيل',55],['الأرجنتين',54],['المملكة المتحدة',44],['أيرلندا',353],['فرنسا',33],['ألمانيا',49],['إيطاليا',39],['إسبانيا',34],['البرتغال',351],['هولندا',31],['بلجيكا',32],['سويسرا',41],['النمسا',43],['السويد',46],['النرويج',47],['الدنمارك',45],['بولندا',48],['اليونان',30],['روسيا',7],['أوكرانيا',380],
+  ['أستراليا',61],['نيوزيلندا',64],['جنوب أفريقيا',27],['نيجيريا',234],['إثيوبيا',251],['إريتريا',291],['كينيا',254],['تشاد',235]];
+T({id:'dial-codes',c:'daily',n:'مفاتيح الاتصال الدولية',d:'ابحث عن رمز الاتصال الدولي لأي دولة وطريقة الاتصال الصحيحة.',kw:'مفتاح دوله رمز الاتصال كود الدوله 00 +',custom:dialTool});
+function dialTool(el){
+  el.innerHTML=`<div class="card stack"><div class="search" style="margin:0">${ic('search')}<input type="search" id="dq" placeholder="اسم الدولة أو الرمز" aria-label="ابحث"></div>
+    <p class="faint">للاتصال الدولي اطلب 00 أو + ثم مفتاح الدولة ثم الرقم بدون الصفر الأول. مثال: 00966 5xxxxxxxx</p></div><div class="tbl-wrap" id="dl"></div>`;
+  const draw=()=>{const q=norm($('#dq').value.trim().replace(/^\+|^00/,''));const r=DIAL.filter(([n,c])=>!q||norm(n).includes(q)||String(c).startsWith(q));
+    $('#dl').innerHTML=r.length?`<table><thead><tr><th>الدولة</th><th>المفتاح</th><th></th></tr></thead><tbody>${r.map(([n,c])=>`<tr><td>${n}</td><td dir="ltr" style="text-align:right">+${c}</td><td><button class="link" data-c="+${c}">نسخ</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">لا توجد نتيجة</div>';
+    $$('[data-c]',el).forEach(b=>b.onclick=()=>copyText(b.dataset.c));};
+  $('#dq').addEventListener('input',draw);draw();
+}
+
+const CITIES=[['مكة المكرمة والرياض','Asia/Riyadh'],['القاهرة','Africa/Cairo'],['دبي وأبوظبي','Asia/Dubai'],['الكويت','Asia/Kuwait'],['الدوحة','Asia/Qatar'],['المنامة','Asia/Bahrain'],['مسقط','Asia/Muscat'],['عمّان','Asia/Amman'],['بيروت','Asia/Beirut'],['دمشق','Asia/Damascus'],['بغداد','Asia/Baghdad'],['القدس','Asia/Jerusalem'],['الخرطوم','Africa/Khartoum'],['طرابلس','Africa/Tripoli'],['تونس','Africa/Tunis'],['الجزائر','Africa/Algiers'],['الرباط والدار البيضاء','Africa/Casablanca'],['صنعاء','Asia/Aden'],
+  ['إسطنبول','Europe/Istanbul'],['لندن','Europe/London'],['باريس','Europe/Paris'],['برلين','Europe/Berlin'],['موسكو','Europe/Moscow'],['نيويورك','America/New_York'],['شيكاغو','America/Chicago'],['لوس أنجلوس','America/Los_Angeles'],['تورونتو','America/Toronto'],['ساو باولو','America/Sao_Paulo'],
+  ['كراتشي','Asia/Karachi'],['نيودلهي','Asia/Kolkata'],['دكا','Asia/Dhaka'],['جاكرتا','Asia/Jakarta'],['كوالالمبور','Asia/Kuala_Lumpur'],['بكين','Asia/Shanghai'],['طوكيو','Asia/Tokyo'],['سيدني','Australia/Sydney']];
+T({id:'world-clock',c:'daily',n:'الساعة الآن في مدن العالم',d:'الوقت الحالي في المدن العربية والعالمية وفرق التوقيت عنك.',kw:'الساعه الان كم الساعه توقيت فرق التوقيت',custom:clockTool});
+function clockTool(el){
+  el.innerHTML=`<div class="card stack"><div class="rbig"><span>الوقت عندك</span><b class="num" id="ckMe"></b><small id="ckMeD"></small></div><div class="search" style="margin:0">${ic('search')}<input type="search" id="cq" placeholder="ابحث عن مدينة" aria-label="ابحث عن مدينة"></div></div><div class="tbl-wrap" id="ck"></div>`;
+  const off=tz=>{const d=new Date();const p={};new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'}).formatToParts(d).forEach(x=>p[x.type]=x.value);return (Date.UTC(+p.year,p.month-1,+p.day,+p.hour,+p.minute)-Math.floor(d.getTime()/6e4)*6e4)/36e5;};
+  const tf=tz=>{try{return new Intl.DateTimeFormat('ar-EG-u-nu-latn',{timeZone:tz,hour:'numeric',minute:'2-digit',weekday:'short'}).format(new Date());}catch(e){return '—';}};
+  const draw=()=>{if(!document.body.contains(el)){clearInterval(liveT);return;}
+    const now=new Date();$('#ckMe').textContent=now.toLocaleTimeString('ar-EG-u-nu-latn',{hour:'numeric',minute:'2-digit',second:'2-digit'});$('#ckMeD').textContent=fmtH(toH(todayU()))+' · '+fmtDs(todayU());
+    const me=-now.getTimezoneOffset()/60,q=norm(($('#cq')||{value:''}).value.trim());
+    const rows=CITIES.filter(c=>!q||norm(c[0]).includes(q)).map(([n,tz])=>{let o;try{o=off(tz);}catch(e){return null;}const d=o-me;return `<tr><td>${n}</td><td class="num">${tf(tz)}</td><td class="num" dir="ltr" style="text-align:right">${d===0?'نفس توقيتك':(d>0?'+':'')+fmt(d,2)+' س'}</td></tr>`;}).filter(Boolean);
+    $('#ck').innerHTML=`<table><thead><tr><th>المدينة</th><th>الوقت</th><th>الفرق عنك</th></tr></thead><tbody>${rows.join('')||'<tr><td colspan="3">لا توجد نتيجة</td></tr>'}</tbody></table>`;};
+  $('#cq').addEventListener('input',draw);draw();clearInterval(liveT);liveT=setInterval(draw,1000);
+}
+
+const CURN=[['USD','دولار أمريكي'],['EUR','يورو'],['GBP','جنيه إسترليني'],['SAR','ريال سعودي'],['AED','درهم إماراتي'],['EGP','جنيه مصري'],['KWD','دينار كويتي'],['QAR','ريال قطري'],['BHD','دينار بحريني'],['OMR','ريال عُماني'],['JOD','دينار أردني'],['IQD','دينار عراقي'],['MAD','درهم مغربي'],['DZD','دينار جزائري'],['TND','دينار تونسي'],['LYD','دينار ليبي'],['SDG','جنيه سوداني'],['YER','ريال يمني'],['LBP','ليرة لبنانية'],['TRY','ليرة تركية'],['CHF','فرنك سويسري'],['CAD','دولار كندي'],['AUD','دولار أسترالي'],['CNY','يوان صيني'],['JPY','ين ياباني'],['INR','روبية هندية'],['PKR','روبية باكستانية'],['MYR','رينغيت ماليزي'],['IDR','روبية إندونيسية'],['RUB','روبل روسي']];
+const PEG={USD:1,SAR:3.75,AED:3.6725,QAR:3.64,BHD:.376,OMR:.3845,JOD:.709};
+T({id:'currency',c:'money',n:'تحويل العملات',d:'حوّل بين العملات العربية والعالمية بأحدث سعر متاح.',kw:'تحويل عملات صرف دولار ريال جنيه يورو سعر',custom:currencyTool});
+function currencyTool(el){
+  const sv=Object.assign({v:'100',a:'USD',b:'SAR'},S.inputs.currency||{});let rates=null,src='',when='';
+  try{const c=JSON.parse(localStorage.getItem('dhihn.fx')||'null');if(c&&c.rates){rates=c.rates;when=c.when;src='آخر أسعار محفوظة';}}catch(e){}
+  if(!rates){rates=Object.assign({},PEG);src='أسعار الربط الرسمية (للعملات المربوطة بالدولار فقط)';}
+  const opt=k=>CURN.map(([c,n])=>`<option value="${c}" ${c===k?'selected':''}>${n} (${c})</option>`).join('');
+  el.innerHTML=`<div class="card stack"><div class="fld"><label for="cv">المبلغ</label><div class="numwrap"><input type="text" inputmode="decimal" dir="ltr" id="cv" value="${esc(sv.v)}"></div></div>
+    <div class="unit-row"><div class="fld"><label for="ca">من</label><select id="ca">${opt(sv.a)}</select></div><button class="icon-btn swap" id="cs" aria-label="تبديل">${ic('swap')}</button><div class="fld"><label for="cb">إلى</label><select id="cb">${opt(sv.b)}</select></div></div>
+    <details><summary class="faint" style="cursor:pointer">إدخال سعر صرف يدويًا</summary><div class="fld" style="margin-top:8px"><label for="cm">1 من العملة الأولى = ؟ من الثانية</label><div class="numwrap"><input type="text" inputmode="decimal" dir="ltr" id="cm" placeholder="اتركه فارغًا لاستخدام السعر التلقائي"></div></div></details></div>
+    <section class="card result" id="cr" aria-live="polite"></section><div class="btn-row"><button class="btn" id="copyRes">${ic('copy')}انسخ النتيجة</button></div>`;
+  const run=()=>{const x=parseNum($('#cv').value),a=$('#ca').value,b=$('#cb').value,man=parseNum($('#cm').value);S.inputs.currency={v:$('#cv').value,a,b};save();
+    let r=isFinite(man)&&man>0?man:(rates[a]&&rates[b]?rates[b]/rates[a]:NaN);const nm=c=>CURN.find(z=>z[0]===c)[1];
+    const res=!isFinite(x)?{err:'أدخل المبلغ.'}:!isFinite(r)?{err:'لا يتوفر سعر لهذه العملة حاليًا (تحتاج اتصالًا بالإنترنت). أدخل السعر يدويًا.'}:
+      {big:[`${fmt(x,2)} ${nm(a)} =`,`${fmt(x*r,r<1?4:2)} ${nm(b)}`],rows:[[`1 ${a}`,`${fmt(r,6)} ${b}`],[`1 ${b}`,`${fmt(1/r,6)} ${a}`],['مصدر السعر',isFinite(man)&&man>0?'سعر يدوي':src+(when?' · '+when:'')]],note:'أسعار استرشادية؛ أسعار البنوك ومحلات الصرافة تختلف قليلًا.'};
+    $('#cr').innerHTML=resHTML(res);LAST={t:TOOLS.find(t=>t.id==='currency'),r:res};};
+  ['input','change'].forEach(e=>el.addEventListener(e,run));$('#cs').onclick=()=>{const a=$('#ca').value;$('#ca').value=$('#cb').value;$('#cb').value=a;run();};
+  $('#copyRes').onclick=()=>copyText(resText(LAST.t,LAST.r));run();
+  fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json()).then(j=>{if(j&&j.result==='success'&&j.rates){rates=j.rates;when=new Date(j.time_last_update_unix*1000).toLocaleDateString('ar-EG-u-nu-latn');src='أسعار السوق';try{localStorage.setItem('dhihn.fx',JSON.stringify({rates,when}));}catch(e){}if(document.body.contains(el))run();}}).catch(()=>{});
+}
 
 /* ================= CUSTOM TOOLS ================= */
 function unitTool(el,t){
@@ -1061,7 +1290,7 @@ function route(){
   window.scrollTo(0,0);renderNav(h);
 }
 function renderNav(h){
-  const items=[['','grid','كل الأدوات'],['age','cake','حساب العمر'],['quizzes/index.html','quiz','اختبر نفسك'],['fav','star','المفضلة']];
+  const items=[['','grid','كل الأدوات'],['age','cake','حساب العمر'],['love','heart','مقياس الحب'],['quizzes/index.html','quiz','اختبر نفسك'],['fav','star','المفضلة']];
   $('#navIn').innerHTML=items.map(([k,i,l])=>{const href=k.includes('/')?k:'#'+k;const cur=(k===''&&(h===''||!TOOLS.some(t=>t.id===h)&&h!=='fav'))||k===h;return `<a href="${href}" ${cur?'aria-current="page"':''}>${ic(i)}<span>${l}</span></a>`;}).join('');
 }
 const hostTheme=document.documentElement.getAttribute('data-theme');
