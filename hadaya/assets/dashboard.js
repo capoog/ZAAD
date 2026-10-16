@@ -65,12 +65,13 @@
     </section>
 
     <section class="card">
-      <div class="card-h"><div><h2>الهدايا والكميات</h2><p>الشاشة بتوزع الأكواد حسب الكمية المتبقية من كل هدية</p></div>
+      <div class="card-h"><div><h2>الهدايا والكميات</h2><p>حط نسبة فوز لكل هدية. لما هدية تخلص، نسبتها بتتوزع على الباقي</p></div>
         <button class="btn soft" id="addP" type="button">${ui('plus')} إضافة هدية</button></div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>الهدية</th><th>الأيقونة</th><th>الكمية الكلية</th><th>المتبقي</th><th>الحالة</th><th></th></tr></thead>
+        <thead><tr><th>الهدية</th><th>الأيقونة</th><th>الكمية الكلية</th><th>المتبقي</th><th>نسبة الفوز</th><th>الحالة</th><th></th></tr></thead>
         <tbody id="pBody"></tbody>
       </table></div>
+      <div class="odds" id="pSum"></div>
       <div class="savebar"><span class="dirty" id="pDirty"></span><button class="btn" id="saveP" type="button" disabled>حفظ وتحديث الشاشة</button></div>
     </section>
 
@@ -175,11 +176,25 @@
       <td><select class="in" data-k="icon" aria-label="الأيقونة">${iconOptions(p.icon)}</select></td>
       <td><input class="in" data-k="total" type="number" min="0" inputmode="numeric" value="${p.total}" style="width:90px" aria-label="الكمية الكلية"></td>
       <td><input class="in" data-k="left" type="number" min="0" inputmode="numeric" value="${p.left}" style="width:90px" aria-label="المتبقي"></td>
+      <td><div class="chance"><span class="pct"><input class="in" data-k="chance" type="number" min="0" max="100" step="0.5" inputmode="decimal" value="${p.chance ?? 0}" aria-label="نسبة الفوز بـ ${esc(p.name)}"><b>%</b></span><small data-eff="${i}"></small></div></td>
       <td><div class="stockbar"><div class="bar"><i style="width:${p.total ? Math.min(100, p.left / p.total * 100) : 0}%"></i></div><small>${p.left > 0 ? `${fmt(p.left)} من ${fmt(p.total)}` : 'خلصت'}</small></div></td>
       <td><button class="iconbtn" data-del="${i}" type="button" aria-label="حذف ${esc(p.name)}">${ui('trash')}</button></td></tr>`).join('')
-      : `<tr class="empty-row"><td colspan="6">مفيش هدايا. اضغط «إضافة هدية» عشان تبدأ.</td></tr>`;
+      : `<tr class="empty-row"><td colspan="7">مفيش هدايا. اضغط «إضافة هدية» عشان تبدأ.</td></tr>`;
+    paintOdds();
     $('#pDirty').textContent = draft ? 'فيه تغييرات لسه ما اتحفظتش' : '';
     $('#saveP').disabled = !draft || !draft.length;
+  }
+  /* the percentages the owner typed, and what each prize really gets after rescaling */
+  function paintOdds(){
+    const rows = (draft || cfg.prizes).map((p, i) => Object.assign({}, p, { id: p.id || 'new' + i }));
+    const eff = effChances(rows), sum = rows.reduce((a, p) => a + (p.left > 0 ? Math.max(0, +p.chance || 0) : 0), 0);
+    rows.forEach((p, i) => { const el = $(`[data-eff="${i}"]`); if (el) el.textContent = p.left > 0 ? `الفعلي ${eff[p.id].toFixed(1).replace(/\.0$/, '')}%` : 'خلصت، نسبتها اتوزعت'; });
+    const r = Math.round(sum * 10) / 10, box = $('#pSum');
+    box.className = 'odds ' + (Math.abs(r - 100) < .05 ? 'ok' : 'warn');
+    box.innerHTML = Math.abs(r - 100) < .05
+      ? `${ui('check')}<span>مجموع النسب <b>100%</b>. كل كود على الشاشة بيتسحب على النسب دي.</span>`
+      : r === 0 ? `${ui('clock')}<span>مفيش نسب متحددة، فالأكواد بتتوزع حسب الكمية المتبقية من كل هدية.</span>`
+      : `${ui('clock')}<span>مجموع النسب <b>${fmt(r)}%</b> مش 100%. هنوزّع الأكواد بنفس النسبة بين الهدايا، والنسبة الفعلية مكتوبة تحت كل خانة.</span>`;
   }
   const statusPill = w => w.redeemedAt ? `<span class="pill ok">${ui('check')}اتسلمت ${clock(w.redeemedAt)}</span>` : `<span class="pill wait">مستنية</span>`;
   function paintWinners(){
@@ -242,12 +257,14 @@
   const ensureDraft = () => { if (!draft) draft = JSON.parse(JSON.stringify(cfg.prizes)); };
   $('#pBody').addEventListener('input', e => {
     const tr = e.target.closest('tr'), k = e.target.dataset.k; if (!tr || !k || !cfg) return; ensureDraft();
-    const p = draft[+tr.dataset.i]; p[k] = (k === 'total' || k === 'left') ? Math.max(0, parseInt(e.target.value) || 0) : e.target.value;
+    const p = draft[+tr.dataset.i];
+    p[k] = (k === 'total' || k === 'left') ? Math.max(0, parseInt(e.target.value) || 0) : k === 'chance' ? Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)) : e.target.value;
+    if (k === 'chance' || k === 'left') paintOdds();
     if (k === 'icon') tr.querySelector('.tl').innerHTML = pIcon(p);
     $('#pDirty').textContent = 'فيه تغييرات لسه ما اتحفظتش'; $('#saveP').disabled = false;
   });
   $('#pBody').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (!b) return; ensureDraft(); draft.splice(+b.dataset.del, 1); paintPrizes(); });
-  $('#addP').onclick = () => { if (!cfg) return; ensureDraft(); draft.push({ id:'', name:'هدية جديدة', icon:'gift', img:'', total:10, left:10 }); paintPrizes(); const ins = $('#pBody').querySelectorAll('input[data-k="name"]'); ins[ins.length - 1].select(); };
+  $('#addP').onclick = () => { if (!cfg) return; ensureDraft(); draft.push({ id:'', name:'هدية جديدة', icon:'gift', img:'', total:10, left:10, chance:5 }); paintPrizes(); const ins = $('#pBody').querySelectorAll('input[data-k="name"]'); ins[ins.length - 1].select(); };
   $('#saveP').onclick = async () => {
     if (!draft || !draft.length) return; $('#saveP').disabled = true;
     const r = await cmd('config', { cfg: { prizes: draft } });

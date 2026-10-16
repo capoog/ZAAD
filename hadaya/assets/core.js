@@ -11,10 +11,11 @@ const DEFAULTS = {
   liveCodes: 28,
   revealSeconds: 11,
   onePerPhone: true,           // هدية واحدة بس لكل رقم جوال في الحملة
+  // الاسم | الأيقونة | الكمية | نسبة الفوز %
   prizes: [
-    ['سماعة لاسلكية','headphones',10], ['سبيكر بلوتوث','speaker',8], ['يد تحكم ألعاب','gamepad',4],
-    ['ساعة ذكية','watch',5], ['باور بانك 20 ألف','powerbank',12], ['شاحن سريع 20 واط','charger',30],
-    ['كفر جوال','case',40], ['كيبل شحن','cable',45], ['خصم 10% على مشترياتك','tag',20],
+    ['سماعة لاسلكية','headphones',10,5], ['سبيكر بلوتوث','speaker',8,5], ['يد تحكم ألعاب','gamepad',4,2],
+    ['ساعة ذكية','watch',5,3], ['باور بانك 20 ألف','powerbank',12,7], ['شاحن سريع 20 واط','charger',30,18],
+    ['كفر جوال','case',40,23], ['كيبل شحن','cable',45,25], ['خصم 10% على مشترياتك','tag',20,12],
   ],
 };
 const SALT = 'hadaya-v3';
@@ -107,10 +108,15 @@ const Engine = {
   save(s){ memory = s; try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} },
   fresh(){
     return { v:3, topic:'gh-' + rand(10), key: rand(18), keys:null, keyAt:0,
-      cfg: Object.assign({}, DEFAULTS, { prizes: DEFAULTS.prizes.map(([name, icon, n]) => ({ id: rand(3), name, icon, img:'', total:n, left:n })) }),
+      cfg: Object.assign({}, DEFAULTS, { prizes: DEFAULTS.prizes.map(([name, icon, n, chance]) => ({ id: rand(3), name, icon, img:'', total:n, left:n, chance })) }),
       live:[], used:[], winners:[], scans:[] };
   },
-  init(){ let s = this.load(); if (!s || s.v !== 3) s = this.fresh(); topUp(s); this.save(s); return s; },
+  init(){
+    let s = this.load(); if (!s || s.v !== 3) s = this.fresh();
+    const total = s.cfg.prizes.reduce((a, p) => a + (+p.total || 0), 0) || 1;   // older records: start from the stock share
+    s.cfg.prizes.forEach(p => { if (p.chance == null) p.chance = Math.round((+p.total || 0) / total * 1000) / 10; });
+    topUp(s); this.save(s); return s;
+  },
   mutate(fn){ const s = this.load() || this.init(); const r = fn(s); this.save(s); return [s, r]; },
 };
 const prizeById = (s, id) => s.cfg.prizes.find(p => p.id === id);
@@ -122,13 +128,22 @@ const totals = s => {
 function topUp(s){
   const used = new Set(s.used);
   s.live = s.live.filter(g => { const p = parseG(g, s.topic); const pr = p && prizeById(s, p.pid); return pr && pr.left > 0 && !used.has(p.n); });
-  const left = totals(s).left;
-  while (left && s.live.length < s.cfg.liveCodes){
-    let r = Math.random() * left, pick = null;
-    for (const p of s.cfg.prizes){ r -= Math.max(0, p.left); if (r < 0){ pick = p; break; } }
-    pick = pick || s.cfg.prizes.find(p => p.left > 0); if (!pick) break;
+  const eff = effChances(s.cfg.prizes), sum = Object.values(eff).reduce((a, b) => a + b, 0);
+  while (sum > 0 && s.live.length < s.cfg.liveCodes){
+    let r = Math.random() * sum, pick = null;
+    for (const p of s.cfg.prizes){ r -= eff[p.id] || 0; if (r < 0){ pick = p; break; } }
+    pick = pick || s.cfg.prizes.find(p => eff[p.id] > 0); if (!pick) break;
     s.live.push(makeG(pick.id, s.topic));
   }
+}
+/* the real chance of each prize right now, in percent: the owner's percentages,
+   rescaled over the prizes that still have stock. If no percentages are set, stock decides. */
+function effChances(prizes){
+  const active = prizes.filter(p => p.left > 0);
+  let w = p => Math.max(0, +p.chance || 0), sum = active.reduce((a, p) => a + w(p), 0);
+  if (sum <= 0){ w = p => Math.max(0, +p.left || 0); sum = active.reduce((a, p) => a + w(p), 0); }
+  const out = {}; prizes.forEach(p => out[p.id] = sum > 0 && p.left > 0 ? w(p) / sum * 100 : 0);
+  return out;
 }
 function opClaim(s, g, cust){
   const p = parseG(g, s.topic);
@@ -167,8 +182,11 @@ function opRedeem(s, n){
   w.redeemedAt = Date.now(); return { found:true, already:false, list:[w] };
 }
 function opConfig(s, cfg){
+  const before = JSON.stringify(effChances(s.cfg.prizes));
   s.cfg = Object.assign({}, s.cfg, cfg, { prizes: (cfg.prizes || s.cfg.prizes).map(p => ({ id: /^[a-z0-9]{3}$/.test(p.id || '') ? p.id : rand(3), name: String(p.name || 'هدية').slice(0,60),
-    icon: ICONS[p.icon] ? p.icon : 'gift', img: /^https:\/\//.test(p.img || '') ? p.img : '', total: Math.max(0, parseInt(p.total) || 0), left: Math.max(0, parseInt(p.left) || 0) })) });
+    icon: ICONS[p.icon] ? p.icon : 'gift', img: /^https:\/\//.test(p.img || '') ? p.img : '', total: Math.max(0, parseInt(p.total) || 0), left: Math.max(0, parseInt(p.left) || 0),
+    chance: Math.min(100, Math.max(0, Math.round((parseFloat(p.chance) || 0) * 10) / 10)) })) });
+  if (JSON.stringify(effChances(s.cfg.prizes)) !== before) s.live = [];   // new odds: redraw every code on the screen
   s.cfg.liveCodes = Math.min(60, Math.max(4, parseInt(s.cfg.liveCodes) || DEFAULTS.liveCodes));
   s.cfg.revealSeconds = Math.min(40, Math.max(4, parseInt(s.cfg.revealSeconds) || DEFAULTS.revealSeconds));
   s.cfg.onePerPhone = !!s.cfg.onePerPhone;

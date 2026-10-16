@@ -325,3 +325,12 @@ td .in{padding:8px 10px}
 .hit-act{display:flex}
 .in-ic input[dir="ltr"]{padding-left:16px;padding-right:44px}
 .pc .gift.wobble,.pc .gift.shake{--gs:min(44vw,180px)}
+.chance{display:grid;gap:4px;min-width:104px}
+.chance .pct{display:flex;align-items:center;gap:6px}
+.chance .pct .in{width:78px}
+.chance .pct b{color:var(--dim);font-weight:500}
+.chance small{color:var(--faint);font-size:12px;font-variant-numeric:tabular-nums}
+.odds{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r-m);font-size:13.5px;line-height:1.6;background:var(--night);border:1px solid var(--line)}
+.odds .ic{font-size:18px;flex:none}
+.odds.ok{color:var(--good)} .odds.ok span{color:var(--dim)} .odds.ok b{color:var(--good)}
+.odds.warn .ic{color:var(--saffron)} .odds.warn span{color:var(--dim)} .odds.warn b{color:var(--saffron)}
