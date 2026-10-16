@@ -9,6 +9,7 @@ const DEFAULTS = {
   server: 'https://ntfy.sh',   // خادم ربط مجاني بين الأجهزة، تقدر تحط خادم ntfy خاص بيك
   pageURL: '',                 // رابط فولدر الموقع بعد الرفع (لو فاضي بياخد الرابط الحالي)
   liveCodes: 28,
+  rotateSeconds: 15,           // الأكواد بتتغير كل كام ثانية (0 = ما تتغيرش)
   revealSeconds: 11,
   onePerPhone: true,           // محاولة واحدة بس لكل رقم جوال في الحملة (كسب أو حظ أوفر)
   loseChance: 20,              // نسبة «حظ أوفر المرة القادمة» % — أكواد من غير هدية
@@ -20,7 +21,9 @@ const DEFAULTS = {
   ],
 };
 const SALT = 'hadaya-v3';
-const LOSE = 'nil';            // prize id of a "better luck next time" code
+const LOSE = 'nil';
+const HOLD_MS = 5 * 60e3;       // a scanned code stays reserved for its phone this long
+const GRACE_MS = 10e3;          // a code that just rotated off the screen can still be scanned this long            // prize id of a "better luck next time" code
 const KEY = 'hadaya-v3';
 
 const ICONS = {
@@ -111,14 +114,15 @@ const Engine = {
   fresh(){
     return { v:3, topic:'gh-' + rand(10), key: rand(18), keys:null, keyAt:0,
       cfg: Object.assign({}, DEFAULTS, { prizes: DEFAULTS.prizes.map(([name, icon, n, chance]) => ({ id: rand(3), name, icon, img:'', total:n, left:n, chance })) }),
-      live:[], used:[], winners:[], tries:[], scans:[] };
+      live:[], used:[], winners:[], tries:[], scans:[], held:{}, recent:[] };
   },
   init(){
     let s = this.load(); if (!s || s.v !== 3) s = this.fresh();
     const total = s.cfg.prizes.reduce((a, p) => a + (+p.total || 0), 0) || 1;   // older records: start from the stock share
     s.cfg.prizes.forEach(p => { if (p.chance == null) p.chance = Math.round((+p.total || 0) / total * 1000) / 10; });
     if (s.cfg.loseChance == null) s.cfg.loseChance = DEFAULTS.loseChance;
-    s.tries = s.tries || [];
+    s.tries = s.tries || []; s.held = s.held || {}; s.recent = s.recent || [];
+    if (s.cfg.rotateSeconds == null) s.cfg.rotateSeconds = DEFAULTS.rotateSeconds;
     topUp(s); this.save(s); return s;
   },
   mutate(fn){ const s = this.load() || this.init(); const r = fn(s); this.save(s); return [s, r]; },
@@ -153,7 +157,7 @@ function effChances(prizes, loseChance){
   out[LOSE] = all > 0 ? lose / all * 100 : 0;
   return out;
 }
-function opClaim(s, g, cust){
+function opClaim(s, g, cust, sid){
   const p = parseG(g, s.topic);
   if (!p) return { ok:false, reason:'invalid' };
   const lose = p.pid === LOSE, pr = lose ? null : prizeById(s, p.pid);
@@ -161,15 +165,17 @@ function opClaim(s, g, cust){
   if (prev && prev.phone === normPhone(cust.phone)) return { ok:true, repeat:true, n:p.n, winner:prev, prize:{ name:prev.name, icon:prev.icon, img:prev.img } };
   if (prevTry && prevTry.phone === normPhone(cust.phone)) return { ok:true, repeat:true, lose:true, n:p.n, attempt:prevTry };
   if (s.used.includes(p.n)) return { ok:false, reason:'used', n:p.n };
-  if (!s.live.includes(g) || (!lose && (!pr || pr.left <= 0))) return { ok:false, reason:'expired', n:p.n };
+  const h = (s.held || {})[p.n];
+  if (!h || h.g !== g || h.sid !== sid || Date.now() - h.at > HOLD_MS || (!lose && (!pr || pr.left <= 0))) return { ok:false, reason:'expired', n:p.n };
   const phone = normPhone(cust.phone), who = String(cust.name || '').trim().slice(0, 40);
   if (!who || !validPhone(phone)) return { ok:false, reason:'details', n:p.n };
   if (s.cfg.onePerPhone && (s.winners.some(w => w.phone === phone) || (s.tries || []).some(t => t.phone === phone))) return { ok:false, reason:'phone', n:p.n };
   s.used.push(p.n); if (s.used.length > 4000) s.used = s.used.slice(-4000);
-  s.live = s.live.filter(x => x !== g);
+  delete s.held[p.n]; s.live = s.live.filter(x => x !== g);
   if (lose){
     const t = { n:p.n, who, phone, at:Date.now() };
-    s.tries = s.tries || []; s.tries.unshift(t); if (s.tries.length > 5000) s.tries.length = 5000;
+    s.tries = s.tries || []; s.held = s.held || {}; s.recent = s.recent || [];
+    if (s.cfg.rotateSeconds == null) s.cfg.rotateSeconds = DEFAULTS.rotateSeconds; s.tries.unshift(t); if (s.tries.length > 5000) s.tries.length = 5000;
     topUp(s);
     return { ok:true, lose:true, n:p.n, attempt:t };
   }
@@ -178,6 +184,28 @@ function opClaim(s, g, cust){
   s.winners.unshift(w); if (s.winners.length > 5000) s.winners.length = 5000;
   topUp(s);
   return { ok:true, n:p.n, winner:w, prize:{ name:pr.name, icon:pr.icon, img:pr.img } };
+}
+/* a phone opened a scanned code: reserve it for that phone so a forwarded link is useless */
+function opHold(s, g, sid){
+  const p = parseG(g, s.topic);
+  if (!p || !sid) return { ok:false, reason:'invalid' };
+  if (s.used.includes(p.n)) return { ok:false, reason:'used', n:p.n };
+  s.held = s.held || {};
+  const h = s.held[p.n];
+  if (h && Date.now() - h.at <= HOLD_MS) return h.sid === sid ? { ok:true, n:p.n, until: h.at + HOLD_MS } : { ok:false, reason:'taken', n:p.n };
+  const fresh = s.live.includes(g) || (s.recent || []).some(r => r.g === g && Date.now() - r.at <= GRACE_MS);
+  if (!fresh) return { ok:false, reason:'expired', n:p.n };
+  s.held[p.n] = { g, sid, at: Date.now() };
+  s.live = s.live.filter(x => x !== g); s.recent = (s.recent || []).filter(r => r.g !== g);
+  topUp(s);
+  return { ok:true, n:p.n, until: Date.now() + HOLD_MS, fresh:true };
+}
+/* every few seconds: new codes on the screen; the old ones stay scannable for a short grace */
+function opRotate(s){
+  const now = Date.now();
+  s.recent = (s.recent || []).filter(r => now - r.at <= GRACE_MS).concat(s.live.map(g => ({ g, at: now })));
+  for (const [n, h] of Object.entries(s.held || {})) if (now - h.at > HOLD_MS) delete s.held[n];
+  s.live = []; topUp(s); return { ok:true };
 }
 /* find by phone number or by the short reference code */
 function opFind(s, q){
@@ -209,9 +237,10 @@ function opConfig(s, cfg){
   s.cfg.liveCodes = Math.min(60, Math.max(4, parseInt(s.cfg.liveCodes) || DEFAULTS.liveCodes));
   s.cfg.revealSeconds = Math.min(40, Math.max(4, parseInt(s.cfg.revealSeconds) || DEFAULTS.revealSeconds));
   s.cfg.onePerPhone = !!s.cfg.onePerPhone;
+  { const r = parseInt(s.cfg.rotateSeconds); s.cfg.rotateSeconds = !r || r <= 0 ? 0 : Math.min(300, Math.max(10, r)); }
   topUp(s); return { ok:true };
 }
-function opNewCampaign(s){ s.cfg.prizes.forEach(p => p.left = p.total); s.winners = []; s.tries = []; s.used = []; s.live = []; s.scans = []; topUp(s); return { ok:true }; }
+function opNewCampaign(s){ s.cfg.prizes.forEach(p => p.left = p.total); s.winners = []; s.tries = []; s.used = []; s.live = []; s.scans = []; s.held = {}; s.recent = []; topUp(s); return { ok:true }; }
 function hourly(s){
   const now = Date.now(), H = 3600000, start = Math.floor(now / H) * H - 11 * H;
   const bins = Array.from({ length:12 }, (_, i) => ({ t: start + i * H, wins:0, scans:0 }));

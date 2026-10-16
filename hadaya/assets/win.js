@@ -40,7 +40,8 @@
   };
   const reasons = {
     used:    ['الكود ده <em>اتفتح قبلك</em>', 'حد سبقك على الكود ده. صوّر كود تاني من الشاشة، لسه فيه هدايا كتير.'],
-    expired: ['الكود ده <em>خلص</em>', 'الهدية بتاعة الكود ده خلصت أو الكود اتغير. صوّر كود تاني من الشاشة.'],
+    expired: ['الكود ده <em>انتهى وقته</em>', 'الأكواد على الشاشة بتتغير كل شوية، والكود لازم يتصوّر من الشاشة مباشرة. صوّر كود جديد وجرّب تاني.'],
+    taken:   ['الكود ده <em>اتفتح على جوال تاني</em>', 'كل كود بيشتغل على أول جوال يفتحه بس. صوّر كود جديد من شاشة المحل بنفسك.'],
     phone:   ['الرقم ده <em>شارك قبل كده</em>', 'كل رقم جوال ليه محاولة واحدة في الحملة دي. شكرًا لمشاركتك!'],
     details: ['البيانات <em>ناقصة</em>', 'اكتب اسمك ورقم جوالك صح وجرّب تاني.'],
     invalid: ['الكود ده <em>مش شغال</em>', 'صوّر كود من شاشة المحل مباشرة.'],
@@ -51,16 +52,33 @@
   if (memo){ memo.lose ? showLose(memo.who) : memo.ok ? showWon(memo.prize, memo.who, memo.phone) : showFail(memo.reason); return; }
 
   /* -- connect to the store screen and fetch its public key -- */
-  let key = null, acked = false, scanned = false, waiter = null;
+  /* this phone's own session for this code: the screen reserves the code for it on first open */
+  const sidKey = 'hd-sid-' + parsed.n;
+  const sid = read(sidKey) || (() => { const v = rand(12); write(sidKey, v); return v; })();
+  let key = null, acked = false, scanned = false, waiter = null, holdWaiter = null, hold = null;
   const link = makeLink(server, topic, msg => {
     if (msg.type === 'key' && msg.pub) key = { kid: msg.kid, pub: msg.pub };
     if (msg.type === 'ack' && msg.n === parsed.n && waiter) waiter(msg);
-  }, on => { if (on && !scanned){ scanned = true; link.send({ type:'scan', g }); } });
-  setTimeout(() => { if (!scanned){ scanned = true; link.send({ type:'scan', g }); } }, 1500);
+    if (msg.type === 'hold' && msg.n === parsed.n && msg.sid === sid){ hold = msg; holdWaiter && holdWaiter(msg); }
+  }, on => { if (on && !scanned){ scanned = true; link.send({ type:'scan', g, sid }); } });
+  setTimeout(() => { if (!scanned){ scanned = true; link.send({ type:'scan', g, sid }); } }, 1500);
+  const waitHold = ms => new Promise(res => { if (hold) return res(hold); holdWaiter = res; setTimeout(() => res(hold), ms); });
   link.poll('12h').then(msgs => { const k = msgs.filter(m => m.type === 'key' && m.pub).pop(); if (k && !key) key = { kid: k.kid, pub: k.pub }; if (!key) link.send({ type:'need-key' }); });
   const waitKey = ms => new Promise(res => { const t0 = Date.now(); (function chk(){ if (key) return res(key); if (Date.now() - t0 > ms) return res(null); setTimeout(chk, 250); })(); });
 
+  /* -- reserve the code first, so a forwarded link or an old photo of the screen can't be used -- */
+  shell(`<h1>لقيت <em>هدية!</em></h1>${giftHTML({ icon:'gift' }, 'wobble')}<span class="pill wait"><span class="spin"></span><span>بنحجز الكود ليك...</span></span>`);
+  async function reserve(){
+    const h = await waitHold(10000);
+    if (!h) return shell(`<h1>مش قادرين <em>نوصل للشاشة</em></h1><p>اتأكد إن النت شغال عندك وجرّب تاني بسرعة، الأكواد بتتغير كل شوية.</p><button class="btn big" id="retry" type="button">جرّب تاني</button>`),
+      $('#retry').onclick = () => { shell(`<h1>بنحاول <em>تاني...</em></h1>${giftHTML({ icon:'gift' }, 'shake')}<span class="pill wait"><span class="spin"></span><span>بنحجز الكود ليك...</span></span>`); link.send({ type:'scan', g, sid }); reserve(); };
+    if (!h.ok){ write(memoKey, { ok:false, reason:h.reason }); return showFail(h.reason); }
+    showForm(h.until);
+  }
+  reserve();
+
   /* -- the form -- */
+  function showForm(until){
   const saved = read('hd-me') || {};
   shell(`
     <h1>لقيت <em>هدية!</em></h1>
@@ -74,15 +92,21 @@
       </label>
       <p class="err" id="err" role="alert"></p>
       <button class="btn big" id="open" type="submit">${ui('hand')} افتح الهدية</button>
+      <p class="fine">${ui('clock')}<span>الكود محجوز ليك <b id="left"></b></span></p>
       <p class="fine">${ui('lock')}بياناتك بتتبعت مشفّرة للمحل بس، عشان يسلمك الهدية.</p>
     </form>`);
+  const tick = setInterval(() => { const el = $('#left'); if (!el){ clearInterval(tick); return; }
+    const ms = until - Date.now(); if (ms <= 0){ clearInterval(tick); return showFail('expired'); }
+    el.textContent = `${Math.floor(ms / 60000)}:${String(Math.floor(ms / 1000) % 60).padStart(2, '0')} دقيقة`; }, 500);
+  $('#pf').addEventListener('submit', submit);
+  }
 
   const busyView = text => { $('#pf').innerHTML = `<span class="pill wait"><span class="spin"></span><span>${esc(text)}</span></span>`; };
   async function claim(name, phone, retried){
     const k = await waitKey(8000);
     if (!k) return offline(name, phone);
     let enc; try { enc = await seal(k.pub, { name, phone }); } catch { return offline(name, phone); }
-    const ack = await new Promise(res => { waiter = res; link.send({ type:'claim', g, kid:k.kid, enc }); setTimeout(() => res(null), 12000); });
+    const ack = await new Promise(res => { waiter = res; link.send({ type:'claim', g, sid, kid:k.kid, enc }); setTimeout(() => res(null), 12000); });
     waiter = null;
     if (!ack) return offline(name, phone);
     if (!ack.ok && ack.reason === 'key' && !retried){ key = null; link.send({ type:'need-key' }); return claim(name, phone, true); }
@@ -91,11 +115,11 @@
     setTimeout(() => ack.ok && ack.lose ? showLose(name) : ack.ok ? showWon(ack.prize, name, phone) : showFail(ack.reason), 700);
   }
   function offline(name, phone){
-    shell(`<h1>مش قادرين <em>نوصل للشاشة</em></h1><p>اتأكد إن النت شغال عندك وجرّب تاني. الكود لسه متاح لحد ما حد يفتحه.</p>
+    shell(`<h1>مش قادرين <em>نوصل للشاشة</em></h1><p>اتأكد إن النت شغال عندك وجرّب تاني. الكود لسه محجوز ليك كام دقيقة.</p>
       <button class="btn big" id="retry" type="button">جرّب تاني</button>`);
     $('#retry').onclick = () => { shell(`<h1>بنحاول <em>تاني...</em></h1>${giftHTML({ icon:'gift' }, 'shake')}<form class="pf" id="pf"></form>`); busyView('بنوصل للشاشة...'); claim(name, phone); };
   }
-  $('#pf').addEventListener('submit', e => {
+  function submit(e){
     e.preventDefault();
     const name = $('#nm').value.trim().replace(/\s+/g, ' '), phone = normPhone($('#ph').value);
     const err = $('#err');
@@ -105,5 +129,5 @@
     $('.gift', app).className = 'gift shake';
     busyView('بنفتح هديتك...');
     claim(name, phone);
-  });
+  }
 })();

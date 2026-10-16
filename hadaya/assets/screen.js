@@ -30,6 +30,7 @@
       <div class="plist" id="plist"><div class="track" id="ptrack"></div></div>
     </aside>
     <section class="stage" id="stage" aria-label="أكواد الهدايا">
+      <div class="rot" id="rot" hidden><i id="rotBar"></i></div>
       <div class="stage-chip dim" id="chip"></div>
       <div class="toast" id="toast"><span class="ring"></span><span>في حد بيفتح هديته دلوقتي...</span></div>
       <div class="tools idle" id="tools">
@@ -40,6 +41,7 @@
       <div class="ticker" id="ticker">
         <div class="hd">${ui('gift')}<span>آخر الفائزين</span></div>
         <div class="rail"><div class="run" id="run"></div></div>
+        <span class="pill rotpill" id="rotLbl" hidden></span>
         <span class="pill conn off" id="conn"><span class="dot"></span><span>جارٍ الاتصال</span></span>
       </div>
     </section>
@@ -84,16 +86,29 @@
       return { x: cx + 16 * Math.sin(t) ** 3 * sc, y: cy + 1.5 * sc - (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * sc }; }
     const t = k / n * Math.PI * 2 - Math.PI / 2; return { x: cx + Math.cos(t) * R * 1.1, y: cy + Math.sin(t) * R };
   }
-  function sync(){
-    for (const [g, sp] of sprites) if (!s.live.includes(g) && !sp.leaving){ sp.leaving = true; sp.el.classList.add('pop'); setTimeout(() => { sp.el.remove(); sprites.delete(g); }, 800); }
-    for (const g of s.live){
-      if (sprites.has(g)) continue;
+  function qrCanvas(g){
+    const q = qrcode(0, 'M'); q.addData(urlFor(g)); q.make();
+    const n = q.getModuleCount(), cell = 4, c = document.createElement('canvas'); c.width = c.height = n * cell;
+    const x = c.getContext('2d'); x.fillStyle = '#fff6e6'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = '#1b1633';
+    for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) x.fillRect(k * cell, r * cell, cell, cell);
+    return c;
+  }
+  /* rotate=true: codes that changed swap their QR in place with a flip; otherwise they leave and new cards fly in */
+  function sync(rotate){
+    const fresh = s.live.filter(g => !sprites.has(g));
+    for (const [g, sp] of [...sprites]){
+      if (s.live.includes(g) || sp.leaving) continue;
+      if (rotate && fresh.length){
+        const ng = fresh.shift(); sprites.delete(g); sp.g = ng; sprites.set(ng, sp);
+        sp.el.classList.remove('flip', 'scanning'); void sp.el.offsetWidth; sp.el.classList.add('flip');
+        setTimeout(() => { const old = sp.el.querySelector('canvas'); old && old.replaceWith(qrCanvas(ng)); }, 230);
+        continue;
+      }
+      sp.leaving = true; sp.el.classList.add('pop'); setTimeout(() => { sp.el.remove(); sprites.delete(g); }, 800);
+    }
+    for (const g of fresh){
       const el = document.createElement('div'); el.className = 'tag'; el.setAttribute('role', 'img'); el.setAttribute('aria-label', 'كود هدية');
-      const q = qrcode(0, 'M'); q.addData(urlFor(g)); q.make();
-      const n = q.getModuleCount(), cell = 4, c = document.createElement('canvas'); c.width = c.height = n * cell;
-      const x = c.getContext('2d'); x.fillStyle = '#fff6e6'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = '#1b1633';
-      for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) x.fillRect(k * cell, r * cell, cell, cell);
-      el.appendChild(c);
+      el.appendChild(qrCanvas(g));
       el.insertAdjacentHTML('beforeend', `<div class="cap">${ui('scan')}امسحني</div>`);
       stage.insertBefore(el, $('#emptyStage'));
       sprites.set(g, { el, g, x: .1 + Math.random() * .8, y: .12 + Math.random() * .66, vx:(Math.random()-.5) * .02, vy:(Math.random()-.5) * .016,
@@ -167,7 +182,11 @@
   const publishKey = () => { if (Date.now() - keyPubAt < 60000) return; keyPubAt = Date.now(); pub.send({ type:'key', kid: s.keys.kid, pub: s.keys.pub }).then(ok => { if (ok) Engine.mutate(st => { st.keyAt = Date.now(); }); }); };
   const busy = new Set();
   const pub = makeLink(s.cfg.server, s.topic, async msg => {
-    if (msg.type === 'scan'){ Engine.mutate(st => { const cut = Date.now() - 864e5; st.scans = st.scans.filter(t => t > cut).slice(-3000); st.scans.push(Date.now()); }); scanning(msg.g); }
+    if (msg.type === 'scan'){
+      let r; [s, r] = Engine.mutate(st => { const res = opHold(st, msg.g, msg.sid); if (res.fresh){ const cut = Date.now() - 864e5; st.scans = st.scans.filter(t => t > cut).slice(-3000); st.scans.push(Date.now()); } return res; });
+      if (r.n) pub.send({ type:'hold', n:r.n, sid:msg.sid, ok:r.ok, reason:r.reason || '', until:r.until || 0 });
+      if (r.fresh){ scanning(msg.g); sync(); }
+    }
     if (msg.type === 'need-key') publishKey();
     if (msg.type === 'claim'){
       const p = parseG(msg.g, s.topic); if (!p || busy.has(p.n)) return; busy.add(p.n);
@@ -175,7 +194,7 @@
       if (msg.kid !== s.keys.kid){ r = { ok:false, reason:'key', n:p.n }; keyPubAt = 0; publishKey(); }
       else {
         let cust = null; try { cust = await unseal(s.keys.priv, msg.enc); } catch {}
-        [s, r] = cust ? Engine.mutate(st => opClaim(st, msg.g, cust)) : [s, { ok:false, reason:'details', n:p.n }];
+        [s, r] = cust ? Engine.mutate(st => opClaim(st, msg.g, cust, msg.sid)) : [s, { ok:false, reason:'details', n:p.n }];
       }
       busy.delete(p.n);
       pub.send({ type:'ack', n:p.n, ok:r.ok, lose:!!r.lose, reason:r.reason || '', prize:r.prize || null });
@@ -224,6 +243,19 @@
   measure(); paintSide(); paintTicker(); sync();
   raf = requestAnimationFrame(frame);
   setInterval(paintTicker, 60000);
+
+  /* -- rotating codes: a forwarded or photographed code is only good for a few seconds -- */
+  let rotAt = Date.now();
+  function rotTick(){
+    const secs = +s.cfg.rotateSeconds || 0, box = $('#rot');
+    box.hidden = $('#rotLbl').hidden = !secs || !totals(s).left;
+    if (box.hidden) return;
+    const left = Math.max(0, secs * 1000 - (Date.now() - rotAt));
+    $('#rotBar').style.transform = `scaleX(${left / (secs * 1000)})`;
+    $('#rotLbl').innerHTML = `${ui('clock')}أكواد جديدة بعد <b>${Math.ceil(left / 1000)}</b> ث`;
+    if (left <= 0){ rotAt = Date.now(); [s] = Engine.mutate(opRotate); sync(true); pushSnap(); }
+  }
+  setInterval(rotTick, 250); rotTick();
   setInterval(() => adm.send({ type:'beat' }, { local:true }), 15000); adm.send({ type:'beat' }, { local:true });
   setInterval(() => { if (Date.now() - (s.keyAt || 0) > 6 * 3600e3) publishKey(); }, 30 * 60e3);
   setTimeout(() => { if (!pub.online) setConn(false); }, 6000);

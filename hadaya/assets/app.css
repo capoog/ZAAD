@@ -339,3 +339,10 @@ td .in{padding:8px 10px}
 .toast.soft .ic{color:var(--coral);font-size:18px}
 .odds-lose td{background:rgba(255,111,97,.05)}
 .odds-lose .pcell .tl{color:var(--coral)}
+.rot{position:absolute;top:0;left:0;right:0;z-index:650;display:flex;justify-content:center;pointer-events:none}
+.rot i{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--coral),var(--saffron));transform-origin:right;transition:transform .25s linear}
+.rotpill{flex:none;font-variant-numeric:tabular-nums}
+.rotpill b{color:var(--saffron);font-family:var(--font-display);min-width:1.4em;text-align:center}
+.tag.flip canvas{animation:flip .5s ease}
+@keyframes flip{50%{transform:scaleX(.02)}}
+@media (max-width:760px){ .rotpill{display:none} }

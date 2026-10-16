@@ -83,6 +83,7 @@
         <label class="field">العنوان (السطر الملوّن)<input class="in" id="sAccent"></label>
         <label class="field">الوصف<input class="in" id="sSub"></label>
         <label class="field">عدد الأكواد على الشاشة<input class="in" id="sCodes" type="number" min="4" max="60" inputmode="numeric"></label>
+        <label class="field">الأكواد بتتغير كل (ثانية، 0 = ما تتغيرش)<input class="in" id="sRot" type="number" min="0" max="300" inputmode="numeric"></label>
         <label class="field">مدة شاشة الفوز (ثانية)<input class="in" id="sSecs" type="number" min="4" max="40" inputmode="numeric"></label>
         <label class="field">رابط الموقع بعد الرفع<input class="in" id="sUrl" dir="ltr" placeholder="https://..."></label>
         <label class="field">خادم الربط<input class="in" id="sServer" dir="ltr"></label>
@@ -224,7 +225,7 @@
   function paintSettings(force){
     if (sDirty && !force) return;
     $('#sStore').value = cfg.store; $('#sTitle').value = cfg.title; $('#sAccent').value = cfg.titleAccent; $('#sSub').value = cfg.subtitle;
-    $('#sCodes').value = cfg.liveCodes; $('#sSecs').value = cfg.revealSeconds; $('#sUrl').value = cfg.pageURL; $('#sServer').value = cfg.server; $('#sOne').checked = cfg.onePerPhone !== false;
+    $('#sCodes').value = cfg.liveCodes; $('#sRot').value = cfg.rotateSeconds ?? 15; $('#sSecs').value = cfg.revealSeconds; $('#sUrl').value = cfg.pageURL; $('#sServer').value = cfg.server; $('#sOne').checked = cfg.onePerPhone !== false;
     $('#sUrl').placeholder = location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '');
     const pu = $('#pairUrl');
     if (pu){ const folder = (cfg.pageURL || location.href).replace(/[?#].*$/, '').replace(/[^/]*$/, '');
@@ -290,7 +291,7 @@
   $('#sForm').addEventListener('submit', e => e.preventDefault());
   $('#saveS').onclick = async () => {
     const next = { store: $('#sStore').value.trim() || DEFAULTS.store, title: $('#sTitle').value.trim(), titleAccent: $('#sAccent').value.trim(), subtitle: $('#sSub').value.trim(),
-      liveCodes: $('#sCodes').value, revealSeconds: $('#sSecs').value, pageURL: $('#sUrl').value.trim(), server: $('#sServer').value.trim() || DEFAULTS.server, onePerPhone: $('#sOne').checked };
+      liveCodes: $('#sCodes').value, rotateSeconds: $('#sRot').value, revealSeconds: $('#sSecs').value, pageURL: $('#sUrl').value.trim(), server: $('#sServer').value.trim() || DEFAULTS.server, onePerPhone: $('#sOne').checked };
     const r = await cmd('config', { cfg: next });
     if (r && r.timeout){ flash('الشاشة ما ردتش، جرّب تاني'); return; }
     sDirty = false; flash('اتحفظت الإعدادات'); paintSettings(true);
