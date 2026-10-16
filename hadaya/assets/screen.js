@@ -130,7 +130,17 @@
   let toastT = 0;
   function scanning(g){
     const sp = sprites.get(g); if (sp){ sp.el.classList.add('scanning'); setTimeout(() => sp.el.classList.remove('scanning'), 30000); }
-    const t = $('#toast'); t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 7000);
+    const t = $('#toast'); if (t.classList.contains('soft')) return;
+    t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 7000);
+  }
+
+  /* -- "better luck next time": a short, kind note, not the full celebration -- */
+  let consoleT = 0;
+  function consolation(t){
+    const el = $('#toast'); clearTimeout(toastT); clearTimeout(consoleT);
+    el.innerHTML = `${ui('heart')}<span><b>حظ أوفر المرة القادمة يا ${esc(firstName(t.who))}</b> · لسه فيه هدايا كتير مستنية</span>`;
+    el.classList.add('show', 'soft');
+    consoleT = setTimeout(() => { el.classList.remove('show', 'soft'); setTimeout(() => { el.innerHTML = '<span class="ring"></span><span>في حد بيفتح هديته دلوقتي...</span>'; }, 600); }, 6000);
   }
 
   /* -- reveal, one winner at a time -- */
@@ -168,8 +178,9 @@
         [s, r] = cust ? Engine.mutate(st => opClaim(st, msg.g, cust)) : [s, { ok:false, reason:'details', n:p.n }];
       }
       busy.delete(p.n);
-      pub.send({ type:'ack', n:p.n, ok:r.ok, reason:r.reason || '', prize:r.prize || null });
-      if (r.ok && !r.repeat){ sync(); paintSide(r.winner.pid); paintTicker(); reveal(r.winner); pushSnap(); }
+      pub.send({ type:'ack', n:p.n, ok:r.ok, lose:!!r.lose, reason:r.reason || '', prize:r.prize || null });
+      if (r.ok && !r.repeat && r.lose){ sync(); paintSide(); consolation(r.attempt); pushSnap(); }
+      else if (r.ok && !r.repeat){ sync(); paintSide(r.winner.pid); paintTicker(); reveal(r.winner); pushSnap(); }
     }
   }, on => { setConn(on); if (on && Date.now() - (s.keyAt || 0) > 6 * 3600e3) publishKey(); });
 

@@ -17,7 +17,7 @@
   let cfg = remote ? cache.cfg || null : s.cfg;
   let snap = remote ? cache.snap || null : snapshot(s);
   let rWinners = remote ? (cache.winners || []) : null;   // winners this device has seen from the screen
-  let draft = null, filter = 'all', query = '', lastSeen = 0, sDirty = false;
+  let draft = null, loseDraft = null, filter = 'all', query = '', lastSeen = 0, sDirty = false;
   const pending = new Map();
   const saveCache = () => { if (!remote) return; try { localStorage.setItem(cacheKey, JSON.stringify({ cfg, snap, winners: rWinners.slice(0, 500) })); } catch {} };
   const mergeWinners = list => { const by = new Map(rWinners.map(w => [w.n, w])); list.forEach(w => by.set(w.n, Object.assign({}, by.get(w.n), w))); rWinners = [...by.values()].sort((a, b) => b.at - a.at); };
@@ -86,7 +86,7 @@
         <label class="field">مدة شاشة الفوز (ثانية)<input class="in" id="sSecs" type="number" min="4" max="40" inputmode="numeric"></label>
         <label class="field">رابط الموقع بعد الرفع<input class="in" id="sUrl" dir="ltr" placeholder="https://..."></label>
         <label class="field">خادم الربط<input class="in" id="sServer" dir="ltr"></label>
-        <label class="check"><input type="checkbox" id="sOne"><span>هدية واحدة بس لكل رقم جوال</span></label>
+        <label class="check"><input type="checkbox" id="sOne"><span>محاولة واحدة بس لكل رقم جوال (كسب أو حظ أوفر)</span></label>
       </form>
       <div class="savebar"><span class="dirty" id="sDirty"></span><button class="btn" id="saveS" type="button" disabled>حفظ الإعدادات</button></div>
       ${remote ? '' : `
@@ -136,7 +136,7 @@
     const k = (icon, label, v, sub) => `<div class="kpi"><span class="k">${ui(icon)}${label}</span><span class="v">${v}</span><span class="s">${sub}</span></div>`;
     $('#kpis').innerHTML =
       k('gift', 'هدايا متبقية', fmt(t.left), `من ${fmt(t.total)} هدية`) +
-      k('heart', 'اتكسبت', fmt(t.won), t.total ? `${Math.round(t.won / t.total * 100)}% من الهدايا` : '—') +
+      k('heart', 'اتكسبت', fmt(t.won), `${t.total ? Math.round(t.won / t.total * 100) + '% من الهدايا' : '—'}${t.lost ? ` · ${fmt(t.lost)} حظ أوفر` : ''}`) +
       k('check', 'اتسلمت', fmt(t.redeemed), 'استلمها أصحابها') +
       k('clock', 'مستنية الاستلام', fmt(t.pending), t.pending ? 'أصحابها لسه ما جوش' : 'كله اتسلم');
   }
@@ -180,19 +180,28 @@
       <td><div class="stockbar"><div class="bar"><i style="width:${p.total ? Math.min(100, p.left / p.total * 100) : 0}%"></i></div><small>${p.left > 0 ? `${fmt(p.left)} من ${fmt(p.total)}` : 'خلصت'}</small></div></td>
       <td><button class="iconbtn" data-del="${i}" type="button" aria-label="حذف ${esc(p.name)}">${ui('trash')}</button></td></tr>`).join('')
       : `<tr class="empty-row"><td colspan="7">مفيش هدايا. اضغط «إضافة هدية» عشان تبدأ.</td></tr>`;
+    $('#pBody').insertAdjacentHTML('beforeend', `<tr class="odds-lose" data-lose="1">
+      <td><div class="pcell"><span class="tl">${ui('heart')}</span><b>حظ أوفر المرة القادمة</b></div></td>
+      <td colspan="3"><small style="color:var(--faint)">كود من غير هدية. العميل بيشوف رسالة لطيفة، ومفيش كمية بتخلص.</small></td>
+      <td><div class="chance"><span class="pct"><input class="in" data-k="lose" type="number" min="0" max="100" step="0.5" inputmode="decimal" value="${loseDraft ?? cfg.loseChance ?? 0}" aria-label="نسبة حظ أوفر المرة القادمة"><b>%</b></span><small data-eff="lose"></small></div></td>
+      <td><small style="color:var(--faint)">${fmt(snap && snap.stats ? snap.stats.lost : 0)} محاولة لحد دلوقتي</small></td><td></td></tr>`);
     paintOdds();
-    $('#pDirty').textContent = draft ? 'فيه تغييرات لسه ما اتحفظتش' : '';
-    $('#saveP').disabled = !draft || !draft.length;
+    const dirty = draft || loseDraft != null;
+    $('#pDirty').textContent = dirty ? 'فيه تغييرات لسه ما اتحفظتش' : '';
+    $('#saveP').disabled = !dirty || (draft && !draft.length);
   }
   /* the percentages the owner typed, and what each prize really gets after rescaling */
   function paintOdds(){
     const rows = (draft || cfg.prizes).map((p, i) => Object.assign({}, p, { id: p.id || 'new' + i }));
-    const eff = effChances(rows), sum = rows.reduce((a, p) => a + (p.left > 0 ? Math.max(0, +p.chance || 0) : 0), 0);
-    rows.forEach((p, i) => { const el = $(`[data-eff="${i}"]`); if (el) el.textContent = p.left > 0 ? `الفعلي ${eff[p.id].toFixed(1).replace(/\.0$/, '')}%` : 'خلصت، نسبتها اتوزعت'; });
+    const lose = Math.max(0, +(loseDraft ?? cfg.loseChance) || 0);
+    const eff = effChances(rows, lose), sum = rows.reduce((a, p) => a + (p.left > 0 ? Math.max(0, +p.chance || 0) : 0), 0) + lose;
+    const pct = v => `الفعلي ${v.toFixed(1).replace(/\.0$/, '')}%`;
+    rows.forEach((p, i) => { const el = $(`[data-eff="${i}"]`); if (el) el.textContent = p.left > 0 ? pct(eff[p.id]) : 'خلصت، نسبتها اتوزعت'; });
+    const le = $('[data-eff="lose"]'); if (le) le.textContent = pct(eff[LOSE]);
     const r = Math.round(sum * 10) / 10, box = $('#pSum');
     box.className = 'odds ' + (Math.abs(r - 100) < .05 ? 'ok' : 'warn');
     box.innerHTML = Math.abs(r - 100) < .05
-      ? `${ui('check')}<span>مجموع النسب <b>100%</b>. كل كود على الشاشة بيتسحب على النسب دي.</span>`
+      ? `${ui('check')}<span>مجموع النسب <b>100%</b>${lose ? `، منها <b>${fmt(lose)}%</b> حظ أوفر` : ''}. كل كود على الشاشة بيتسحب على النسب دي.</span>`
       : r === 0 ? `${ui('clock')}<span>مفيش نسب متحددة، فالأكواد بتتوزع حسب الكمية المتبقية من كل هدية.</span>`
       : `${ui('clock')}<span>مجموع النسب <b>${fmt(r)}%</b> مش 100%. هنوزّع الأكواد بنفس النسبة بين الهدايا، والنسبة الفعلية مكتوبة تحت كل خانة.</span>`;
   }
@@ -234,6 +243,7 @@
     const out = $('#rOut'); out.className = 'result'; out.innerHTML = `<span class="pill wait"><span class="spin"></span>بندوّر...</span>`;
     const r = await cmd('find', { q });
     if (r.timeout) return out.innerHTML = `<span class="pill bad">الشاشة ما ردتش</span><span class="meta">اتأكد إن شاشة الأكواد مفتوحة ومتصلة بالنت، وجرّب تاني.</span>`;
+    if (!r.found && r.tried) return out.innerHTML = `<span class="pill">${ui('heart')}حظ أوفر</span><span class="meta"><b>${esc(r.tried.who)}</b> جرّب الساعة ${clock(r.tried.at)} والكود كان من غير هدية، فمفيش حاجة تتسلم.</span>`;
     if (!r.found) return out.innerHTML = `<span class="pill bad">مفيش هدية بالرقم ده</span><span class="meta">راجع الرقم مع العميل، أو اطلب منه يوريك صفحة الهدية على جواله.</span>`;
     if (remote) mergeWinners(r.list.map(slimWinner));
     out.innerHTML = r.list.map(w => `<div class="hit-row">
@@ -256,7 +266,9 @@
   /* -- prizes editor -- */
   const ensureDraft = () => { if (!draft) draft = JSON.parse(JSON.stringify(cfg.prizes)); };
   $('#pBody').addEventListener('input', e => {
-    const tr = e.target.closest('tr'), k = e.target.dataset.k; if (!tr || !k || !cfg) return; ensureDraft();
+    const tr = e.target.closest('tr'), k = e.target.dataset.k; if (!tr || !k || !cfg) return;
+    if (k === 'lose'){ loseDraft = Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)); paintOdds(); $('#pDirty').textContent = 'فيه تغييرات لسه ما اتحفظتش'; $('#saveP').disabled = false; return; }
+    ensureDraft();
     const p = draft[+tr.dataset.i];
     p[k] = (k === 'total' || k === 'left') ? Math.max(0, parseInt(e.target.value) || 0) : k === 'chance' ? Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)) : e.target.value;
     if (k === 'chance' || k === 'left') paintOdds();
@@ -266,10 +278,11 @@
   $('#pBody').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (!b) return; ensureDraft(); draft.splice(+b.dataset.del, 1); paintPrizes(); });
   $('#addP').onclick = () => { if (!cfg) return; ensureDraft(); draft.push({ id:'', name:'هدية جديدة', icon:'gift', img:'', total:10, left:10, chance:5 }); paintPrizes(); const ins = $('#pBody').querySelectorAll('input[data-k="name"]'); ins[ins.length - 1].select(); };
   $('#saveP').onclick = async () => {
-    if (!draft || !draft.length) return; $('#saveP').disabled = true;
-    const r = await cmd('config', { cfg: { prizes: draft } });
+    if ((!draft && loseDraft == null) || (draft && !draft.length)) return; $('#saveP').disabled = true;
+    const next = {}; if (draft) next.prizes = draft; if (loseDraft != null) next.loseChance = loseDraft;
+    const r = await cmd('config', { cfg: next });
     if (r && r.timeout){ flash('الشاشة ما ردتش، جرّب تاني'); $('#saveP').disabled = false; return; }
-    draft = null; flash('اتحفظت الهدايا والشاشة اتحدثت'); paintPrizes();
+    draft = null; loseDraft = null; flash('اتحفظت النسب والشاشة اتحدثت'); paintPrizes();
   };
 
   /* -- settings -- */

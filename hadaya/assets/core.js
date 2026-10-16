@@ -5,20 +5,22 @@ const DEFAULTS = {
   store: 'غين للتقنية',
   title: 'امسح الكود',
   titleAccent: 'واكسب هديتك',
-  subtitle: 'كل كود على الشاشة وراه هدية. صوّره بكاميرا جوالك، اكتب اسمك ورقمك، وافتح هديتك.',
+  subtitle: 'صوّر أي كود بكاميرا جوالك، اكتب اسمك ورقمك، وجرّب حظك.',
   server: 'https://ntfy.sh',   // خادم ربط مجاني بين الأجهزة، تقدر تحط خادم ntfy خاص بيك
   pageURL: '',                 // رابط فولدر الموقع بعد الرفع (لو فاضي بياخد الرابط الحالي)
   liveCodes: 28,
   revealSeconds: 11,
-  onePerPhone: true,           // هدية واحدة بس لكل رقم جوال في الحملة
+  onePerPhone: true,           // محاولة واحدة بس لكل رقم جوال في الحملة (كسب أو حظ أوفر)
+  loseChance: 20,              // نسبة «حظ أوفر المرة القادمة» % — أكواد من غير هدية
   // الاسم | الأيقونة | الكمية | نسبة الفوز %
   prizes: [
-    ['سماعة لاسلكية','headphones',10,5], ['سبيكر بلوتوث','speaker',8,5], ['يد تحكم ألعاب','gamepad',4,2],
-    ['ساعة ذكية','watch',5,3], ['باور بانك 20 ألف','powerbank',12,7], ['شاحن سريع 20 واط','charger',30,18],
-    ['كفر جوال','case',40,23], ['كيبل شحن','cable',45,25], ['خصم 10% على مشترياتك','tag',20,12],
+    ['سماعة لاسلكية','headphones',10,4], ['سبيكر بلوتوث','speaker',8,4], ['يد تحكم ألعاب','gamepad',4,2],
+    ['ساعة ذكية','watch',5,2], ['باور بانك 20 ألف','powerbank',12,6], ['شاحن سريع 20 واط','charger',30,14],
+    ['كفر جوال','case',40,18], ['كيبل شحن','cable',45,20], ['خصم 10% على مشترياتك','tag',20,10],
   ],
 };
 const SALT = 'hadaya-v3';
+const LOSE = 'nil';            // prize id of a "better luck next time" code
 const KEY = 'hadaya-v3';
 
 const ICONS = {
@@ -109,12 +111,14 @@ const Engine = {
   fresh(){
     return { v:3, topic:'gh-' + rand(10), key: rand(18), keys:null, keyAt:0,
       cfg: Object.assign({}, DEFAULTS, { prizes: DEFAULTS.prizes.map(([name, icon, n, chance]) => ({ id: rand(3), name, icon, img:'', total:n, left:n, chance })) }),
-      live:[], used:[], winners:[], scans:[] };
+      live:[], used:[], winners:[], tries:[], scans:[] };
   },
   init(){
     let s = this.load(); if (!s || s.v !== 3) s = this.fresh();
     const total = s.cfg.prizes.reduce((a, p) => a + (+p.total || 0), 0) || 1;   // older records: start from the stock share
     s.cfg.prizes.forEach(p => { if (p.chance == null) p.chance = Math.round((+p.total || 0) / total * 1000) / 10; });
+    if (s.cfg.loseChance == null) s.cfg.loseChance = DEFAULTS.loseChance;
+    s.tries = s.tries || [];
     topUp(s); this.save(s); return s;
   },
   mutate(fn){ const s = this.load() || this.init(); const r = fn(s); this.save(s); return [s, r]; },
@@ -123,41 +127,53 @@ const prizeById = (s, id) => s.cfg.prizes.find(p => p.id === id);
 const totals = s => {
   const total = s.cfg.prizes.reduce((a, p) => a + (+p.total || 0), 0), left = s.cfg.prizes.reduce((a, p) => a + Math.max(0, +p.left || 0), 0);
   const won = s.winners.length, redeemed = s.winners.filter(w => w.redeemedAt).length;
-  return { total, left, won, redeemed, pending: won - redeemed };
+  return { total, left, won, redeemed, pending: won - redeemed, lost: (s.tries || []).length };
 };
 function topUp(s){
   const used = new Set(s.used);
-  s.live = s.live.filter(g => { const p = parseG(g, s.topic); const pr = p && prizeById(s, p.pid); return pr && pr.left > 0 && !used.has(p.n); });
-  const eff = effChances(s.cfg.prizes), sum = Object.values(eff).reduce((a, b) => a + b, 0);
+  const eff = effChances(s.cfg.prizes, s.cfg.loseChance), sum = Object.values(eff).reduce((a, b) => a + b, 0);
+  s.live = s.live.filter(g => { const p = parseG(g, s.topic); if (!p || used.has(p.n)) return false; if (p.pid === LOSE) return eff[LOSE] > 0; const pr = prizeById(s, p.pid); return pr && pr.left > 0; });
   while (sum > 0 && s.live.length < s.cfg.liveCodes){
     let r = Math.random() * sum, pick = null;
-    for (const p of s.cfg.prizes){ r -= eff[p.id] || 0; if (r < 0){ pick = p; break; } }
+    for (const p of s.cfg.prizes.concat({ id:LOSE })){ r -= eff[p.id] || 0; if (r < 0){ pick = p; break; } }
     pick = pick || s.cfg.prizes.find(p => eff[p.id] > 0); if (!pick) break;
     s.live.push(makeG(pick.id, s.topic));
   }
 }
-/* the real chance of each prize right now, in percent: the owner's percentages,
-   rescaled over the prizes that still have stock. If no percentages are set, stock decides. */
-function effChances(prizes){
-  const active = prizes.filter(p => p.left > 0);
+/* the real chance of each outcome right now, in percent: the owner's percentages,
+   rescaled over the prizes that still have stock, plus "better luck next time" (LOSE).
+   If no prize percentages are set, stock shares the part that is not LOSE.
+   When every prize is gone there are no codes at all. */
+function effChances(prizes, loseChance){
+  const active = prizes.filter(p => p.left > 0), lose = active.length ? Math.min(100, Math.max(0, +loseChance || 0)) : 0;
   let w = p => Math.max(0, +p.chance || 0), sum = active.reduce((a, p) => a + w(p), 0);
-  if (sum <= 0){ w = p => Math.max(0, +p.left || 0); sum = active.reduce((a, p) => a + w(p), 0); }
-  const out = {}; prizes.forEach(p => out[p.id] = sum > 0 && p.left > 0 ? w(p) / sum * 100 : 0);
+  if (sum <= 0 && active.length){ const stock = active.reduce((a, p) => a + p.left, 0); w = p => p.left / stock * Math.max(0, 100 - lose); sum = active.reduce((a, p) => a + w(p), 0); }
+  const all = sum + lose, out = {};
+  prizes.forEach(p => out[p.id] = all > 0 && p.left > 0 ? w(p) / all * 100 : 0);
+  out[LOSE] = all > 0 ? lose / all * 100 : 0;
   return out;
 }
 function opClaim(s, g, cust){
   const p = parseG(g, s.topic);
   if (!p) return { ok:false, reason:'invalid' };
-  const pr = prizeById(s, p.pid);
-  const prev = s.winners.find(w => w.n === p.n);
+  const lose = p.pid === LOSE, pr = lose ? null : prizeById(s, p.pid);
+  const prev = s.winners.find(w => w.n === p.n), prevTry = (s.tries || []).find(t => t.n === p.n);
   if (prev && prev.phone === normPhone(cust.phone)) return { ok:true, repeat:true, n:p.n, winner:prev, prize:{ name:prev.name, icon:prev.icon, img:prev.img } };
+  if (prevTry && prevTry.phone === normPhone(cust.phone)) return { ok:true, repeat:true, lose:true, n:p.n, attempt:prevTry };
   if (s.used.includes(p.n)) return { ok:false, reason:'used', n:p.n };
-  if (!s.live.includes(g) || !pr || pr.left <= 0) return { ok:false, reason:'expired', n:p.n };
+  if (!s.live.includes(g) || (!lose && (!pr || pr.left <= 0))) return { ok:false, reason:'expired', n:p.n };
   const phone = normPhone(cust.phone), who = String(cust.name || '').trim().slice(0, 40);
   if (!who || !validPhone(phone)) return { ok:false, reason:'details', n:p.n };
-  if (s.cfg.onePerPhone && s.winners.some(w => w.phone === phone)) return { ok:false, reason:'phone', n:p.n };
-  pr.left--; s.used.push(p.n); if (s.used.length > 4000) s.used = s.used.slice(-4000);
+  if (s.cfg.onePerPhone && (s.winners.some(w => w.phone === phone) || (s.tries || []).some(t => t.phone === phone))) return { ok:false, reason:'phone', n:p.n };
+  s.used.push(p.n); if (s.used.length > 4000) s.used = s.used.slice(-4000);
   s.live = s.live.filter(x => x !== g);
+  if (lose){
+    const t = { n:p.n, who, phone, at:Date.now() };
+    s.tries = s.tries || []; s.tries.unshift(t); if (s.tries.length > 5000) s.tries.length = 5000;
+    topUp(s);
+    return { ok:true, lose:true, n:p.n, attempt:t };
+  }
+  pr.left--;
   const w = { n:p.n, code:codeOf(p.n), pid:pr.id, name:pr.name, icon:pr.icon, img:pr.img, who, phone, at:Date.now(), redeemedAt:null };
   s.winners.unshift(w); if (s.winners.length > 5000) s.winners.length = 5000;
   topUp(s);
@@ -169,7 +185,9 @@ function opFind(s, q){
   if (digits.length >= 6 && /^[\s+()\-\d٠-٩۰-۹]+$/.test(raw)){
     const tail = d => d.replace('+', '').slice(-9);
     const hits = s.winners.filter(w => tail(w.phone) === tail(digits));
-    return hits.length ? { found:true, list:hits.slice(0, 10) } : { found:false };
+    if (hits.length) return { found:true, list:hits.slice(0, 10) };
+    const tried = (s.tries || []).find(t => tail(t.phone) === tail(digits));
+    return tried ? { found:false, tried } : { found:false };
   }
   const code = raw.toUpperCase().replace(/\s+/g, '').replace(/^GF-?/, '');
   const w = code && s.winners.find(x => x.n.toUpperCase() === code);
@@ -182,17 +200,18 @@ function opRedeem(s, n){
   w.redeemedAt = Date.now(); return { found:true, already:false, list:[w] };
 }
 function opConfig(s, cfg){
-  const before = JSON.stringify(effChances(s.cfg.prizes));
+  const before = JSON.stringify(effChances(s.cfg.prizes, s.cfg.loseChance));
   s.cfg = Object.assign({}, s.cfg, cfg, { prizes: (cfg.prizes || s.cfg.prizes).map(p => ({ id: /^[a-z0-9]{3}$/.test(p.id || '') ? p.id : rand(3), name: String(p.name || 'هدية').slice(0,60),
     icon: ICONS[p.icon] ? p.icon : 'gift', img: /^https:\/\//.test(p.img || '') ? p.img : '', total: Math.max(0, parseInt(p.total) || 0), left: Math.max(0, parseInt(p.left) || 0),
     chance: Math.min(100, Math.max(0, Math.round((parseFloat(p.chance) || 0) * 10) / 10)) })) });
-  if (JSON.stringify(effChances(s.cfg.prizes)) !== before) s.live = [];   // new odds: redraw every code on the screen
+  s.cfg.loseChance = Math.min(100, Math.max(0, Math.round((parseFloat(s.cfg.loseChance) || 0) * 10) / 10));
+  if (JSON.stringify(effChances(s.cfg.prizes, s.cfg.loseChance)) !== before) s.live = [];   // new odds: redraw every code on the screen
   s.cfg.liveCodes = Math.min(60, Math.max(4, parseInt(s.cfg.liveCodes) || DEFAULTS.liveCodes));
   s.cfg.revealSeconds = Math.min(40, Math.max(4, parseInt(s.cfg.revealSeconds) || DEFAULTS.revealSeconds));
   s.cfg.onePerPhone = !!s.cfg.onePerPhone;
   topUp(s); return { ok:true };
 }
-function opNewCampaign(s){ s.cfg.prizes.forEach(p => p.left = p.total); s.winners = []; s.used = []; s.live = []; s.scans = []; topUp(s); return { ok:true }; }
+function opNewCampaign(s){ s.cfg.prizes.forEach(p => p.left = p.total); s.winners = []; s.tries = []; s.used = []; s.live = []; s.scans = []; topUp(s); return { ok:true }; }
 function hourly(s){
   const now = Date.now(), H = 3600000, start = Math.floor(now / H) * H - 11 * H;
   const bins = Array.from({ length:12 }, (_, i) => ({ t: start + i * H, wins:0, scans:0 }));

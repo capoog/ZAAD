@@ -31,17 +31,24 @@
       <span class="pill ok">${ui('check')}هديتك ظهرت على شاشة المحل</span>`);
     confetti($('.confetti', app), 900);
   };
+  const showLose = who => {
+    shell(`
+      <div class="gift open empty"><div class="prize-pop">${ui('heart')}</div><div class="base"></div><div class="lid"></div></div>
+      <h1>حظ أوفر <em>المرة القادمة</em></h1>
+      <p>المرة دي الصندوق كان فاضي يا ${esc(firstName(who))}، بس لسه فيه هدايا كتير. شكرًا إنك شاركت معانا في ${esc(store)}!</p>
+      <span class="pill">${ui('heart')}تابع عروضنا الجاية</span>`);
+  };
   const reasons = {
     used:    ['الكود ده <em>اتفتح قبلك</em>', 'حد سبقك على الكود ده. صوّر كود تاني من الشاشة، لسه فيه هدايا كتير.'],
     expired: ['الكود ده <em>خلص</em>', 'الهدية بتاعة الكود ده خلصت أو الكود اتغير. صوّر كود تاني من الشاشة.'],
-    phone:   ['الرقم ده <em>كسب قبل كده</em>', 'كل رقم جوال ليه هدية واحدة في الحملة دي. شكرًا لمشاركتك!'],
+    phone:   ['الرقم ده <em>شارك قبل كده</em>', 'كل رقم جوال ليه محاولة واحدة في الحملة دي. شكرًا لمشاركتك!'],
     details: ['البيانات <em>ناقصة</em>', 'اكتب اسمك ورقم جوالك صح وجرّب تاني.'],
     invalid: ['الكود ده <em>مش شغال</em>', 'صوّر كود من شاشة المحل مباشرة.'],
   };
   const showFail = reason => { const [h, p] = reasons[reason] || reasons.invalid; shell(`<h1>${h}</h1><p>${p}</p>`); };
 
   const memo = read(memoKey);
-  if (memo){ memo.ok ? showWon(memo.prize, memo.who, memo.phone) : showFail(memo.reason); return; }
+  if (memo){ memo.lose ? showLose(memo.who) : memo.ok ? showWon(memo.prize, memo.who, memo.phone) : showFail(memo.reason); return; }
 
   /* -- connect to the store screen and fetch its public key -- */
   let key = null, acked = false, scanned = false, waiter = null;
@@ -80,8 +87,8 @@
     if (!ack) return offline(name, phone);
     if (!ack.ok && ack.reason === 'key' && !retried){ key = null; link.send({ type:'need-key' }); return claim(name, phone, true); }
     acked = true;
-    write(memoKey, ack.ok ? { ok:true, prize:ack.prize, who:name, phone } : { ok:false, reason:ack.reason });
-    setTimeout(() => ack.ok ? showWon(ack.prize, name, phone) : showFail(ack.reason), 700);
+    write(memoKey, ack.ok && ack.lose ? { ok:true, lose:true, who:name } : ack.ok ? { ok:true, prize:ack.prize, who:name, phone } : { ok:false, reason:ack.reason });
+    setTimeout(() => ack.ok && ack.lose ? showLose(name) : ack.ok ? showWon(ack.prize, name, phone) : showFail(ack.reason), 700);
   }
   function offline(name, phone){
     shell(`<h1>مش قادرين <em>نوصل للشاشة</em></h1><p>اتأكد إن النت شغال عندك وجرّب تاني. الكود لسه متاح لحد ما حد يفتحه.</p>
