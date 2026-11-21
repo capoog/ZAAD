@@ -37,6 +37,23 @@ async function fillCart(page: Page, base: string, prefix: string) {
   await page.waitForURL(/\/menu$/);
 }
 
+async function fillCheckout(page: Page) {
+  await page.locator("#name").waitFor();
+  await page.fill("#name", "سارة كمال");
+  // A fresh number each run so per-phone rate limits never interfere.
+  await page.fill("#phone", `011${String(Math.floor(Math.random() * 1e8)).padStart(8, "0")}`);
+  await page.locator("#zoneId").selectOption({ index: 1 });
+  await page.fill("#street", "شارع التسعين الشمالي");
+  await page.fill("#building", "24");
+  await page.fill("#floor", "3");
+  await page.fill("#apartment", "12");
+  await page.fill("#landmark", "جنب مول ووترواي");
+  if (await page.locator("button[role=radio][value=asap]").isDisabled()) {
+    await page.locator("button[role=radio][value=scheduled]").click();
+    await page.locator("#slot").selectOption({ index: 1 });
+  }
+}
+
 const PHASES: Record<string, Shot[]> = {
   "1": [{ name: "style-guide", path: "/style-guide" }],
   "2": [
@@ -57,6 +74,35 @@ const PHASES: Record<string, Shot[]> = {
         await page.locator("#promo").press("Enter");
         await page.getByText("WELCOME10", { exact: true }).first().waitFor();
         await page.waitForTimeout(800);
+        await settle(page);
+      },
+    },
+  ],
+  "3": [
+    {
+      name: "checkout",
+      path: "/checkout",
+      prepare: async (page) => {
+        const url = new URL(page.url());
+        const prefix = url.pathname.startsWith("/en") ? "/en" : "";
+        await fillCart(page, url.origin, prefix);
+        await page.goto(`${url.origin}${prefix}/checkout`, { waitUntil: "domcontentloaded" });
+        await fillCheckout(page);
+        await settle(page);
+      },
+    },
+    {
+      name: "order-tracking",
+      path: "/",
+      prepare: async (page) => {
+        const url = new URL(page.url());
+        const prefix = url.pathname.startsWith("/en") ? "/en" : "";
+        await fillCart(page, url.origin, prefix);
+        await page.goto(`${url.origin}${prefix}/checkout`, { waitUntil: "domcontentloaded" });
+        await fillCheckout(page);
+        await page.locator("button[role=radio][value=cash]").click();
+        await page.locator("form button[type=submit]").last().click();
+        await page.waitForURL(/\/orders\/[a-f0-9]{32}/, { timeout: 20000 });
         await settle(page);
       },
     },
