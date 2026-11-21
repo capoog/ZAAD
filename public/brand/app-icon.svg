@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="fz-ember" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFC65C"/>
+      <stop offset="0.55" stop-color="#FF8A45"/>
+      <stop offset="1" stop-color="#E4561A"/>
+    </linearGradient>
+  </defs>
+  <radialGradient id="fz-glow" cx="0.5" cy="0.62" r="0.6">
+    <stop offset="0" stop-color="#3A2418"/>
+    <stop offset="1" stop-color="#110E0C"/>
+  </radialGradient>
+  <rect width="512" height="512" rx="112" fill="url(#fz-glow)"/>
+  <g transform="translate(77 70) scale(5.6)">
+    <path d="M32 3C35.5 12.5 47.5 19.5 47.5 35.5C47.5 46.8 40.6 54 32 54C23.4 54 16.5 46.8 16.5 35.5C16.5 27.2 21 22 24.2 16.8C25 22.6 27.6 26.4 30.6 27.6C29.4 19.6 29.8 11.2 32 3Z" fill="url(#fz-ember)"/>
+    <path d="M32.6 29.5C38.6 33.6 40.4 40.6 35.4 48.4C28.9 46.9 26.4 39.4 32.6 29.5Z" fill="#1A1410"/>
+    <path d="M32.9 33.2C33.6 38.4 33.6 43 34.6 47.2" fill="none" stroke="#A3B46B" stroke-width="1.6" stroke-linecap="round"/>
+    <rect x="14" y="57" width="36" height="3.2" rx="1.6" fill="#F3E9DA" opacity="0.9"/>
+  </g>
+</svg>

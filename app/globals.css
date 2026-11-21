@@ -1,0 +1,220 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* =============================================================================
+   Fahm & Zaatar — design tokens
+   Charcoal grounds, ember accents, cream type. Dark by design.
+   Every text/background pairing below meets WCAG AA (see docs/PLAN.md).
+   ============================================================================= */
+
+@theme {
+  /* Raw palette */
+  --color-coal-950: #0b0908;
+  --color-coal-900: #12100e;
+  --color-coal-850: #181512;
+  --color-coal-800: #1f1b17;
+  --color-coal-700: #2a241f;
+  --color-coal-600: #3a322b;
+  --color-coal-500: #574a3f;
+
+  --color-smoke-400: #978878; /* tertiary text — only on coal-800 or darker */
+  --color-smoke-300: #b9ab9c; /* secondary text */
+  --color-smoke-200: #d6c9b8;
+
+  --color-cream-50: #fbf6ee;
+  --color-cream-100: #f3e9da; /* primary text */
+  --color-cream-200: #e8dac4;
+
+  --color-ember-200: #ffcaa3;
+  --color-ember-300: #ffa86e;
+  --color-ember-400: #ff8a45; /* primary accent */
+  --color-ember-500: #f26b1d;
+  --color-ember-600: #d4530f;
+  --color-ember-700: #a63f0b;
+  --color-ember-900: #3a1a0a;
+
+  --color-flame-300: #ffd98f;
+  --color-flame-400: #ffc65c; /* stars, highlights */
+
+  --color-zaatar-300: #c3d08f;
+  --color-zaatar-400: #a9bb70; /* vegetarian, success */
+  --color-zaatar-600: #6b7a3a;
+  --color-zaatar-900: #1f2412;
+
+  --color-chili-400: #ff6b5c; /* spicy, errors */
+  --color-chili-600: #c8372a;
+  --color-chili-900: #3a1411;
+
+  /* Typography */
+  --font-sans: var(--font-plex), "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-kufi), var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+
+  /* Elevation */
+  --shadow-card: 0 1px 0 0 rgb(243 233 218 / 0.04) inset, 0 18px 40px -24px rgb(0 0 0 / 0.8);
+  --shadow-lift: 0 1px 0 0 rgb(243 233 218 / 0.06) inset, 0 28px 60px -28px rgb(0 0 0 / 0.9);
+  --shadow-ember: 0 12px 32px -12px rgb(255 138 69 / 0.55);
+  --shadow-ember-lg: 0 20px 50px -16px rgb(255 120 50 / 0.6);
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-ember-flicker: ember-flicker 3.2s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-pop: pop 0.45s var(--ease-spring);
+
+  @keyframes ember-flicker {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    45% { opacity: 1; transform: scale(1.04); }
+    60% { opacity: 0.9; transform: scale(0.99); }
+  }
+  @keyframes shimmer {
+    from { background-position: 150% 0; }
+    to { background-position: -50% 0; }
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+}
+
+/* Semantic tokens (shadcn/ui naming) */
+:root {
+  color-scheme: dark;
+  --background: var(--color-coal-900);
+  --foreground: var(--color-cream-100);
+  --card: var(--color-coal-800);
+  --card-foreground: var(--color-cream-100);
+  --popover: var(--color-coal-800);
+  --popover-foreground: var(--color-cream-100);
+  --primary: var(--color-ember-400);
+  --primary-foreground: var(--color-coal-950);
+  --secondary: var(--color-coal-700);
+  --secondary-foreground: var(--color-cream-100);
+  --muted: var(--color-coal-800);
+  --muted-foreground: var(--color-smoke-300);
+  --accent: var(--color-coal-700);
+  --accent-foreground: var(--color-cream-100);
+  --destructive: var(--color-chili-400);
+  --success: var(--color-zaatar-400);
+  --border: rgb(243 233 218 / 0.09);
+  --border-strong: rgb(243 233 218 / 0.16);
+  --input: var(--color-coal-850);
+  --ring: var(--color-ember-400);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: 8rem;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    /* Arabic script needs taller lines than Latin. */
+    line-height: 1.7;
+    /* Smoke: two soft ember glows + very fine grain. */
+    background-image:
+      radial-gradient(60rem 30rem at 85% -10%, rgb(255 138 69 / 0.09), transparent 60%),
+      radial-gradient(40rem 24rem at -10% 10%, rgb(255 198 92 / 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+  html[lang="en"] body {
+    line-height: 1.6;
+  }
+  ::selection {
+    background: rgb(255 138 69 / 0.35);
+    color: var(--color-cream-50);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-balance;
+    line-height: 1.25;
+  }
+  /* Never letter-space Arabic: it breaks joining. Only Latin eyebrows use tracking. */
+  html[lang="ar"] .tracking-latin { letter-spacing: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Film-grain overlay for hero/cards: adds the "smoke" texture without images. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .text-ember-gradient {
+    background: linear-gradient(180deg, var(--color-flame-400), var(--color-ember-400) 55%, var(--color-ember-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hairline {
+    background: linear-gradient(90deg, transparent, rgb(243 233 218 / 0.14), transparent);
+    height: 1px;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Print: kitchen tickets (admin) */
+@media print {
+  @page { margin: 4mm; }
+  body { background: #fff !important; color: #000 !important; }
+}
