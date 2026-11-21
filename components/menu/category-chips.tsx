@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export interface ChipItem {
@@ -23,13 +23,26 @@ export function CategoryChips({
 }) {
   const [current, setCurrent] = useState(active ?? items[0]?.slug);
   const selected = active ?? current;
+  const navRef = useRef<HTMLElement>(null);
+  // Keep the active chip visible inside the horizontal bar (without moving the page).
+  useEffect(() => {
+    const nav = navRef.current;
+    const el = nav?.querySelector<HTMLElement>(`[data-slug="${selected}"]`);
+    if (!nav || !el) return;
+    const navBox = nav.getBoundingClientRect();
+    const box = el.getBoundingClientRect();
+    if (box.left < navBox.left || box.right > navBox.right) {
+      nav.scrollBy({ left: box.left - navBox.left - (navBox.width - box.width) / 2, behavior: "smooth" });
+    }
+  }, [selected]);
   return (
-    <nav aria-label={ariaLabel} className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 py-1">
+    <nav ref={navRef} aria-label={ariaLabel} className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 py-1">
       {items.map((it) => {
         const on = it.slug === selected;
         return (
           <button
             key={it.slug}
+            data-slug={it.slug}
             type="button"
             aria-current={on ? "true" : undefined}
             onClick={() => {

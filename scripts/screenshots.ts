@@ -16,8 +16,51 @@ interface Shot {
   prepare?: (page: Page) => Promise<void>;
 }
 
+/** Builds a realistic cart through the UI (doubles as a smoke test of the order flow). */
+async function fillCart(page: Page, base: string, prefix: string) {
+  await page.goto(`${base}${prefix}/menu/grilled-kofta`, { waitUntil: "domcontentloaded" });
+  await page.evaluate(() => localStorage.removeItem("fz-cart"));
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.locator("form button[type=submit]").waitFor();
+  await page.getByRole("radio").nth(1).click(); // ½ kg
+  await page.getByRole("checkbox").first().click(); // extra garlic sauce
+  await page.locator("form button[type=submit]").click();
+  await page.waitForURL(/\/menu$/);
+  await page.goto(`${base}${prefix}/menu/hummus`, { waitUntil: "domcontentloaded" });
+  await page.locator("form button[type=submit]").waitFor();
+  await page.locator("form button[type=submit]").click();
+  await page.waitForURL(/\/menu$/);
+  await page.goto(`${base}${prefix}/menu/lemon-mint`, { waitUntil: "domcontentloaded" });
+  await page.locator("form button[type=submit]").waitFor();
+  await page.getByRole("button", { name: /زوّد|Increase/ }).click(); // qty 2
+  await page.locator("form button[type=submit]").click();
+  await page.waitForURL(/\/menu$/);
+}
+
 const PHASES: Record<string, Shot[]> = {
   "1": [{ name: "style-guide", path: "/style-guide" }],
+  "2": [
+    { name: "home", path: "/" },
+    { name: "menu", path: "/menu" },
+    { name: "item-details", path: "/menu/grilled-kofta" },
+    {
+      name: "cart",
+      path: "/cart",
+      prepare: async (page) => {
+        const url = new URL(page.url());
+        const prefix = url.pathname.startsWith("/en") ? "/en" : "";
+        await fillCart(page, url.origin, prefix);
+        await page.goto(`${url.origin}${prefix}/cart`, { waitUntil: "domcontentloaded" });
+        await page.locator("#cart-zone").waitFor();
+        await page.locator("#cart-zone").selectOption({ index: 1 });
+        await page.locator("#promo").fill("WELCOME10");
+        await page.locator("#promo").press("Enter");
+        await page.getByText("WELCOME10", { exact: true }).first().waitFor();
+        await page.waitForTimeout(800);
+        await settle(page);
+      },
+    },
+  ],
 };
 
 const VIEWPORTS = {

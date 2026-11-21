@@ -211,6 +211,18 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+  /* Radix keeps invisible native inputs next to radios/checkboxes/switches for
+     form submission and translates them off-canvas; in RTL that translation
+     widens the page. Pin them to the viewport so they never cause overflow. */
+  button[role="radio"] + input[aria-hidden="true"],
+  button[role="checkbox"] + input[aria-hidden="true"],
+  button[role="switch"] + input[aria-hidden="true"] {
+    position: fixed !important;
+    inset: 0 auto auto 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    transform: none !important;
+  }
 }
 
 /* Print: kitchen tickets (admin) */

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { FoodImage } from "@/components/brand/food-image";
 import { Price } from "@/components/brand/price";
 import { cn } from "@/lib/utils";
@@ -26,17 +27,19 @@ export function DishCard({
   locale,
   action,
   priority = false,
+  href,
 }: {
   dish: DishCardData;
   locale: AppLocale;
   action?: ReactNode;
   priority?: boolean;
+  href?: string;
 }) {
   const t = useTranslations("common");
   return (
     <article
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:border-border-strong hover:shadow-lift",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:border-border-strong hover:shadow-lift has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ember-400",
         dish.isSoldOut && "opacity-70",
       )}
     >
@@ -63,14 +66,16 @@ export function DishCard({
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4 pt-1">
-        <h3 className="font-sans text-lg font-semibold leading-snug">{dish.name}</h3>
+        <h3 className="font-sans text-lg font-semibold leading-snug">
+          <CardLink href={href}>{dish.name}</CardLink>
+        </h3>
         <p className="line-clamp-2 text-sm leading-relaxed text-smoke-300">{dish.description}</p>
         <div className="mt-auto flex items-center justify-between gap-3 pt-2">
           <div className="flex items-baseline gap-1.5">
             {dish.hasSizes && <span className="text-xs text-smoke-300">{t("from")}</span>}
             <Price piasters={dish.pricePiasters} locale={locale} className="text-lg text-cream-50" />
           </div>
-          {action}
+          {action && <div className="relative z-10">{action}</div>}
         </div>
       </div>
     </article>
@@ -78,12 +83,22 @@ export function DishCard({
 }
 
 /** Compact row — mobile menu list. Photo on the inline-start side. */
-export function DishRow({ dish, locale, action }: { dish: DishCardData; locale: AppLocale; action?: ReactNode }) {
+export function DishRow({
+  dish,
+  locale,
+  action,
+  href,
+}: {
+  dish: DishCardData;
+  locale: AppLocale;
+  action?: ReactNode;
+  href?: string;
+}) {
   const t = useTranslations("common");
   return (
     <article
       className={cn(
-        "group relative flex gap-3.5 rounded-2xl border border-border bg-card/70 p-2.5 shadow-card transition-colors hover:border-border-strong",
+        "group relative flex gap-3.5 rounded-2xl border border-border bg-card/70 p-2.5 shadow-card transition-colors hover:border-border-strong has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ember-400",
         dish.isSoldOut && "opacity-70",
       )}
     >
@@ -99,7 +114,9 @@ export function DishRow({ dish, locale, action }: { dish: DishCardData; locale: 
         <div className="flex flex-wrap gap-1">
           <DishTags spicy={dish.isSpicy} vegetarian={dish.isVegetarian} bestSeller={dish.isBestSeller} />
         </div>
-        <h3 className="font-sans text-base font-semibold leading-snug">{dish.name}</h3>
+        <h3 className="font-sans text-base font-semibold leading-snug">
+          <CardLink href={href}>{dish.name}</CardLink>
+        </h3>
         <p className="line-clamp-2 text-[0.8rem] leading-relaxed text-smoke-300">{dish.description}</p>
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           {dish.isSoldOut ? (
@@ -110,9 +127,19 @@ export function DishRow({ dish, locale, action }: { dish: DishCardData; locale: 
               <Price piasters={dish.pricePiasters} locale={locale} className="text-cream-50" />
             </div>
           )}
-          {action}
+          {action && <div className="relative z-10">{action}</div>}
         </div>
       </div>
     </article>
+  );
+}
+
+/** Stretched link: the whole card is clickable while buttons inside stay separate controls. */
+function CardLink({ href, children }: { href?: string; children: ReactNode }) {
+  if (!href) return <>{children}</>;
+  return (
+    <Link href={href} className="outline-none after:absolute after:inset-0 after:z-[1] after:rounded-2xl after:content-['']">
+      {children}
+    </Link>
   );
 }

@@ -1,5 +1,6 @@
 import { ShoppingBag } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Price } from "@/components/brand/price";
 import type { AppLocale } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -11,13 +12,16 @@ export function CartBar({
   locale,
   className,
   floating = true,
+  href,
 }: {
   count: number;
   totalPiasters: number;
   locale: AppLocale;
   className?: string;
   floating?: boolean;
+  href?: string;
 }) {
+  const inner = "group flex h-16 w-full items-center gap-3 rounded-full bg-ember-400 bg-[linear-gradient(180deg,rgb(255_255_255/0.2),transparent_60%)] ps-2 pe-6 text-coal-950 shadow-ember-lg transition-transform active:scale-[0.98] md:w-96";
   const t = useTranslations("cart");
   return (
     <div
@@ -26,10 +30,7 @@ export function CartBar({
         className,
       )}
     >
-      <button
-        type="button"
-        className="group flex h-16 w-full items-center gap-3 rounded-full bg-ember-400 bg-[linear-gradient(180deg,rgb(255_255_255/0.2),transparent_60%)] ps-2 pe-6 text-coal-950 shadow-ember-lg transition-transform active:scale-[0.98] md:w-96"
-      >
+      <Wrapper href={href} className={inner}>
         <span className="relative grid size-12 place-items-center rounded-full bg-coal-950 text-ember-400">
           <ShoppingBag className="size-5" aria-hidden />
           <span className="tabular absolute -end-1 -top-1 grid min-w-6 place-items-center rounded-full border-2 border-ember-400 bg-cream-50 px-1 text-xs font-bold text-coal-950">
@@ -41,7 +42,18 @@ export function CartBar({
           <span className="text-xs font-medium text-coal-950/70">{t("items", { count })}</span>
         </span>
         <Price piasters={totalPiasters} locale={locale} className="ms-auto text-lg font-bold" />
-      </button>
+      </Wrapper>
     </div>
   );
+}
+
+function Wrapper({ href, className, children }: { href?: string; className: string; children: React.ReactNode }) {
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return <div className={className}>{children}</div>;
 }
