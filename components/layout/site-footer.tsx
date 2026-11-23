@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- tiny static brand mark */
 import { Clock, MapPin, Phone } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/brand/logo";
@@ -48,9 +49,22 @@ export async function SiteFooter({ settings, locale }: { settings: PublicSetting
         </div>
       </div>
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 pb-28 text-xs text-smoke-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 md:pb-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-smoke-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <span>{t("rights", { year: new Date().getFullYear() })}</span>
           <span>{t("madeWith")}</span>
+        </div>
+        <div className="mx-auto flex max-w-7xl items-center justify-center px-4 pb-28 sm:px-6 md:pb-8 lg:px-8">
+          <a
+            href="https://www.instagram.com/seenlab.sa"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 rounded-full border border-border-strong bg-coal-850 py-1.5 ps-1.5 pe-4 text-sm text-smoke-300 transition-colors hover:border-[#C0FF72]/60"
+          >
+            {/* Seen studio mark (from the Seen brand book: lime on black, letter-only at small sizes). */}
+            <img src="/brand/seen-mark.png" alt="" width={32} height={32} className="size-8 rounded-lg" />
+            {t("devBy")}
+            <span className="font-display text-base font-bold text-[#C0FF72]">{t("devName")}</span>
+          </a>
         </div>
       </div>
     </footer>

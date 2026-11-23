@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { setRequestLocale } from "next-intl/server";
+import { IntroSplash } from "@/components/intro/intro-splash";
 import { FloatingActions } from "@/components/layout/floating-actions";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -22,6 +23,7 @@ export default async function ShopLayout({
   const [menu, zones, settings] = await Promise.all([getMenu(), getZones(), getPublicSettings()]);
   return (
     <CatalogProvider menu={menu} zones={zones} settings={settings}>
+      <IntroSplash />
       <SiteHeader />
       <main id="main" className="min-h-[60vh]">
         {children}

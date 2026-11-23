@@ -60,6 +60,14 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`${plex.variable} ${kufi.variable}`}>
+      <head>
+        {/* Decide before first paint whether to play the intro (once per session, never for reduced motion). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var f=location.search.indexOf("intro=1")>-1;if(!f&&(sessionStorage.getItem("fz-intro-seen")||matchMedia("(prefers-reduced-motion: reduce)").matches||navigator.webdriver)){document.documentElement.dataset.intro="skip"}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-dvh">
         <a
           href="#main"

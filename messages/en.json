@@ -226,7 +226,9 @@
     "contact": "Contact",
     "explore": "Explore",
     "rights": "© {year} Fahm & Zaatar. All rights reserved.",
-    "madeWith": "Made with love and charcoal in New Cairo"
+    "madeWith": "Made with love and charcoal in New Cairo",
+    "devBy": "Developed by",
+    "devName": "Seen"
   },
   "whatsappMessage": "Hi Fahm & Zaatar 👋 I'd like to place an order",
   "notFound": {
@@ -604,5 +606,11 @@
       "vsPrev": "vs previous period"
     },
     "forbidden": "This page isn't part of your role"
+  },
+  "intro": {
+    "tagline": "Off the charcoal, the way we love it",
+    "devBy": "Developed by",
+    "devName": "Seen",
+    "skip": "Skip"
   }
 }

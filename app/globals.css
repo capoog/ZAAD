@@ -225,6 +225,28 @@
   }
 }
 
+/* Intro splash ------------------------------------------------------------ */
+html[data-intro="skip"] .fz-intro { display: none; }
+html { --fz-origin: right; }
+html[dir="ltr"] { --fz-origin: left; }
+.fz-intro-glow { animation: fz-glow 2.6s ease-out both; }
+.fz-intro-mark { animation: fz-ignite 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both, ember-flicker 1.6s ease-in-out 1.2s infinite; }
+.fz-intro-word { animation: fz-wipe 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both; }
+.fz-intro-tag { animation: fz-rise 0.7s ease-out 1.15s both; }
+.fz-intro-credit { animation: fz-rise 0.7s ease-out 1.35s both; }
+.fz-intro-progress { animation: fz-progress 2.6s linear both; }
+.fz-ember { opacity: 0; animation-name: fz-ember; animation-timing-function: ease-out; animation-iteration-count: infinite; box-shadow: 0 0 6px 1px rgb(255 160 70 / 0.8); }
+.fz-intro-leave { animation: fz-curtain 0.7s cubic-bezier(0.7, 0, 0.3, 1) both; }
+@keyframes fz-glow { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes fz-ignite { from { opacity: 0; transform: translateY(18px) scale(0.4); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes fz-wipe { from { clip-path: inset(0 0 0 100%); opacity: 0.2; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+html[dir="ltr"] .fz-intro-word { animation-name: fz-wipe-ltr; }
+@keyframes fz-wipe-ltr { from { clip-path: inset(0 100% 0 0); opacity: 0.2; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+@keyframes fz-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fz-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes fz-ember { 0% { opacity: 0; transform: translateY(0) scale(1); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-75vh) translateX(20px) scale(0.3); } }
+@keyframes fz-curtain { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 100% 0); } }
+
 /* Print: kitchen tickets (admin) */
 @media print {
   @page { margin: 0; size: 80mm auto; }

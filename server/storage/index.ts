@@ -14,7 +14,7 @@ export interface Storage {
   url(bucket: Bucket, key: string): string;
 }
 
-const LOCAL_ROOT = path.resolve(".data", "uploads");
+const LOCAL_ROOT = path.resolve(process.env.UPLOADS_DIR || path.join(".data", "uploads"));
 const TYPES: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", avif: "image/avif", heic: "image/heic", svg: "image/svg+xml" };
 
 function safeKey(key: string): string {

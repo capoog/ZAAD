@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Embedded Postgres (WASM) must not be bundled.
   serverExternalPackages: ["@electric-sql/pglite"],
+  // Migrations are read at runtime by the embedded database; ship them (and PGlite's WASM) with the functions.
+  outputFileTracingIncludes: {
+    "/**": ["./supabase/**/*.sql", "./node_modules/@electric-sql/pglite/dist/**/*"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [390, 640, 828, 1080, 1440, 1920],

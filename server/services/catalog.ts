@@ -14,6 +14,16 @@ import type {
   Zone,
 } from "@/types/catalog";
 
+/**
+ * Server-side cache. Skipped for the embedded (PGlite) database: on serverless
+ * hosts each instance has its own throw-away copy, so a shared cache could
+ * serve IDs that don't exist in this instance.
+ */
+function cached<T>(fn: () => Promise<T>, key: string[], opts: { tags: string[]; revalidate: number }): () => Promise<T> {
+  if (!process.env.DATABASE_URL) return fn;
+  return unstable_cache(fn, key, opts);
+}
+
 export const CACHE_TAGS = { menu: "menu", settings: "settings", zones: "zones", offers: "offers", reviews: "reviews" } as const;
 
 // ── Settings (validated: the DB stores jsonb) ─────────────────────────────────
@@ -74,7 +84,7 @@ async function loadSettings(): Promise<PublicSettings> {
   };
 }
 
-export const getPublicSettings = unstable_cache(loadSettings, ["public-settings"], {
+export const getPublicSettings = cached(loadSettings, ["public-settings"], {
   tags: [CACHE_TAGS.settings],
   revalidate: 300,
 });
@@ -148,7 +158,7 @@ async function loadMenu(includeInactive = false): Promise<MenuCategory[]> {
     }));
 }
 
-export const getMenu = unstable_cache(() => loadMenu(false), ["menu"], { tags: [CACHE_TAGS.menu], revalidate: 300 });
+export const getMenu = cached(() => loadMenu(false), ["menu"], { tags: [CACHE_TAGS.menu], revalidate: 300 });
 
 /** Uncached, includes hidden items — for the admin and for pricing orders. */
 export const getMenuFresh = (includeInactive = true) => loadMenu(includeInactive);
@@ -163,7 +173,7 @@ export function displayPrice(item: Pick<MenuItem, "sizes" | "basePricePiasters">
 }
 
 // ── Zones, offers, reviews ──────────────────────────────────────────────────
-export const getZones = unstable_cache(
+export const getZones = cached(
   async (): Promise<Zone[]> => {
     const db = await getDb();
     const rows = await db
@@ -186,7 +196,7 @@ export const getZones = unstable_cache(
   { tags: [CACHE_TAGS.zones], revalidate: 300 },
 );
 
-export const getOffers = unstable_cache(
+export const getOffers = cached(
   async (): Promise<Offer[]> => {
     const db = await getDb();
     const now = new Date();
@@ -216,7 +226,7 @@ export const getOffers = unstable_cache(
   { tags: [CACHE_TAGS.offers], revalidate: 300 },
 );
 
-export const getReviews = unstable_cache(
+export const getReviews = cached(
   async (): Promise<{ reviews: Review[]; average: number; count: number }> => {
     const db = await getDb();
     const rows = await db
