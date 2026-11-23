@@ -452,7 +452,9 @@
       "items": "{count} صنف",
       "notes": "ملاحظات",
       "myDeliveries": "توصيلاتي",
-      "live": "مباشر"
+      "live": "مباشر",
+      "agoHours": "من {h} ساعة",
+      "agoDays": "من {d} يوم"
     },
     "ticket": {
       "title": "تيكت المطبخ",

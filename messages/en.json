@@ -452,7 +452,9 @@
       "items": "{count} items",
       "notes": "Notes",
       "myDeliveries": "My deliveries",
-      "live": "Live"
+      "live": "Live",
+      "agoHours": "{h}h ago",
+      "agoDays": "{d}d ago"
     },
     "ticket": {
       "title": "Kitchen ticket",

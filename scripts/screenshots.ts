@@ -54,6 +54,28 @@ async function fillCheckout(page: Page) {
   }
 }
 
+async function staffLogin(page: Page) {
+  const url = new URL(page.url());
+  if (!url.pathname.includes("/admin/login")) return;
+  await page.fill("#email", "owner@fahmzaatar.test");
+  await page.fill("#password", "FahmZaatar@2026");
+  await page.locator("form button[type=submit]").click();
+  await page.waitForURL(/\/admin\/orders/, { timeout: 20000 });
+}
+
+/** Log in if needed, then (re)open the target admin page. */
+const adminShot = (name: string, target: string): Shot => ({
+  name,
+  path: target,
+  prepare: async (page) => {
+    const prefix = new URL(page.url()).pathname.startsWith("/en") ? "/en" : "";
+    await staffLogin(page);
+    const origin = new URL(page.url()).origin;
+    await page.goto(`${origin}${prefix}${target}`, { waitUntil: "domcontentloaded" });
+    await settle(page);
+  },
+});
+
 const PHASES: Record<string, Shot[]> = {
   "1": [{ name: "style-guide", path: "/style-guide" }],
   "2": [
@@ -106,6 +128,13 @@ const PHASES: Record<string, Shot[]> = {
         await settle(page);
       },
     },
+  ],
+  "4": [
+    adminShot("admin-orders-board", "/admin/orders"),
+    adminShot("admin-menu", "/admin/menu"),
+    adminShot("admin-analytics", "/admin/analytics"),
+    adminShot("admin-instapay", "/admin/instapay"),
+    adminShot("admin-settings", "/admin/settings"),
   ],
 };
 

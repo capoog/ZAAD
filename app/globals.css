@@ -227,6 +227,9 @@
 
 /* Print: kitchen tickets (admin) */
 @media print {
-  @page { margin: 4mm; }
+  @page { margin: 0; size: 80mm auto; }
   body { background: #fff !important; color: #000 !important; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; inset: 0 auto auto 0; }
 }
