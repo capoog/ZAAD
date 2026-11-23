@@ -10,6 +10,7 @@ import { DishTags } from "@/components/menu/dish-tags";
 import { ItemOptions } from "@/components/menu/item-options";
 import { Link } from "@/i18n/navigation";
 import { minPrice, toDishCard } from "@/lib/dish";
+import { alternatesFor } from "@/lib/seo/site";
 import { getMenu } from "@/server/services/catalog";
 
 async function findItem(slug: string) {
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: name,
     description,
+    alternates: alternatesFor(`/menu/${slug}`, locale),
     openGraph: { title: name, description, images: item.imageUrl?.startsWith("http") ? [item.imageUrl] : undefined },
   };
 }

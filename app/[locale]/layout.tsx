@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ServiceWorkerRegister } from "@/components/common/sw-register";
 import { Toaster } from "@/components/ui/sonner";
+import { alternatesFor, SITE_URL } from "@/lib/seo/site";
 import { routing } from "@/i18n/routing";
 import { kufi, plex } from "@/lib/fonts";
 
@@ -15,9 +17,24 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
   return {
+    metadataBase: new URL(SITE_URL),
     title: { default: t("title"), template: `%s | ${t("short")}` },
     description: t("description"),
-    icons: { icon: "/brand/app-icon.svg", apple: "/brand/app-icon.svg" },
+    applicationName: t("short"),
+    alternates: alternatesFor("/", locale),
+    icons: { icon: [{ url: "/brand/app-icon.svg", type: "image/svg+xml" }, { url: "/icon.png", sizes: "48x48" }], apple: "/brand/apple-touch-icon.png" },
+    appleWebApp: { capable: true, title: t("short"), statusBarStyle: "black-translucent" },
+    formatDetection: { telephone: false },
+    openGraph: {
+      type: "website",
+      siteName: t("short"),
+      title: t("title"),
+      description: t("description"),
+      locale: locale === "ar" ? "ar_EG" : "en_US",
+      alternateLocale: locale === "ar" ? "en_US" : "ar_EG",
+      images: [{ url: "/og.jpg", width: 1200, height: 630, alt: t("short") }],
+    },
+    twitter: { card: "summary_large_image", title: t("title"), description: t("description"), images: ["/og.jpg"] },
   };
 }
 
@@ -53,6 +70,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           {children}
           <Toaster dir={locale === "ar" ? "rtl" : "ltr"} />
+          <ServiceWorkerRegister />
         </NextIntlClientProvider>
       </body>
     </html>

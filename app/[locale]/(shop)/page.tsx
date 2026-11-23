@@ -6,6 +6,7 @@ import { Location } from "@/components/home/location";
 import { Offers } from "@/components/home/offers";
 import { Reviews } from "@/components/home/reviews";
 import { Why } from "@/components/home/why";
+import { jsonLdString, restaurantJsonLd } from "@/lib/seo/jsonld";
 import { getMenu, getOffers, getPublicSettings, getReviews, getZones } from "@/server/services/catalog";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -23,6 +24,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(restaurantJsonLd(settings, locale, reviews)) }} />
       <Hero settings={settings} zones={zones} locale={locale} />
       <CategoryRail menu={menu} locale={locale} />
       <Featured items={featured} locale={locale} />

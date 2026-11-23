@@ -15,7 +15,9 @@
     "db:verify": "tsx scripts/verify-db.ts",
     "brand:logo": "node scripts/build-logo.mjs",
     "brand:art": "node scripts/build-art.mjs",
-    "screenshots": "tsx scripts/screenshots.ts"
+    "screenshots": "tsx scripts/screenshots.ts",
+    "test:e2e": "next build && playwright test --trace off",
+    "brand:icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.17",
